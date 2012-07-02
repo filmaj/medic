@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# IP or hostname of this server (where server.js, a node server, will be
+# running)
+SERVER="192.168.1.128"
