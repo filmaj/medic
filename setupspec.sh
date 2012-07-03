@@ -24,6 +24,6 @@ cp -f $PWD/src/junit-reporter.js $MOBILE_SPEC_DIR/.
 # drop in the junit xml reporter
 sed -i '' -e "s/<script type=.text.javascript. src=.\.\..html.TrivialReporter\.js.><.script>/<script type=\"text\/javascript\" src=\"..\/html\/TrivialReporter.js\"><\/script><script type=\"text\/javascript\" src=\"..\/..\/junit-reporter.js\"><\/script>/g" $ALL_TESTS
 # hook in junit into reporter
-sed -i '' -e "s/jasmine.HtmlReporter.../jasmine.HtmlReporter(); var jr = new jasmine.JUnitXmlReporter('$SERVER');/g" $ALL_TESTS
+sed -i '' -e "s/jasmine.HtmlReporter.../jasmine.HtmlReporter(); var jr = new jasmine.JUnitXmlReporter('$SERVER:$PORT');/g" $ALL_TESTS
 sed -i '' -e "s/addReporter.htmlReporter../addReporter(htmlReporter);jasmineEnv.addReporter(jr);/g" $ALL_TESTS
 

@@ -145,7 +145,7 @@
 
     postTests: function(xml, cb) {
       var xhr = new xhrRequest();
-      xhr.open("POST", this.server + '/results', true);
+      xhr.open("POST", 'http://' + this.server + '/results', true);
       xhr.onreadystatechange=function() {
         if (xhr.readyState==4) {
           cb();

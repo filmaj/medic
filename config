@@ -1,5 +1,12 @@
 #!/bin/sh
 
-# IP or hostname of this server (where server.js, a node server, will be
-# running)
+# IP or hostname of this server (where server.js, a node server, will be running)
 SERVER="192.168.1.128"
+# Server port
+PORT=8088
+# source location for the cordova-android repository
+ANDROID_REPO=/Users/fil/src/incubator-cordova-android
+# location of the android sdk
+ANDROID_SDK=/Users/fil/SDKs/android-sdk-macosx
+# location of Jenkins workspace
+JENKINS_WORKSPACE=/Users/Shared/Jenkins/Home/workspace
