@@ -1,8 +1,9 @@
 var http   = require('http'),
     url    = require('url'),
+    path   = require('path'),
     config = require('./config'),
     shell  = require('shelljs'),
-    create_mobile-spec_app = require('./src/create_mobile-spec_app'),
+    create_mobile_spec_app = require('./src/create_mobile_spec_app'),
     updater= require('./src/updater');
 
 // are we running a build?
@@ -21,14 +22,16 @@ http.createServer(function (req, res) {
                 // TODO: do something with body
                 res.writeHead(200);
                 res.end();
+                console.log('Got a POST with some content in it.');
             });
         }
     } else if (req.method.toLowerCase() == 'get') {
         if (route == 'go') {
+            console.log('Triggering a build.');
             // Update our libraries
             updater();
             // Put together mobile-spec app
-            create_mobile-spec_app(mobile_spec_build_path);
+            create_mobile_spec_app(mobile_spec_build_path);
             // TODO: trigger a build
             building = true;
         }
