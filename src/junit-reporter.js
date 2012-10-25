@@ -102,14 +102,6 @@
     },
 
     reportRunnerResults: function(runner) {
-      var counter = 0;
-      var counting = true;
-      var cb = function() {
-          counter--;
-          if (!counting && counter === 0) {
-            document.title = 'done';
-          }
-        };
       var suites = runner.suites();
       for (var i = 0; i < suites.length; i++) {
         var suite = suites[i];
@@ -122,17 +114,13 @@
           output += '\n<testsuites name="' + device.name + ' (' + device.platform + ' ' + device.version + ')">';
           output += this.getNestedOutput(suite);
           output += "\n</testsuites>";
-          counter++;
-          this.postTests(output, cb);
         } else {
           output += suite.output;
-          counter++;
-          this.postTests(output, cb);
         }
       }
-      counting = false;
       // When all done, make it known on JUnitXmlReporter
       JUnitXmlReporter.finished_at = (new Date()).getTime();
+      this.postTests(output);
     },
 
     getNestedOutput: function(suite) {
@@ -143,12 +131,12 @@
       return output;
     },
 
-    postTests: function(xml, cb) {
+    postTests: function(xml) {
       var xhr = new xhrRequest();
       xhr.open("POST", 'http://' + this.server + '/results', true);
       xhr.onreadystatechange=function() {
         if (xhr.readyState==4) {
-          cb();
+            window.close();
         }
       };
       xhr.send(xml);

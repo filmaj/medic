@@ -1,21 +1,28 @@
-var http = require('http');
+var http   = require('http'),
+    url    = require('url'),
+    config = require('./config');
 
-// TODO: Read config file
-// - get write location
-// - get server port
+// are we running a build?
+var building = false;
 
 http.createServer(function (req, res) {
-  if (req.method.toLowerCase() == 'post') {
-    if (req.url == 'results') {
-      // TODO: extract HTTP POST data
-      // TODO: write out POST data as xml file to jenkins
-      // workspace
-      res.writeHead(200, "OK", {'Content-Type': 'text/html'});
-      res.end('<html><head><title>k</title></head><body><h1>thx dude</h1></body></html>');
-    } else {
-      res.writeHead(404, "Not found", {'Content-Type': 'text/html'});
-      res.end('<html><head><title>404 - Not found</title></head><body><h1>Not found.</h1></body></html>');
-      console.log("[404] " + req.method + " to " + req.url);
+    var route = url.parse(req.url).pathname.substr(1);
+    if (req.method.toLowerCase() == 'post') {
+        if (building) {
+            var body = '';
+            req.on('data', function(chunk) { body += chunk; });
+            req.on('end', function() {
+                // TODO: do something with body
+                res.writeHead(200);
+                res.end();
+            });
+        }
+    } else if (req.method.toLowerCase() == 'get') {
+        if (route == 'go') {
+            // TODO: trigger a build
+            building = true;
+        }
+        res.writeHead(200);
+        res.end();
     }
-  }
-}).listen(8080);
+}).listen(config.port);
