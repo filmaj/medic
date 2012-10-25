@@ -4,33 +4,26 @@ continuous integration setup for Apache Cordova
 
 ## Getting Started
 
-1. Customize the parameters laid out in the `./config` file in this
+1. Customize the parameters laid out in the `./config.json` file in this
    directory.
-2. Inside Jenkins, create a job for each platform. In each job's
-   configuration, add a shell script build action composed of the
-   following:
-        
-        sh /path/to/medic/setupspec.sh
-        sh /path/to/medic/<platform>/jenkins.sh
-
-3. In each job's configuration, add a post-build action "Publish
-   JUnit test result report" and specify `**/*.xml` as the Test report
-   XMLs field.
-4. Run the bundled node server via `node server.js`. Make sure you have
-   all of the dependencies installed by running `npm install` first.
+2. `node server.js`
+3. Make a GET request to http://yourserver/go
 
 ## Contents
 
-- Small node.js server that aggregates Jasmine test results
-- Shell script (`./setupspec.sh`) that modifies [mobile-spec](http://github.com/apache/incubator-cordova-mobile-spec) to POST results to above node server
+- Small node.js server that aggregates (*cough* logs out) Jasmine test results
+- script (`./src/create_mobile_spec_app.js`) that modifies [mobile-spec](http://github.com/apache/incubator-cordova-mobile-spec) to POST results to above node server
    - injects jasmine reporter that creates JUnit XML test result output
+- iterates through the `./src/makers` scripts to create Cordova apps for each platform based on the modified mobile-spec app made above, then deploys to any connected devices
 
 ## Supported Platforms
 
 - Android
 
-### Android
+## TODO
 
-- Jenkins-compatible shell script that
-  - modifies the Android test project's domain whitelist
-  - launches tests on connected Android devices
+- iOS
+- show the results in a meaningful way
+- queue of builds
+- better error handling (what if create / debug scripts die? etc)
+- tests?
