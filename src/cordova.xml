@@ -1,9 +1,0 @@
-<cordova>
-    <access origin="http://127.0.0.1*"/>
-    <access origin="http://audio.ibeat.org*" />
-    <access origin="http://cordova-filetransfer.jitsu.com*" />
-    <access origin="apache.org*" subdomains="true" />
-    <access origin="httpssss://example.com*" />
-    <log level="DEBUG"/>
-    <preference name="useBrowserHistory" value="true" />
-</cordova>
