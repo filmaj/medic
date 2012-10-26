@@ -103,15 +103,17 @@
 
     reportRunnerResults: function(runner) {
       var suites = runner.suites();
+      var output = '<?xml version="1.0" encoding="UTF-8" ?>\n';
+      output += '<device platform="' + device.platform + '" version="' + device.version + '">' + device.name + '</device>\n';
+      output += '<mobilespec>' + mobile_spec_sha + '</mobilespec>\n';
+      output += '<library>' + library_sha + '</library>\n';
       for (var i = 0; i < suites.length; i++) {
         var suite = suites[i];
-        var fileName = 'TEST-' + this.getFullName(suite, true) + '.xml';
-        var output = '<?xml version="1.0" encoding="UTF-8" ?>';
         // if we are consolidating, only write out top-level suites
         if (this.consolidate && suite.parentSuite) {
           continue;
         } else if (this.consolidate) {
-          output += '\n<testsuites name="' + device.name + ' (' + device.platform + ' ' + device.version + ')">';
+          output += '\n<testsuites>';
           output += this.getNestedOutput(suite);
           output += "\n</testsuites>";
         } else {
@@ -132,7 +134,7 @@
     },
 
     postTests: function(xml) {
-      var xhr = new xhrRequest();
+      var xhr = new XMLHttpRequest();
       xhr.open("POST", 'http://' + this.server + '/results', true);
       xhr.onreadystatechange=function() {
         if (xhr.readyState==4) {

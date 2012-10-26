@@ -4,7 +4,7 @@ var http   = require('http'),
     config = require('./config'),
     shell  = require('shelljs'),
     create_mobile_spec_app = require('./src/create_mobile_spec_app'),
-    android= require('./src/makers/android'),
+    android_build= require('./src/makers/android'),
     updater= require('./src/updater');
 
 // are we running a build?
@@ -23,9 +23,9 @@ http.createServer(function (req, res) {
             req.on('end', function() {
                 res.writeHead(200);
                 res.end();
-                console.log('Got a POST with some content in it, snippet to follow.');
+                console.log('Got a POST (size: ' + body.length + ') in it, snippet to follow.');
                 console.log('*************************');
-                console.log(body.substring(0,100));
+                console.log(body);
                 console.log('*************************');
                 // TODO: parse content and report results in a nice way that is useful to us lazy fkers
             });
@@ -38,7 +38,7 @@ http.createServer(function (req, res) {
             // Put together mobile-spec app
             create_mobile_spec_app(mobile_spec_build_path);
             // TODO: trigger builds
-            android(android_path);
+            android_build(android_path);
             building = true;
         }
         res.writeHead(200);
