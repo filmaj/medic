@@ -39,9 +39,7 @@ http.createServer(function (req, res) {
                 var resultsDir = path.join(posts, platform, version, name);
                 shell.mkdir('-p', resultsDir);
                 var xmlOutput = path.join(resultsDir, lib_sha + '.xml');
-                if (!fs.existsSync(xmlOutput)) {
-                    fs.writeFileSync(xmlOutput, body, 'utf-8');
-                }
+                fs.writeFileSync(xmlOutput, body, 'utf-8');
             });
         }
     } else if (req.method.toLowerCase() == 'get') {
