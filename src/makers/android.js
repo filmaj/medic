@@ -30,8 +30,8 @@ module.exports = function(output) {
 
     // compile
     console.log('Compiling Android app.');
-    var debug = path.join(output, 'cordova', 'debug');
-    var compile = shell.exec(debug, {silent:true});
+    var ant = 'cd ' + output + ' && ant clean && ant debug';
+    var compile = shell.exec(ant, {silent:true});
     if (compile.code > 0) throw ('Failed to compile Android application. ' + compile.output);
 
     // get list of connected devices
