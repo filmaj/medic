@@ -44,8 +44,12 @@ module.exports = function(output) {
     // deploy and run on each device
     if (devices.length > 0) {
         devices.forEach(function(d) {
+            console.log('Uninstall app first just in case on device ' + d);
+            var cmd = 'adb -s ' + d + ' uninstall org.apache.cordova.example';
+            var uninstall = shell.exec(cmd, {silent:true});
+            if (uninstall.code > 0) throw ('Failed to uninstall Android app on device ' + d + '.');
             console.log('Installing app on Android device ' + d);
-            var cmd = 'adb -s ' + d + ' install -r ' + path.join(output, 'bin', 'cordovaExample-debug.apk');
+            cmd = 'adb -s ' + d + ' install -r ' + path.join(output, 'bin', 'cordovaExample-debug.apk');
             var install = shell.exec(cmd, {silent:true});
             if (install.code > 0) throw ('Failed to install Android app to device ' + d + '.');
 
