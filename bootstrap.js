@@ -5,6 +5,7 @@ var shell = require('shelljs'),
 var libs = ['incubator-cordova-android', 'incubator-cordova-mobile-spec'];
 
 var libDir = path.join(__dirname, 'lib');
+shell.mkdir('-p', libDir);
 
 var contents = fs.readdirSync(libDir);
 
