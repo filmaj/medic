@@ -8,7 +8,8 @@
         "install":"node bootstrap.js"
     },
     "dependencies":{
-        "shelljs":"0.0.8"
+        "shelljs":"0.0.8",
+        "elementtree":"0.1.4"
     },
     "devDependencies":{
         "jasmine-node":">=1.0.0"

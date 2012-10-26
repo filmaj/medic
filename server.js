@@ -3,6 +3,8 @@ var http   = require('http'),
     path   = require('path'),
     config = require('./config'),
     shell  = require('shelljs'),
+    fs     = require('fs'),
+    et     = require('elementtree'),
     create_mobile_spec_app = require('./src/create_mobile_spec_app'),
     android_build= require('./src/makers/android'),
     updater= require('./src/updater');
@@ -13,6 +15,8 @@ var building = false;
 var mobile_spec_build_path = path.join(__dirname, 'temp', 'mobspecapp');
 // where we store generated android app
 var android_path = path.join(__dirname, 'temp', 'android');
+// where we keep test results
+var posts = path.join(__dirname, 'posts');
 
 http.createServer(function (req, res) {
     var route = url.parse(req.url).pathname.substr(1);
@@ -23,15 +27,27 @@ http.createServer(function (req, res) {
             req.on('end', function() {
                 res.writeHead(200);
                 res.end();
-                console.log('Got a POST (size: ' + body.length + ') in it, snippet to follow.');
-                console.log('*************************');
-                console.log(body);
-                console.log('*************************');
-                // TODO: parse content and report results in a nice way that is useful to us lazy fkers
+                // Get device + library info from the post
+                var doc = new et.ElementTree(et.XML(body));
+                console.log(doc);
+                var deviceEl = doc.find('device');
+                console.log(deviceEl);
+                var platform = deviceEl.attrib.platform;
+                var version = deviceEl.attrib.version;
+                var name = deviceEl.text;
+                var lib_sha = doc.find('library').text;
+                var resultsDir = path.join(posts, platform, version, name);
+                shell.mkdir('-p', resultsDir);
+                var xmlOutput = path.join(resultsDir, lib_sha + '.xml');
+                if (!fs.existsSync(xmlOutput)) {
+                    fs.writeFileSync(xmlOutput, body, 'utf-8');
+                }
             });
         }
     } else if (req.method.toLowerCase() == 'get') {
         if (route == 'go') {
+            res.writeHead(200);
+            res.end();
             console.log('Triggering a build.');
             // Update our libraries
             updater();
@@ -40,8 +56,9 @@ http.createServer(function (req, res) {
             // TODO: trigger builds
             android_build(android_path);
             building = true;
+            return;
         }
-        res.writeHead(200);
-        res.end();
     }
+    res.writeHead(200);
+    res.end();
 }).listen(config.port);

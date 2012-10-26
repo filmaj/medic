@@ -104,6 +104,7 @@
     reportRunnerResults: function(runner) {
       var suites = runner.suites();
       var output = '<?xml version="1.0" encoding="UTF-8" ?>\n';
+      output += '<medic>\n';
       output += '<device platform="' + device.platform + '" version="' + device.version + '">' + device.name + '</device>\n';
       output += '<mobilespec>' + mobile_spec_sha + '</mobilespec>\n';
       output += '<library>' + library_sha + '</library>\n';
@@ -120,6 +121,7 @@
           output += suite.output;
         }
       }
+      output += '</medic>';
       // When all done, make it known on JUnitXmlReporter
       JUnitXmlReporter.finished_at = (new Date()).getTime();
       this.postTests(output);
