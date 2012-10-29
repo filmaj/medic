@@ -9,7 +9,8 @@
     },
     "dependencies":{
         "shelljs":"0.0.8",
-        "elementtree":"0.1.4"
+        "elementtree":"0.1.4",
+        "fruitstrap":"git://github.com/filmaj/fruitstrap.git"
     },
     "devDependencies":{
         "jasmine-node":">=1.0.0"
