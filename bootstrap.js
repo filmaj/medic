@@ -18,16 +18,3 @@ libs.forEach(function(lib) {
         shell.exec(cmd, {silent:true});
     }
 });
-
-// Build fruitstrap
-var cmd = 'cd ./node_modules/fruitstrap && make fruitstrap';
-var make = shell.exec(cmd, {silent:true});
-if (make.code > 0) {
-    console.log('There was an error building fruitstrap. You will not be able to deploy to iOS devices. Suggest you run:');
-    console.log('    cd node_modules/fruitstrap');
-    console.log('    make fruitstrap');
-    console.log('..and fix that if you want to get this to run.');
-} else {
-    console.log('fruitstrap built successfully.');
-}
-
