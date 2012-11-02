@@ -7,14 +7,16 @@ var http   = require('http'),
     et     = require('elementtree'),
     create_mobile_spec_app = require('./src/create_mobile_spec_app'),
     android_build= require('./src/makers/android'),
+    ios_build= require('./src/makers/ios'),
     updater= require('./src/updater');
 
 // are we running a build?
 var building = false;
 // where we store modified versions of mobile-spec
 var mobile_spec_build_path = path.join(__dirname, 'temp', 'mobspecapp');
-// where we store generated android app
+// where we store generated apps
 var android_path = path.join(__dirname, 'temp', 'android');
+var ios_path = path.join(__dirname, 'temp', 'ios');
 // where we keep test results
 var posts = path.join(__dirname, 'posts');
 
@@ -29,16 +31,14 @@ http.createServer(function (req, res) {
                 res.end();
                 // Get device + library info from the post
                 var doc = new et.ElementTree(et.XML(body));
-                console.log(doc);
                 var deviceEl = doc.find('device');
-                console.log(deviceEl);
                 var platform = deviceEl.attrib.platform;
                 var version = deviceEl.attrib.version;
                 var name = deviceEl.text;
                 var lib_sha = doc.find('library').text;
-                var resultsDir = path.join(posts, platform, version, name);
+                var resultsDir = path.join(posts, platform, lib_sha, version);
                 shell.mkdir('-p', resultsDir);
-                var xmlOutput = path.join(resultsDir, lib_sha + '.xml');
+                var xmlOutput = path.join(resultsDir, name + '_' + uuid + '.xml');
                 fs.writeFileSync(xmlOutput, body, 'utf-8');
             });
         }
@@ -52,7 +52,8 @@ http.createServer(function (req, res) {
             // Put together mobile-spec app
             create_mobile_spec_app(mobile_spec_build_path);
             // TODO: trigger builds
-            android_build(android_path);
+            //android_build(android_path);
+            ios_build(ios_path);
             building = true;
             return;
         }

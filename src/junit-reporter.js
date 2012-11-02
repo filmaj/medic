@@ -105,7 +105,7 @@
       var suites = runner.suites();
       var output = '<?xml version="1.0" encoding="UTF-8" ?>\n';
       output += '<medic>\n';
-      output += '<device platform="' + device.platform + '" version="' + device.version + '">' + device.name + '</device>\n';
+      output += '<device platform="' + device.platform + '" version="' + device.version + '" uuid="' + device.uuid  + '">' + device.name + '</device>\n';
       output += '<mobilespec>' + mobile_spec_sha + '</mobilespec>\n';
       output += '<library>' + library_sha + '</library>\n';
       for (var i = 0; i < suites.length; i++) {
@@ -140,7 +140,7 @@
       xhr.open("POST", 'http://' + this.server + '/results', true);
       xhr.onreadystatechange=function() {
         if (xhr.readyState==4) {
-            window.close();
+            console.log('>>> DONE <<<');
         }
       };
       xhr.send(xml);

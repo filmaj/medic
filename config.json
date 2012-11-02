@@ -1,6 +1,4 @@
 {
     "server":"10.0.1.155",
-    "port":"8088",
-    "androidSdk":"/Users/fil/SDKs/android-sdk-macosx",
-    "jenkinsWorkspace":"/Users/Shared/Jenkins/Home/workspace"
+    "port":"8088"
 }
