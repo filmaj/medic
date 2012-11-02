@@ -19,7 +19,7 @@ function deploy(devices, bundlePath, bundleId) {
             console.log('Uninstall app first just in case on device ' + d);
             var cmd = listdevices + ' uninstall --id=' + d + ' --bundle-id=org.apache.cordova.example';
             var uninstall = shell.exec(cmd, {silent:true});
-            if (uninstall.code > 0) throw ('Failed to uninstall iOS app on device ' + d + '.\n*********STACK TRACE*********\n' + uninstall.output);
+            if (uninstall.code > 0) console.log('Failed to uninstall iOS app on device ' + d + ', continuing');
             console.log('Installing and running app on iOS device ' + d);
             var args = ['--id=' + d, '--bundle=' + bundlePath, '--debug'];
             var buf = '';

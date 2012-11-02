@@ -20,6 +20,11 @@ var ios_path = path.join(__dirname, 'temp', 'ios');
 // where we keep test results
 var posts = path.join(__dirname, 'posts');
 
+// map of plastform names for sanity sake
+var platformMap = {
+    'ipod touch':'iOS'
+};
+
 http.createServer(function (req, res) {
     var route = url.parse(req.url).pathname.substr(1);
     if (req.method.toLowerCase() == 'post') {
@@ -33,6 +38,7 @@ http.createServer(function (req, res) {
                 var doc = new et.ElementTree(et.XML(body));
                 var deviceEl = doc.find('device');
                 var platform = deviceEl.attrib.platform;
+                if (platformMap.hasOwnProperty(platform)) platform = platformMap[platform];
                 var version = deviceEl.attrib.version;
                 var uuid = deviceEl.attrib.uuid;
                 var name = deviceEl.text;
@@ -40,6 +46,7 @@ http.createServer(function (req, res) {
                 var resultsDir = path.join(posts, platform, lib_sha, version);
                 shell.mkdir('-p', resultsDir);
                 var xmlOutput = path.join(resultsDir, name + '_' + uuid + '.xml');
+                console.log('RESULT: ' + platform + ' ' + version + ' (' + name + ')');
                 fs.writeFileSync(xmlOutput, body, 'utf-8');
             });
         }
