@@ -40,7 +40,7 @@ http.createServer(function (req, res) {
                 var doc = new et.ElementTree(et.XML(body));
                 var deviceEl = doc.find('device');
                 var platform = deviceEl.attrib.platform;
-                if (platformMap.hasOwnProperty(platform.toLowerCase())) platform = platformMap[platform];
+                if (platformMap.hasOwnProperty(platform.toLowerCase())) platform = platformMap[platform.toLowerCase()];
                 var version = deviceEl.attrib.version;
                 var uuid = deviceEl.attrib.uuid;
                 var name = deviceEl.text;
