@@ -34,6 +34,7 @@ http.createServer(function (req, res) {
                 var deviceEl = doc.find('device');
                 var platform = deviceEl.attrib.platform;
                 var version = deviceEl.attrib.version;
+                var uuid = deviceEl.attrib.uuid;
                 var name = deviceEl.text;
                 var lib_sha = doc.find('library').text;
                 var resultsDir = path.join(posts, platform, lib_sha, version);
@@ -52,7 +53,7 @@ http.createServer(function (req, res) {
             // Put together mobile-spec app
             create_mobile_spec_app(mobile_spec_build_path);
             // TODO: trigger builds
-            //android_build(android_path);
+            android_build(android_path);
             ios_build(ios_path);
             building = true;
             return;
