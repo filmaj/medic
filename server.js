@@ -22,7 +22,9 @@ var posts = path.join(__dirname, 'posts');
 
 // map of plastform names for sanity sake
 var platformMap = {
-    'ipod touch':'iOS'
+    'ipod touch':'iOS',
+    'ipad':'iOS',
+    'iphone':'iOS'
 };
 
 http.createServer(function (req, res) {
@@ -38,7 +40,7 @@ http.createServer(function (req, res) {
                 var doc = new et.ElementTree(et.XML(body));
                 var deviceEl = doc.find('device');
                 var platform = deviceEl.attrib.platform;
-                if (platformMap.hasOwnProperty(platform)) platform = platformMap[platform];
+                if (platformMap.hasOwnProperty(platform.toLowerCase())) platform = platformMap[platform];
                 var version = deviceEl.attrib.version;
                 var uuid = deviceEl.attrib.uuid;
                 var name = deviceEl.text;
