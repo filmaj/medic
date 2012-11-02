@@ -19,10 +19,10 @@ continuous integration setup for Apache Cordova
 ## Supported Platforms
 
 - Android
+- iOS
 
 ## TODO
 
-- iOS
 - show the results in a meaningful way
 - queue of builds
 - better error handling (what if create / debug scripts die? etc)
