@@ -4,7 +4,7 @@ var shell = require('shelljs'),
     fs    = require('fs');
 
 var ios_lib = path.join(__dirname, '..', '..', 'lib', 'incubator-cordova-ios');
-var mobile_spec = path.join(__dirname, '..', '..', 'temp', 'mobspecapp');
+var mobile_spec = path.join(__dirname, '..', '..', 'temp', 'mobspec');
 var logspot = path.join(__dirname, '..', '..', 'temp', 'log');
 var create = path.join(ios_lib, 'bin', 'create');
 var root = path.join(__dirname, '..', '..');

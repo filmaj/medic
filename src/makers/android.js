@@ -3,7 +3,7 @@ var shell = require('shelljs'),
     fs    = require('fs');
 
 var android_lib = path.join(__dirname, '..', '..', 'lib', 'incubator-cordova-android');
-var mobile_spec = path.join(__dirname, '..', '..', 'temp', 'mobspecapp');
+var mobile_spec = path.join(__dirname, '..', '..', 'temp', 'mobspec');
 var create = path.join(android_lib, 'bin', 'create');
 
 module.exports = function(output) {
