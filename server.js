@@ -28,7 +28,6 @@ http.createServer(function (req, res) {
         case 'post':
             switch (route) {
                 case 'commit':
-                    // TODO: factor this out into own module
                     var commitBody = '';
                     req.on('data', function(chunk) { commitBody += chunk; });
                     req.on('end', function() {
@@ -55,31 +54,35 @@ http.createServer(function (req, res) {
                         // Get device + library info from the post
                         var doc = new et.ElementTree(et.XML(body));
                         var deviceEl = doc.find('device');
-                        var platform = deviceEl.attrib.platform;
-                        if (platformMap.hasOwnProperty(platform.toLowerCase())) platform = platformMap[platform.toLowerCase()];
+                        var platform = deviceEl.attrib.platform.toLowerCase();
+                        if (platformMap.hasOwnProperty(platform)) platform = platformMap[platform];
                         var version = deviceEl.attrib.version;
                         var uuid = deviceEl.attrib.uuid;
                         var name = deviceEl.text;
                         var lib_sha = doc.find('library').text;
                         var xmlDir = path.join(posts, platform, lib_sha, version);
-                        // TODO: if we already have a result for a similar device for same lib commit, don't write it out
-                        // TODO: if we don't, need to update a specific part of the templates
-                        shell.mkdir('-p', xmlDir);
                         var xmlOutput = path.join(xmlDir, name + '_' + uuid + '.xml');
-                        console.log('RESULT: ' + platform + ' ' + version + ' (' + name + ')');
-                        fs.writeFileSync(xmlOutput, body, 'utf-8');
+                        // if we already have a result for a similar device for same lib commit, don't write it out
+                        if (!fs.existsSync(xmlOutput)) {
+                            shell.mkdir('-p', xmlDir);
+                            fs.writeFileSync(xmlOutput, body, 'utf-8');
+                            console.log('RESULT: ' + platform + ' ' + version + ' (' + name + ')');
+                            // update a specific part of the templates
+                            generate_templates(platform, lib_sha, version, name, body);
+                        }
                     });
                     return;
             };
         case 'get':
             // Home
-            var updated = generate_templates();
+            var latest_html = generate_templates();
             res.writeHead(200);
-            res.write(updated.html, 'utf-8');
+            res.write(latest_html, 'utf-8');
             res.end();
             return;
     };
     res.writeHead(200);
     res.end();
 }).listen(config.port);
+
 console.log('Listening on port ' + config.port);
