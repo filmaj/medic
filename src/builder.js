@@ -1,5 +1,6 @@
-var android_build = require('./src/makers/android'),
-    ios_build     = require('./src/makers/ios');
+var path = require('path'),
+    android_build = require('./makers/android'),
+    ios_build     = require('./makers/ios');
 
 // where we store generated apps mapping
 var paths = {
@@ -13,7 +14,7 @@ var builders = {
     'incubator-cordova-ios':ios_build
 };
 
-module.export = function builder(commits) {
+module.exports = function builder(commits) {
     // commits format:
     // { incubator-cordova-android:'sha',
     //   incubator-cordova-ios:'sha' }

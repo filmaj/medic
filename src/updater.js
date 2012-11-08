@@ -1,7 +1,7 @@
 var shell = require('shelljs'),
     path  = require('path'),
     fs    = require('fs'),
-    create_mobile_spec_app = require('create_mobile_spec_app');
+    create_mobile_spec_app = require('./create_mobile_spec_app');
 
 var libDir = path.join(__dirname, '..', 'lib');
 
