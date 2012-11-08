@@ -19,7 +19,7 @@ module.exports = function() {
     shell.cp('-Rf', junitReporter, mobile_spec_out);
     
     // get the last SHA for mobile-spec and drop it to the top of the junit reporter
-    var sha = shell.exec('cd ' + mobile_spec + ' && git log | head -1', {silent:true}).mobile_spec_out.split(' ')[1].replace(/\s/,'');
+    var sha = shell.exec('cd ' + mobile_spec + ' && git log | head -1', {silent:true}).output.split(' ')[1].replace(/\s/,'');
     var tempJunit = path.join(mobile_spec_out, 'junit-reporter.js');
     fs.writeFileSync(tempJunit, "var mobile_spec_sha = '" + sha + "';\n" + fs.readFileSync(tempJunit, 'utf-8'), 'utf-8');
 
