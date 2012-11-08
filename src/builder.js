@@ -4,7 +4,7 @@ var path = require('path'),
     create_mobspec= require('./create_mobile_spec_app'),
     ios_build     = require('./makers/ios');
 
-var mobile-spec-app = path.join(__dirname, '..', 'temp', 'mobspec');
+var mobile_spec_app = path.join(__dirname, '..', 'temp', 'mobspec');
 // where we store generated apps mapping
 var paths = {
     'incubator-cordova-android':path.join(__dirname, '..', 'temp', 'android'),
@@ -21,7 +21,7 @@ module.exports = function builder(commits) {
     // commits format:
     // { incubator-cordova-android:'sha',
     //   incubator-cordova-ios:'sha' }
-    if (!fs.existsSync(mobile-spec-app)) create_mobspec();
+    if (!fs.existsSync(mobile_spec_app)) create_mobspec();
     // TODO: other platforms
     for (var lib in commits) if (commits.hasOwnProperty(lib)) {
         if (builders.hasOwnProperty(lib)) {
