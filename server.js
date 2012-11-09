@@ -12,11 +12,11 @@ var http                   = require('http'),
 // where we keep test results
 var posts = path.join(__dirname, 'posts');
 
-// map of plastform names for sanity sake
+// map of platform names for sanity sake
 var platformMap = {
-    'ipod touch':'iOS',
-    'ipad':'iOS',
-    'iphone':'iOS'
+    'ipod touch':'ios',
+    'ipad':'ios',
+    'iphone':'ios'
 };
 
 generate_templates();
@@ -49,9 +49,8 @@ http.createServer(function (req, res) {
                     req.on('end', function() {
                         res.writeHead(200);
                         res.end();
-                        console.log('Received a mobile-spec result!');
 
-                        // Get device + library info from the post
+                        // Get device info from the post
                         var doc = new et.ElementTree(et.XML(body));
                         var deviceEl = doc.find('device');
                         var platform = deviceEl.attrib.platform.toLowerCase();
@@ -59,20 +58,20 @@ http.createServer(function (req, res) {
                         var version = deviceEl.attrib.version;
                         var uuid = deviceEl.attrib.uuid;
                         var name = deviceEl.text;
-                        console.log('For platform: ' + platform);
-                        console.log('Other device info: ', name, version);
+                        console.log('[RESULT] mobile-spec (' + name + ' (' + platform + ' ' + version + ')');
+
+                        // xml output location
                         var lib_sha = doc.find('library').text;
                         var xmlDir = path.join(posts, platform, lib_sha, version);
                         var xmlOutput = path.join(xmlDir, name + '_' + uuid + '.xml');
+
                         // if we already have a result for a similar device for same lib commit, don't write it out
                         if (!fs.existsSync(xmlOutput)) {
-                            console.log('This result not stored on this server, writing out XML.');
                             shell.mkdir('-p', xmlDir);
                             fs.writeFileSync(xmlOutput, body, 'utf-8');
                             // update a specific part of the templates
-                            console.log('Regenerating templates.');
                             generate_templates(platform, lib_sha, version, name, body);
-                        } else console.log('This result already exists on this server. Ignoring.');
+                        }
                     });
                     break;
             };

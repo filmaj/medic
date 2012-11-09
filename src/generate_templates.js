@@ -7,9 +7,14 @@ var fs       = require('fs'),
 // show this number of the most recent commits in lib's histories
 var num_commits_to_show = 20;
 
+// location of platform libraries
 var libDir = path.join(__dirname, '..', 'lib');
-var platforms = fs.readdirSync(libDir);
+var libraries = fs.readdirSync(libDir);
+
+// where we store mobile-spec results
 var posts = path.join(__dirname, '..', 'posts');
+
+// html template for the dashboard
 var html = '<html><head></head><body><h1>ghetto cordova dashboard</h1>';
 html    += '<h2>cordova-android</h2>';
 html    += '{android}';
@@ -17,15 +22,13 @@ html    += '<h2>cordova-ios</h2>';
 html    += '{ios}';
 html    += '</body></html>';
 
-// These objects store results
 var libShas = {};
 var libResults = {};
 
-// get repository commit lists
-platforms.forEach(function(lib) {
+function update_commit_list(lib) {
     if (lib == 'incubator-cordova-mobile-spec') return;
     var libPath = path.join(libDir, lib);
-    var commitList = shell.exec('cd ' + libPath + ' && git rev-list --all --pretty=oneline', {silent:true});
+    var commitList = shell.exec('cd ' + libPath + ' && git rev-list --all --pretty=oneline --max-count=' + num_commits_to_show, {silent:true});
     if (commitList.code > 0) throw ('Failed to get commit list for ' + lib + ' library.');
     var commitArr = commitList.output.split('\n');
     commitArr = commitArr.slice(0, commitArr.length - 1);
@@ -35,7 +38,11 @@ platforms.forEach(function(lib) {
         if (res) return res[1];
     });
     libShas[lib] = shaList;
-});
+}
+
+// initialize from written xml
+// get repository commit lists
+libraries.forEach(update_commit_list);
 
 // Identify which commits have test results
 fs.readdir(posts, function(err, platforms) {
@@ -64,7 +71,6 @@ fs.readdir(posts, function(err, platforms) {
     });
 });
 
-
 // Create page templates
 module.exports = function generate_templates(platform, sha, version, model, xml) {
     if (arguments.length === 0) {
@@ -90,16 +96,21 @@ function update_specific_template(platform, sha, version, model, xmlData) {
 
     // Make sure libResults have proper parent objects
     if (!libResults[platform]) libResults[platform] = {};
-    if (!libResults[platform][sha]) libResults[platform][sha] = {};
+    if (!libResults[platform][sha]) {
+        libResults[platform][sha] = {};
+        // if we don't have the sha it might be a new commit. we may have to update full sha list.
+        update_commit_list('incubator-cordova-' + platform);
+    }
     if (!libResults[platform][sha][version]) libResults[platform][sha][version] = {};
     if (!libResults[platform][sha][version][model]) libResults[platform][sha][version][model] = {};
 
-    // TODO: show what failed
+    // TODO:failure details 
     libResults[platform][sha][version][model] = {
         tests:tests,
         num_fails:num_fails,
         time:time
     };
+    console.log('Template generated');
 };
 
 function create_results_table(tmpl, sha_list, results) {
