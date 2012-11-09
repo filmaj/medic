@@ -11,7 +11,8 @@
         "shelljs":"0.0.8",
         "elementtree":"0.1.4",
         "readdirp":"0.2.1",
-        "fruitstrap":"git://github.com/filmaj/fruitstrap.git"
+        "fruitstrap":"git://github.com/filmaj/fruitstrap.git",
+        "forever":"0.10.0"
     },
     "devDependencies":{
         "jasmine-node":">=1.0.0"
