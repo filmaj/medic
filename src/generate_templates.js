@@ -85,12 +85,21 @@ module.exports = function generate_templates(platform, sha, version, model, xml)
 
 function update_specific_template(platform, sha, version, model, xmlData) {
     var xml = new et.ElementTree(et.XML(xmlData));
-    var tests = 0, num_fails = 0, time = 0;
+    var tests = 0, num_fails = 0, time = 0, failText = [];
     xml.getroot().findall('testsuites').forEach(function(set) {
         set.getchildren().forEach(function(suite) {
             tests += parseInt(suite.attrib.tests, 10);
-            num_fails += parseInt(suite.attrib.failures, 10);
+            var failures = parseInt(suite.attrib.failures, 10);
+            num_fails += failures;
             time += parseFloat(suite.attrib.time);
+            if (failures > 0) {
+                suite.getchildren().forEach(function(testcase) {
+                    var failTitle = testcase.attrib.classname + ' ' + testcase.attrib.name;
+                    testcase.findall('failure').forEach(function(failure) {
+                        failText.push(failTitle + ' :: Assertion failure: ' + failure.text);
+                    });
+                });
+            }
         });
     });
 
@@ -108,9 +117,10 @@ function update_specific_template(platform, sha, version, model, xmlData) {
     libResults[platform][sha][version][model] = {
         tests:tests,
         num_fails:num_fails,
-        time:time
+        time:time,
+        fails:failText
     };
-    console.log('Template generated');
+    console.log('Template generated.');
 };
 
 function create_results_table(tmpl, sha_list, results) {
@@ -133,7 +143,7 @@ function create_results_table(tmpl, sha_list, results) {
                         var results = models[model];
                         var pass = (results.tests - results.num_fails);
                         var percent = ((pass / results.tests)*100).toFixed(2);
-                        results_table += '<tr><td>' + version + '</td><td>' + model + '</td><td>pass: ' + pass + ', fail: ' + results.num_fails + ', %: ' + percent + '</td></tr>';
+                        results_table += '<tr><td>' + version + '</td><td>' + model + '</td><td>pass: ' + pass + ', fail: <a href="#" onclick="alert(\'' + results.fails.join('\\n').replace(/'/g,"\\'") + '\');return false;">' + results.num_fails + '</a>, %: ' + percent + '</td></tr>';
                     }
                 }
                 results_table += '</table>';
