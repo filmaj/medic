@@ -40,10 +40,10 @@ function update_commit_list(lib) {
     libShas[lib] = shaList;
 }
 
-// initialize from written xml
-// get repository commit lists
+// get latest repository commit lists
 libraries.forEach(update_commit_list);
 
+// initialize from written xml
 // Identify which commits have test results
 fs.readdir(posts, function(err, platforms) {
     if (err) throw ('Could not read posts directory (' + posts + ')');
@@ -120,13 +120,13 @@ function create_results_table(tmpl, sha_list, results) {
     };
     for (var lib in sha_list) if (sha_list.hasOwnProperty(lib)) {
         var platform = lib.substr(18);
-        var platform_table = '<table><tr><td colspan="2">recent ' + platform + ' commits</td></tr><tr><td>commit</td><td>test results</td></tr>';
+        var platform_table = '<table><tr><td>commit</td><td>test results</td></tr>';
         var recent_shas = sha_list[lib].slice(0, num_commits_to_show);
         recent_shas.forEach(function(sha) {
             platform_table += '<tr><td><a href="http://git-wip-us.apache.org/repos/asf?p=' + lib + '.git;a=commit;h='+sha+'">' + sha.substring(0,7)  + '</a></td><td>';
             if (libResults[platform] && libResults[platform][sha]) {
                 var versions = libResults[platform][sha];
-                var results_table = '<table><tr><td colspan="3">mobile-spec results</td></tr><tr><td>version</td><td>model/name</td><td>results</td></tr>';
+                var results_table = '<p>mobile-spec results</p><table></tr><tr><td>version</td><td>model/name</td><td>results</td></tr>';
                 for (var version in versions) if (versions.hasOwnProperty(version)) {
                     var models = versions[version];
                     for (var model in models) if (models.hasOwnProperty(model)) {

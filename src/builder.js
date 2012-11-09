@@ -4,6 +4,9 @@ var path = require('path'),
     create_mobspec= require('./create_mobile_spec_app'),
     ios_build     = require('./makers/ios');
 
+// results location
+var posts = path.join(__dirname, '..', 'posts');
+// mobile spec output location
 var mobile_spec_app = path.join(__dirname, '..', 'temp', 'mobspec');
 // where we store generated apps mapping
 var paths = {
@@ -25,7 +28,11 @@ module.exports = function builder(commits) {
     // TODO: other platforms
     for (var lib in commits) if (commits.hasOwnProperty(lib)) {
         if (builders.hasOwnProperty(lib)) {
-            builders[lib](paths[lib]);
+            try {
+                builders[lib](paths[lib]);
+            } catch(e) {
+                // TODO: write out error and update templates with error
+            }
         }
     }
 };
