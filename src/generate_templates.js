@@ -75,6 +75,8 @@ fs.readdir(posts, function(err, platforms) {
 module.exports = function generate_templates(platform, sha, version, model, xml) {
     if (arguments.length === 0) {
         // drop results into the html template and return html
+        // TODO: the final html should be ready at any time
+        // TODO: only regenerate if a new result comes in
         var table = create_results_table(html, libShas, libResults);
         return interpolate_template(html, table);
     } else {
@@ -113,7 +115,6 @@ function update_specific_template(platform, sha, version, model, xmlData) {
     if (!libResults[platform][sha][version]) libResults[platform][sha][version] = {};
     if (!libResults[platform][sha][version][model]) libResults[platform][sha][version][model] = {};
 
-    // TODO:failure details 
     libResults[platform][sha][version][model] = {
         tests:tests,
         num_fails:num_fails,
@@ -131,7 +132,7 @@ function create_results_table(tmpl, sha_list, results) {
     for (var lib in sha_list) if (sha_list.hasOwnProperty(lib)) {
         var platform = lib.substr(18);
         var platform_table = '<table><tr><td>commit</td><td>test results</td></tr>';
-        var recent_shas = sha_list[lib].slice(0, num_commits_to_show);
+        var recent_shas = sha_list[lib];
         recent_shas.forEach(function(sha) {
             platform_table += '<tr><td><a href="http://git-wip-us.apache.org/repos/asf?p=' + lib + '.git;a=commit;h='+sha+'">' + sha.substring(0,7)  + '</a></td><td>';
             if (libResults[platform] && libResults[platform][sha]) {
