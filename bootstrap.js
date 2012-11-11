@@ -3,7 +3,7 @@ var shell = require('shelljs'),
     path  = require('path');
 
 // Get the cordova libraries
-var libs = ['incubator-cordova-android', 'incubator-cordova-mobile-spec', 'incubator-cordova-ios'];
+var libs = ['incubator-cordova-android', 'incubator-cordova-mobile-spec', 'incubator-cordova-ios', 'incubator-cordova-blackberry-webworks'];
 
 var libDir = path.join(__dirname, 'lib');
 shell.mkdir('-p', libDir);

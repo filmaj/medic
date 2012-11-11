@@ -58,7 +58,7 @@ http.createServer(function (req, res) {
                         var version = deviceEl.attrib.version;
                         var uuid = deviceEl.attrib.uuid;
                         var name = deviceEl.text;
-                        console.log('[RESULT] mobile-spec (' + name + ' (' + platform + ' ' + version + ')');
+                        console.log('[RESULT] mobile-spec for ' + name + ' (' + platform + ' ' + version + ')');
 
                         // xml output location
                         var lib_sha = doc.find('library').text;
@@ -84,6 +84,7 @@ http.createServer(function (req, res) {
                     res.write(latest_html, 'utf-8');
                     res.end();
                     break;
+                // TODO: blackberry route for listing devices, updating the list of devices and checking connectivity
             }
     };
 }).listen(config.port);

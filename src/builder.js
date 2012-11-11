@@ -2,7 +2,8 @@ var path = require('path'),
     fs = require('fs'),
     android_build = require('./makers/android'),
     create_mobspec= require('./create_mobile_spec_app'),
-    ios_build     = require('./makers/ios');
+    ios_build     = require('./makers/ios'),
+    blackberry_build=require('./makers/blackberry');
 
 // results location
 var posts = path.join(__dirname, '..', 'posts');
@@ -11,13 +12,15 @@ var mobile_spec_app = path.join(__dirname, '..', 'temp', 'mobspec');
 // where we store generated apps mapping
 var output_paths = {
     'incubator-cordova-android':path.join(__dirname, '..', 'temp', 'android'),
-    'incubator-cordova-ios':path.join(__dirname, '..', 'temp', 'ios')
+    'incubator-cordova-ios':path.join(__dirname, '..', 'temp', 'ios'),
+    'incubator-cordova-blackberry-webworks':path.join(__dirname, '..', 'temp', 'blackberry')
 };
 
 // builder mapping
 var builders = {
     'incubator-cordova-android':android_build,
-    'incubator-cordova-ios':ios_build
+    'incubator-cordova-ios':ios_build,
+    'incubator-cordova-blackberry-webworks':blackberry_build
 };
 
 module.exports = function builder(commits) {
