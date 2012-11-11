@@ -6,7 +6,7 @@ var android_lib = path.join(__dirname, '..', '..', 'lib', 'incubator-cordova-and
 var mobile_spec = path.join(__dirname, '..', '..', 'temp', 'mobspec');
 var create = path.join(android_lib, 'bin', 'create');
 
-module.exports = function(output) {
+module.exports = function(output, sha) {
     shell.rm('-rf', output);
 
     // create an android app into output dir
@@ -18,8 +18,6 @@ module.exports = function(output) {
     console.log('Copying over mobile-spec to Android app.');
     shell.cp('-Rf', path.join(mobile_spec, '*'), path.join(output, 'assets', 'www'));
 
-    // drop the Android library SHA into the junit reporter
-    var sha = shell.exec('cd ' + android_lib + ' && git log | head -1', {silent:true}).output.split(' ')[1].replace(/\s/,'');
     var tempJunit = path.join(output, 'assets', 'www', 'junit-reporter.js');
     fs.writeFileSync(tempJunit, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJunit, 'utf-8'), 'utf-8');
 

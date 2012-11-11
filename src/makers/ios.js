@@ -43,7 +43,7 @@ function should_we_kill(process, buf) {
     }
 };
 
-module.exports = function(output) {
+module.exports = function(output, sha) {
     shell.rm('-rf', output);
 
     // create an ios app into output dir
@@ -58,7 +58,6 @@ module.exports = function(output) {
     shell.cp('-Rf', path.join(mobile_spec, '*'), projectWww);
 
     // drop the iOS library SHA into the junit reporter
-    var sha = shell.exec('cd ' + ios_lib + ' && git log | head -1', {silent:true}).output.split(' ')[1].replace(/\s/,'');
     var tempJunit = path.join(projectWww, 'junit-reporter.js');
     fs.writeFileSync(tempJunit, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJunit, 'utf-8'), 'utf-8');
 
@@ -88,6 +87,7 @@ module.exports = function(output) {
     var devices = [],
         bundle = path.join(output, 'build', 'cordovaExample.app'),
         bundleId = 'org.apache.cordova.example';
+    // TODO: use spawn
     cp.exec('./node_modules/fruitstrap/listdevices --timeout 1 list-devices', function(err, stdout, stderr) {
         if (stdout) {
             var lines = stdout.split('\n');

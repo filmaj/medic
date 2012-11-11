@@ -9,7 +9,7 @@ var posts = path.join(__dirname, '..', 'posts');
 // mobile spec output location
 var mobile_spec_app = path.join(__dirname, '..', 'temp', 'mobspec');
 // where we store generated apps mapping
-var paths = {
+var output_paths = {
     'incubator-cordova-android':path.join(__dirname, '..', 'temp', 'android'),
     'incubator-cordova-ios':path.join(__dirname, '..', 'temp', 'ios')
 };
@@ -21,15 +21,15 @@ var builders = {
 };
 
 module.exports = function builder(commits) {
+    if (!fs.existsSync(mobile_spec_app)) create_mobspec();
+
     // commits format:
     // { incubator-cordova-android:'sha',
     //   incubator-cordova-ios:'sha' }
-    if (!fs.existsSync(mobile_spec_app)) create_mobspec();
-    // TODO: other platforms
     for (var lib in commits) if (commits.hasOwnProperty(lib)) {
         if (builders.hasOwnProperty(lib)) {
             try {
-                builders[lib](paths[lib]);
+                builders[lib](output_paths[lib], commits[lib]);
             } catch(e) {
                 // TODO: write out error and update templates with error
             }
