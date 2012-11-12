@@ -1,61 +1,92 @@
 var shell = require('shelljs'),
     path  = require('path'),
+    error_writer=require('./error_writer'),
     fs    = require('fs');
 
 var android_lib = path.join(__dirname, '..', '..', 'lib', 'incubator-cordova-android');
 var mobile_spec = path.join(__dirname, '..', '..', 'temp', 'mobspec');
 var create = path.join(android_lib, 'bin', 'create');
 
+
 module.exports = function(output, sha) {
+    function log(msg) {
+        console.log('[ANDROID] ' + msg + ' (sha: ' + sha.substr(0,7) + ')');
+    }
+
     shell.rm('-rf', output);
 
-    // create an android app into output dir
-    console.log('Shelling out to android:create.');
-    var create_output = shell.exec(create + ' ' + output, {silent:true});
-    if (create_output.code > 0) throw ('Failed to create Android application. ' + create_output.output);
-    
-    // copy over mobile spec modified html assets
-    console.log('Copying over mobile-spec to Android app.');
-    shell.cp('-Rf', path.join(mobile_spec, '*'), path.join(output, 'assets', 'www'));
+    // checkout appropriate tag
+    shell.exec('cd ' + android_lib + ' && git checkout ' + sha, {silent:true, async:true}, function(code, checkout_output) {
+        if (code > 0) {
+            error_writer('android', sha, 'error git-checking out sha ' + sha, checkout_output);
+        } else {
+            // create an android app into output dir
+            log('Creating project.');
+            shell.exec(create + ' ' + output, {silent:true,async:true}, function(code, create_out) {
+                if (code > 0) {
+                    error_writer('android', sha, './bin/create error', create_out);
+                } else {
+                    // copy over mobile spec modified html assets
+                    log('Modifying Cordova application.');
+                    shell.cp('-Rf', path.join(mobile_spec, '*'), path.join(output, 'assets', 'www'));
+                    // add the sha to the junit reporter
+                    var tempJunit = path.join(output, 'assets', 'www', 'junit-reporter.js');
+                    fs.writeFileSync(tempJunit, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJunit, 'utf-8'), 'utf-8');
 
-    var tempJunit = path.join(output, 'assets', 'www', 'junit-reporter.js');
-    fs.writeFileSync(tempJunit, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJunit, 'utf-8'), 'utf-8');
+                    // modify start page
+                    var javaFile = path.join(output, 'src', 'org', 'apache', 'cordova', 'example', 'cordovaExample.java'); 
+                    fs.writeFileSync(javaFile, fs.readFileSync(javaFile, 'utf-8').replace(/www\/index\.html/, 'www/autotest/pages/all.html'), 'utf-8');
 
-    // modify start page
-    console.log('Modifying start page by clobbering Java.');
-    var javaFile = path.join(output, 'src', 'org', 'apache', 'cordova', 'example', 'cordovaExample.java'); 
-    fs.writeFileSync(javaFile, fs.readFileSync(javaFile, 'utf-8').replace(/www\/index\.html/, 'www/autotest/pages/all.html'), 'utf-8');
+                    // compile
+                    log('Compiling.');
+                    var ant = 'cd ' + output + ' && ant clean && ant debug';
+                    shell.exec(ant, {silent:true,async:true},function(code, compile_output) {
+                        if (code > 0) {
+                            error_writer('android', sha, 'Compilation error', compile_output);
+                        } else {
+                            // get list of connected devices
+                            shell.exec('adb devices', {silent:true,async:true},function(code, devices_output) {
+                                if (code > 0) {
+                                    // Could not obtain device list...
+                                    log('Error obtaining device list.');
+                                } else {
+                                    var devices = devices_output.split('\n').slice(1);
+                                    devices = devices.filter(function(d) { return d.length>0 && d.indexOf('daemon') == -1 && d.indexOf('attached') == -1; });
+                                    devices = devices.map(function(d) { return d.split('\t')[0]; });
 
-    // compile
-    console.log('Compiling Android app.');
-    var ant = 'cd ' + output + ' && ant clean && ant debug';
-    var compile = shell.exec(ant, {silent:true});
-    if (compile.code > 0) throw ('Failed to compile Android application. ' + compile.output);
-
-    // get list of connected devices
-    console.log('Getting list of devices for Android.');
-    var devices = shell.exec('adb devices', {silent:true}).output.split('\n').slice(1);
-    devices = devices.filter(function(d) { return d.length>0; });
-    devices = devices.map(function(d) { return d.split('\t')[0]; });
-    console.log('Device list: ' + devices.join(', '));
-
-    // deploy and run on each device
-    if (devices.length > 0) {
-        devices.forEach(function(d) {
-            console.log('Uninstall app first just in case on device ' + d);
-            var cmd = 'adb -s ' + d + ' uninstall org.apache.cordova.example';
-            var uninstall = shell.exec(cmd, {silent:true});
-            if (uninstall.code > 0) throw ('Failed to uninstall Android app on device ' + d + '.');
-            console.log('Installing app on Android device ' + d);
-            cmd = 'adb -s ' + d + ' install -r ' + path.join(output, 'bin', 'cordovaExample-debug.apk');
-            var install = shell.exec(cmd, {silent:true});
-            if (install.code > 0) throw ('Failed to install Android app to device ' + d + '.');
-
-            console.log('Running app on Android device ' + d);
-            cmd = 'adb -s ' + d + ' shell am start -n org.apache.cordova.example/org.apache.cordova.example.cordovaExample';
-            var deploy = shell.exec(cmd, {silent:true});
-            if (deploy.code > 0) throw ('Failed to run Android app on device ' + d + '.');
-        });
-        console.log('Deployed to Android devices.');
-    } else console.log('No Android devices to deploy to :(');
+                                    // deploy and run on each device
+                                    if (devices.length > 0) {
+                                        log(devices.length + ' Android devices detected.');
+                                        devices.forEach(function(d) {
+                                            var cmd = 'adb -s ' + d + ' uninstall org.apache.cordova.example';
+                                            var uninstall = shell.exec(cmd, {silent:true,async:true},function(code, uninstall_output) {
+                                                // NOTE: if uninstall failed with code > 0, keep going.
+                                                log('Installing on device ' + d);
+                                                cmd = 'adb -s ' + d + ' install -r ' + path.join(output, 'bin', 'cordovaExample-debug.apk');
+                                                var install = shell.exec(cmd, {silent:true,async:true},function(code, install_output) {
+                                                    if (code > 0) {
+                                                        log('Error installing on device ' + d);
+                                                    } else {
+                                                        log('Running on device ' + d);
+                                                        cmd = 'adb -s ' + d + ' shell am start -n org.apache.cordova.example/org.apache.cordova.example.cordovaExample';
+                                                        var deploy = shell.exec(cmd, {silent:true,async:true},function(code, run_output) {
+                                                            if (code > 0) {
+                                                                log('Error launching mobile-spec on device ' + d);
+                                                            } else {
+                                                                log('Mobile-spec successfully launched on device ' + d);
+                                                            }
+                                                        });
+                                                    }
+                                                });
+                                            });
+                                        });
+                                    } else log('No Android devices connected. Aborting.');
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    });
 }

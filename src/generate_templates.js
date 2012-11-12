@@ -54,8 +54,10 @@ fs.readdir(posts, function(err, platforms) {
             if (err) throw ('Could not read results lib directory (' + resDir + ')');
             resultsBySha.forEach(function(sha) {
                 var testDir = path.join(resDir, sha);
+
                 // recursively read test dirs and grab xml
-                var entryStream = readdirp({
+                // xml are mobile-spec results
+                var xmlStream = readdirp({
                     root:testDir,
                     fileFilter:'*.xml'
                 }).on('data', function(entry) {
@@ -65,6 +67,16 @@ fs.readdir(posts, function(err, platforms) {
                         if (e) throw ('Could not read result file ' + entry.fullPath);
                         update_specific_template(platform, sha, version, model, data);
                     });
+                });
+
+                // recursively grab .json files
+                // these are build/compile/other errors
+                // TODO
+                var jsonStream = readdirp({
+                    root:testDir,
+                    fileFilter:'*.json'
+                }).on('data', function(entry) {
+
                 });
             });
         });
@@ -136,19 +148,23 @@ function create_results_table(tmpl, sha_list, results) {
         recent_shas.forEach(function(sha) {
             platform_table += '<tr><td><a href="http://git-wip-us.apache.org/repos/asf?p=' + lib + '.git;a=commit;h='+sha+'">' + sha.substring(0,7)  + '</a></td><td>';
             if (libResults[platform] && libResults[platform][sha]) {
-                var versions = libResults[platform][sha];
-                var results_table = '<p>mobile-spec results</p><table></tr><tr><td>version</td><td>model/name</td><td>results</td></tr>';
-                for (var version in versions) if (versions.hasOwnProperty(version)) {
-                    var models = versions[version];
-                    for (var model in models) if (models.hasOwnProperty(model)) {
-                        var results = models[model];
-                        var pass = (results.tests - results.num_fails);
-                        var percent = ((pass / results.tests)*100).toFixed(2);
-                        results_table += '<tr><td>' + version + '</td><td>' + model + '</td><td>pass: ' + pass + ', fail: <a href="#" onclick="alert(\'' + results.fails.join('\\n').replace(/'/g,"\\'") + '\');return false;">' + results.num_fails + '</a>, %: ' + percent + '</td></tr>';
+                if (libResults[platform][sha].failure) {
+                    platform_table += '<a href="#" style="color:red" onclick="alert(\'' + libResults[platform][sha].details.replace(/'/g, '\\') + '\');return false;">' + libResults[platform][sha].failure + '</a>';
+                } else {
+                    var versions = libResults[platform][sha];
+                    var results_table = '<p>mobile-spec results</p><table></tr><tr><td>version</td><td>model/name</td><td>results</td></tr>';
+                    for (var version in versions) if (versions.hasOwnProperty(version)) {
+                        var models = versions[version];
+                        for (var model in models) if (models.hasOwnProperty(model)) {
+                            var results = models[model];
+                            var pass = (results.tests - results.num_fails);
+                            var percent = ((pass / results.tests)*100).toFixed(2);
+                            results_table += '<tr><td>' + version + '</td><td>' + model + '</td><td>pass: ' + pass + ', fail: <a href="#" onclick="alert(\'' + results.fails.join('\\n').replace(/'/g,"\\'") + '\');return false;">' + results.num_fails + '</a>, %: ' + percent + '</td></tr>';
+                        }
                     }
+                    results_table += '</table>';
+                    platform_table += results_table;
                 }
-                results_table += '</table>';
-                platform_table += results_table;
             }
             platform_table += '</td></tr>';
         });

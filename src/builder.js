@@ -31,11 +31,7 @@ module.exports = function builder(commits) {
     //   incubator-cordova-ios:'sha' }
     for (var lib in commits) if (commits.hasOwnProperty(lib)) {
         if (builders.hasOwnProperty(lib)) {
-            try {
-                builders[lib](output_paths[lib], commits[lib]);
-            } catch(e) {
-                // TODO: write out error and update templates with error
-            }
+            builders[lib](output_paths[lib], commits[lib]);
         }
     }
 };

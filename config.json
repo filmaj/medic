@@ -1,4 +1,9 @@
 {
     "server":"192.168.1.128",
-    "port":"8088"
+    "port":"8088",
+    "blackberry":{
+        "networkRange":"192.168.1.100-192.168.1.120",
+        "bb10Sdk":"/Users/fil/SDKs/BB10-WebWorks-1.0.2",
+        "tabletSdk":"/Users/fil/SDKs/WebWorks-Tablet-2.2"
+    }
 }

@@ -84,7 +84,6 @@ http.createServer(function (req, res) {
                     res.write(latest_html, 'utf-8');
                     res.end();
                     break;
-                // TODO: blackberry route for listing devices, updating the list of devices and checking connectivity
             }
     };
 }).listen(config.port);
