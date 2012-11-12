@@ -3,7 +3,8 @@ var path = require('path'),
 
 module.exports = function blackberry_scanner(config, callback) {
     var range = config.networkRange;
-    var sdk_path = config.sdk;
+    var sdk_path = config.bb10Sdk;
+    var password = config.password;
     var deploy = path.join(sdk_path, 'dependencies', 'tools', 'bin', 'blackberry-deploy');
 
     // figure out over what range of ips to scan
@@ -16,7 +17,7 @@ module.exports = function blackberry_scanner(config, callback) {
     for (var i = low; i <= high; i++) {
         (function(last) {
             var ip = base + '.' + last;
-            var cmd = deploy + ' -listDeviceInfo ' + ip + ' -password password';
+            var cmd = deploy + ' -listDeviceInfo ' + ip + ' -password ' + password;
             shell.exec(cmd,{silent:true,async:true},function(code, output) {
                 pings--;
                 if (code === 0) {
