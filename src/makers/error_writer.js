@@ -1,11 +1,14 @@
 var path = require('path'),
     fs   = require('fs'),
+    shell= require('shelljs'),
     generate_templates = require('../generate_templates');
 
 var posts = path.join(__dirname, '..', '..', 'posts');
 
 module.exports = function error_writer(platform, sha, failure, details) {
-    var filename = path.join(posts, platform, sha, new Date().valueOf() + '.json');
+    var shadir = path.join(posts, platform, sha);
+    shell.mkdir('-p', shadir);
+    var filename = path.join(shadir, new Date().valueOf() + '.json');
     var contents = JSON.stringify({
         failure:failure,
         details:details

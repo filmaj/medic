@@ -77,7 +77,7 @@ fs.readdir(posts, function(err, platforms) {
                     fileFilter:'*.json'
                 }).on('data', function(entry) {
                     fs.readFile(entry.fullPath, 'utf-8', function(err, data) {
-                        if (e) throw ('Could not read error file ' + entry.fullPath);
+                        if (err) throw ('Could not read error file ' + entry.fullPath);
                         var json = JSON.parse(data);
                         update_template_with_error(platform, sha, json.failure, json.details);
                     });
@@ -163,7 +163,7 @@ function create_results_table(tmpl, sha_list, results) {
             platform_table += '<tr><td><a href="http://git-wip-us.apache.org/repos/asf?p=' + lib + '.git;a=commit;h='+sha+'">' + sha.substring(0,7)  + '</a></td><td>';
             if (libResults[platform] && libResults[platform][sha]) {
                 if (libResults[platform][sha].failure) {
-                    platform_table += '<a href="#" style="color:red" onclick="alert(\'' + libResults[platform][sha].details.replace(/'/g, '\\') + '\');return false;">' + libResults[platform][sha].failure + '</a>';
+                    platform_table += '<a href="#" style="color:red" onclick="alert(\'' + libResults[platform][sha].details.replace(/'/g, '\\').replace(/\n/g,'\\n') + '\');return false;">' + libResults[platform][sha].failure + '</a>';
                 } else {
                     var versions = libResults[platform][sha];
                     var results_table = '<p>mobile-spec results</p><table></tr><tr><td>version</td><td>model/name</td><td>results</td></tr>';
