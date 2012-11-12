@@ -76,7 +76,11 @@ fs.readdir(posts, function(err, platforms) {
                     root:testDir,
                     fileFilter:'*.json'
                 }).on('data', function(entry) {
-
+                    fs.readFile(entry.fullPath, 'utf-8', function(err, data) {
+                        if (e) throw ('Could not read error file ' + entry.fullPath);
+                        var json = JSON.parse(data);
+                        update_template_with_error(platform, sha, json.failure, json.details);
+                    });
                 });
             });
         });
@@ -91,10 +95,20 @@ module.exports = function generate_templates(platform, sha, version, model, xml)
         // TODO: only regenerate if a new result comes in
         var table = create_results_table(html, libShas, libResults);
         return interpolate_template(html, table);
-    } else {
+    } else if (arguments.length == 4) {
+        update_template_with_error(platform, sha, version, model);
+    } else if (arguments.length == 5) {
         // update a specific part of the template
         update_specific_template(platform, sha, version, model, xml);
     }
+};
+
+function update_template_with_error(platform, sha, failure, details) {
+    if (!libResults[platform]) libResults[platform] = {};
+    libResults[platform][sha] = {
+        failure:failure,
+        details:details
+    };
 };
 
 function update_specific_template(platform, sha, version, model, xmlData) {
