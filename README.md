@@ -2,6 +2,14 @@
 
 continuous integration setup for Apache Cordova
 
+## Requirements
+
+Only tested on Mac OS 10.7.5.
+
+- git
+- node + npm
+- Necessary SDKs for the platforms you are building
+
 ## How This Works
 
 1. Customize the parameters laid out in the `./config.json` file in this
