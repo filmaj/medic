@@ -5,7 +5,7 @@ var http                   = require('http'),
     shell                  = require('shelljs'),
     fs                     = require('fs'),
     et                     = require('elementtree'),
-    generate_templates     = require('./src/generate_templates'),
+    templates              = require('./src/templates'),
     builder                = require('./src/builder'),
     updater                = require('./src/updater');
 
@@ -18,8 +18,6 @@ var platformMap = {
     'ipad':'ios',
     'iphone':'ios'
 };
-
-generate_templates();
 
 http.createServer(function (req, res) {
     var route = url.parse(req.url).pathname.substr(1);
@@ -37,6 +35,10 @@ http.createServer(function (req, res) {
                         var commits = JSON.parse(commitBody);
 
                         // Update relevant libraries
+                        // TODO: what if multiple commits are new?
+                        // TODO: build queuing system.
+                        // TODO: on init run through and see which of the x recent commits have no results. queue those commits for builds. 
+                        // TODO: should also have a queue/check system for devices
                         updater(commits);
 
                         // trigger builds only for relevant libraries
@@ -70,7 +72,7 @@ http.createServer(function (req, res) {
                             shell.mkdir('-p', xmlDir);
                             fs.writeFileSync(xmlOutput, body, 'utf-8');
                             // update a specific part of the templates
-                            generate_templates(platform, lib_sha, version, name, body);
+                            templates.add_mobile_spec_result(platform, lib_sha, version, name, body);
                         }
                     });
                     break;
@@ -79,9 +81,8 @@ http.createServer(function (req, res) {
             switch (route) {
                 case '':
                     // Home
-                    var latest_html = generate_templates();
                     res.writeHead(200);
-                    res.write(latest_html, 'utf-8');
+                    res.write(templates.html(), 'utf-8');
                     res.end();
                     break;
             }
@@ -89,3 +90,9 @@ http.createServer(function (req, res) {
 }).listen(config.port);
 
 console.log('Listening on port ' + config.port);
+
+// where we store mobile-spec results
+var posts = path.join(__dirname, 'posts');
+
+// run through the file system and process results + errors
+require('./src/templates/process_results')(posts);
