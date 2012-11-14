@@ -9,6 +9,9 @@ Only tested on Mac OS 10.7.5.
 - git
 - node + npm
 - Necessary SDKs for the platforms you are building
+- Any provisioning profiles or certificates for the various platforms you want to test on.
+  - iOS stuff both installed locally for Xcode and Keychain, as well as the profiles deployed to the test devices.
+  - BlackBerry signing keys installed into the appropriate SDK locations as well as debug tokens deployed to each test device.
 
 ## How This Works
 
@@ -31,6 +34,7 @@ Only tested on Mac OS 10.7.5.
 
 - Android
 - iOS
+- BlackBerry (Playbook only for now)
 
 # License
 
