@@ -33,12 +33,6 @@ module.exports = function(output, sha) {
                 if (code > 0) {
                     error_writer('blackberry', sha, './bin/create error', create_out);
                 } else {
-                    // set codesign to true
-                    var playbook_xml = path.join(output, 'playbook.xml');
-                    var qnx_xml = path.join(output, 'qnx.xml');
-                    fs.writeFileSync(playbook_xml, fs.readFileSync(playbook_xml, 'utf-8').replace(/code\.sign"\s*value="\w*"/, 'code.sign" value="true"'), 'utf-8');
-                    fs.writeFileSync(qnx_xml, fs.readFileSync(qnx_xml, 'utf-8').replace(/code\.sign"\s*value="\w*"/, 'code.sign" value="true"'), 'utf-8');
-
                     // copy over mobile spec modified html assets
                     log('Modifying Cordova application.');
                     shell.cp('-Rf', path.join(mobile_spec, '*'), path.join(output, 'www'));
@@ -66,6 +60,7 @@ module.exports = function(output, sha) {
                     shell.mv(bbten_target, final_bbten);
 
                     // scan for devices, figure out which of each kind we have.
+                    log('Scanning for BlackBerry devices.');
                     scanner(config.blackberry, function(devices) {
                         if (devices) {
                             // determine how many of each device we have

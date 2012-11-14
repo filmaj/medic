@@ -1,9 +1,9 @@
 {
-    "server":"192.168.1.128",
+    "server":"10.0.1.155",
     "port":"8088",
     "blackberry":{
         "devices":{
-            "networkRange":"192.168.1.100-192.168.1.140",
+            "networkRange":"10.0.1.120-10.0.1.190",
             "password":"password"
         },
         "bb10":{
@@ -11,7 +11,7 @@
             "signingPassword":""
         },
         "tablet":{
-            "sdk":"/Users/fil/SDKs/WebWorks-Tablet-2.2",
+            "sdk":"/Users/fil/SDKs/WebWorks-Tablet-2.2/bbwp",
             "signingPassword":""
         }
     }

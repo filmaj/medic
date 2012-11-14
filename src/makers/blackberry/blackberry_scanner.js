@@ -34,7 +34,7 @@ module.exports = function blackberry_scanner(config, callback) {
                     if (!devices) devices = {};
                     devices[ip] = {
                         hardware:hardware,
-                        version:version,
+                        version:version
                     };
                 } 
                 if (pings === 0) {

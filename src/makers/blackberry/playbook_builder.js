@@ -15,11 +15,11 @@ var binary = path.join(app, 'build', 'cordovaExample.bar');
 
 var project_properties = path.join(app, 'project.properties');
 
-function log(msg) {
-    console.log('[BLACKBERRY] [BUILDER:Playbook] ' + msg);
-}
-
 module.exports = function playbook_builder(tablets, sha) {
+    function log(msg) {
+        console.log('[BLACKBERRY] [BUILDER:Tablet] ' + msg + ' (' + sha.substr(0,7) + ')');
+    }
+
     // modify project properties with relevant info
     var props = fs.readFile(project_properties, 'utf-8', function(err, props) {
         if (err) throw ('Could not read BlackBerry project file at ' + project_properties);
@@ -30,17 +30,21 @@ module.exports = function playbook_builder(tablets, sha) {
             if (er) throw ('Could not write BlackBerry project file at ' + project_properties);
             
             // compile
-            shell.exec('cd ' + app + ' && ant playbook build', {silent:true, async:true}, function(code, output) {
+            var cmd = 'cd ' + app + ' && ant playbook build';
+            log('Compiling + packaging.');
+            shell.exec(cmd, {silent:true,async:true}, function(code, output) {
                 if (code > 0) {
                     error_writer('blackberry', sha, 'Compilation error.', output);
                 } else {
                     // deploy and launch to tablets
                     if (tablets) for (var i in tablets) if (tablets.hasOwnProperty(i)) (function(ip) {
                         var tablet = tablets[ip];
+                        log('Installing and running on ' + tablet.hardware + ' (' + ip + ').');
                         shell.exec(deploy + ' -installApp -launchApp -device ' + ip + ' -password ' + device_password + ' ' + binary, {silent:true,async:true}, function(kode, ootput) {
                             if (kode > 0) {
-                                // TODO: model + version-level errors
+                                error_writer('blackberry', sha, tablet.version, tablet.hardware, 'Deployment error.', ootput);
                             } else {
+                                log('Mobile-spec successfully launched on ' + tablet.hardware + ' (' + ip + ').');
                             }
                         });
                     }(i));
