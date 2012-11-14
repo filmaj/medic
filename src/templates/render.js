@@ -26,17 +26,25 @@ function create_results_table(sha_list, result) {
                 platform_table += '<tr><td><a href="http://git-wip-us.apache.org/repos/asf?p=' + lib + '.git;a=commit;h='+sha+'">' + sha.substring(0,7)  + '</a></td><td>';
                 if (result && result[platform] && result[platform][sha]) {
                     if (result[platform][sha].failure) {
-                        platform_table += '<a href="#" style="color:red" onclick="alert(\'' + result[platform][sha].details.replace(/'/g, '\\').replace(/\n/g,'\\n') + '\');return false;">' + result[platform][sha].failure + '</a>';
+                        platform_table += '<a href="#" style="color:red" onclick="alert(\'' + result[platform][sha].details.replace(/'/g, "\\'").replace(/\n/g,'\\n') + '\');return false;">' + result[platform][sha].failure + '</a>';
                     } else {
                         var versions = result[platform][sha];
-                        var result_table = '<p>mobile-spec result</p><table></tr><tr><td>version</td><td>model/name</td><td>result</td></tr>';
+                        var result_table = '<p>mobile-spec result</p><table><tr><td>version</td><td>model/name</td><td>result</td></tr>';
                         for (var version in versions) if (versions.hasOwnProperty(version)) {
                             var models = versions[version];
-                            for (var model in models) if (models.hasOwnProperty(model)) {
-                                var results = models[model];
-                                var pass = (results.tests - results.num_fails);
-                                var percent = ((pass / results.tests)*100).toFixed(2);
-                                result_table += '<tr><td>' + version + '</td><td>' + model + '</td><td>pass: ' + pass + ', fail: <a href="#" onclick="alert(\'' + results.fails.join('\\n').replace(/'/g,"\\'") + '\');return false;">' + results.num_fails + '</a>, %: ' + percent + '</td></tr>';
+                            if (models.failure) {
+                                result_table += '<tr><td>'+version+'</td><td colspan="2"><a href="#" style="color:red" onclick="alert(\''+models.details.replace(/'/g,"\\'").replace(/\n/g, '\\n')+'\');return false;">' + models.failure + '</a></td></tr>';
+                            } else {
+                                for (var model in models) if (models.hasOwnProperty(model)) {
+                                    var results = models[model];
+                                    if (results.failure) {
+                                        result_table += '<tr><td>'+version+'</td><td>' + model + '</td><td><a href="#" style="color:red" onclick="alert(\''+results.details.replace(/'/g,"\\'").replace(/\n/g, '\\n')+'\');return false;">' + results.failure + '</a></td></tr>';
+                                    } else {
+                                        var pass = (results.tests - results.num_fails);
+                                        var percent = ((pass / results.tests)*100).toFixed(2);
+                                        result_table += '<tr><td>' + version + '</td><td>' + model + '</td><td>pass: ' + pass + ', fail: <a href="#" onclick="alert(\'' + results.fails.join('\\n').replace(/'/g,"\\'") + '\');return false;">' + results.num_fails + '</a>, %: ' + percent + '</td></tr>';
+                                    }
+                                }
                             }
                         }
                         result_table += '</table>';

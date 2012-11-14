@@ -63,10 +63,32 @@ module.exports = {
     },
     add_build_failure:function(platform, sha, failure, details) {
         if (!results[platform]) results[platform] = {};
-        results[platform][sha] = {
-            failure:failure,
-            details:details
-        };
+        if (arguments.length == 4) {
+            results[platform][sha] = {
+                failure:failure,
+                details:details
+            };
+        } else if (arguments.length == 5) {
+            var version = failure;
+            failure = details;
+            details = arguments[4];
+            if (!results[platform][sha]) results[platform][sha] = {};
+            results[platform][sha][version] = {
+                failure:failure,
+                details:details
+            };
+        } else if (arguments.length == 6) {
+            var version = failure;
+            var model = details;
+            failure = arguments[4];
+            details = arguments[5];
+            if (!results[platform][sha]) results[platform][sha] = {};
+            if (!results[platform][sha][version]) results[platform][sha][version] = {};
+            results[platform][sha][version][model] = {
+                failure:failure,
+                details:details
+            };
+        }
         html = renderer(shas, results);
     },
     update_commit_list:function(lib) {

@@ -33,6 +33,12 @@ module.exports = function(output, sha) {
                 if (code > 0) {
                     error_writer('blackberry', sha, './bin/create error', create_out);
                 } else {
+                    // set codesign to true
+                    var playbook_xml = path.join(output, 'playbook.xml');
+                    var qnx_xml = path.join(output, 'qnx.xml');
+                    fs.writeFileSync(playbook_xml, fs.readFileSync(playbook_xml, 'utf-8').replace(/code\.sign"\s*value="\w*"/, 'code.sign" value="true"'), 'utf-8');
+                    fs.writeFileSync(qnx_xml, fs.readFileSync(qnx_xml, 'utf-8').replace(/code\.sign"\s*value="\w*"/, 'code.sign" value="true"'), 'utf-8');
+
                     // copy over mobile spec modified html assets
                     log('Modifying Cordova application.');
                     shell.cp('-Rf', path.join(mobile_spec, '*'), path.join(output, 'www'));
@@ -79,10 +85,10 @@ module.exports = function(output, sha) {
                             log(num_ts + ' Tablets and ' + num_bs + ' BB-10s detected.');
                             // compile as needed, one for bb10, one for tablet
                             if (num_bs) {
-                                bbten_builder(bbtens);
+                                bbten_builder(bbtens, sha);
                             }
                             if (num_ts) {
-                                playbook_builder(tablets);
+                                playbook_builder(tablets, sha);
                             }
                         } else {
                             log('No BlackBerry devices discovered. Aborting.');

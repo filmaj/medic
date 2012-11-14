@@ -8,7 +8,6 @@ module.exports = function process_results(posts) {
     fs.readdir(posts, function(err, platforms) {
         if (err) throw ('Could not read posts directory (' + posts + ')');
         platforms.forEach(function(platform) {
-            var libName = 'incubator-cordova-' + platform.toLowerCase();
             var resDir = path.join(posts, platform);
             fs.readdir(resDir, function(err, resultsBySha) {
                 if (err) throw ('Could not read results lib directory (' + resDir + ')');
@@ -37,10 +36,32 @@ module.exports = function process_results(posts) {
                         root:testDir,
                         fileFilter:'*.json'
                     }).on('data', function(entry) {
+                        // figure out if version + model are in the path tree. if so, these are version/model-specific errors
+                        var dir = entry.fullParentDir;
+                        var extras = dir.substring(testDir.length);
+                        var version = null, model = null;
+                        if (extras.length) {
+                            extras = extras.substring(1);
+                            if (extras.indexOf('/') > -1) {
+                                // both version and model
+                                var both = extras.split('/');
+                                version = both[0];
+                                model = both[1];
+                            } else {
+                                // only version
+                                version = extras;
+                            }
+                        }
                         fs.readFile(entry.fullPath, 'utf-8', function(err, data) {
                             if (err) throw ('Could not read error file ' + entry.fullPath);
                             var json = JSON.parse(data);
-                            templates.add_build_failure(platform, sha, json.failure, json.details);
+                            if (model && version) {
+                                templates.add_build_failure(platform, sha, version, model, json.failure, json.details);
+                            } else if (version) {
+                                templates.add_build_failure(platform, sha, version, json.failure, json.details);
+                            } else {
+                                templates.add_build_failure(platform, sha, json.failure, json.details);
+                            }
                         });
                     });
                 });

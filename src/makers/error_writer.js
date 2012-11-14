@@ -7,6 +7,18 @@ var posts = path.join(__dirname, '..', '..', 'posts');
 
 module.exports = function error_writer(platform, sha, failure, details) {
     var shadir = path.join(posts, platform, sha);
+    if (arguments.length == 5) {
+        var version = failure;
+        failure = details;
+        details = arguments[4];
+        shadir = path.join(shadir, version);
+    } else if (arguments.length == 6) {
+        var version = failure;
+        var model = details;
+        failure = arguments[4];
+        details = arguments[5];
+        shadir = path.join(shadir, version, model);
+    }
     shell.mkdir('-p', shadir);
     var filename = path.join(shadir, new Date().valueOf() + '.json');
     var contents = JSON.stringify({
