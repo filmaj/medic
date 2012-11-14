@@ -2,9 +2,17 @@
     "server":"192.168.1.128",
     "port":"8088",
     "blackberry":{
-        "networkRange":"192.168.1.100-192.168.1.140",
-        "bb10Sdk":"/Users/fil/SDKs/BB10-WebWorks-1.0.2",
-        "tabletSdk":"/Users/fil/SDKs/WebWorks-Tablet-2.2",
-        "password":"password"
+        "devices":{
+            "networkRange":"192.168.1.100-192.168.1.140",
+            "password":"password"
+        },
+        "bb10":{
+            "sdk":"/Users/fil/SDKs/BB10-WebWorks-1.0.2",
+            "signingPassword":""
+        },
+        "tablet":{
+            "sdk":"/Users/fil/SDKs/WebWorks-Tablet-2.2",
+            "signingPassword":""
+        }
     }
 }

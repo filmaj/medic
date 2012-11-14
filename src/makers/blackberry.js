@@ -2,7 +2,10 @@ var shell = require('shelljs'),
     path  = require('path'),
     et    = require('elementtree'),
     config= require('../../config'),
+    semver= require('semver'),
     scanner=require('./blackberry/blackberry_scanner'),
+    playbook_builder = require('./blackberry/playbook_builder'),
+    bbten_builder = require('./blackberry/bbten_builder'),
     error_writer=require('./error_writer'),
     fs    = require('fs');
 
@@ -13,7 +16,7 @@ var results = path.join(__dirname, '..', '..', 'posts', 'blackberry');
 
 module.exports = function(output, sha) {
     function log(msg) {
-        console.log('[BlackBerry] ' + msg + ' (sha: ' + sha.substr(0,7) + ')');
+        console.log('[BLACKBERRY] ' + msg + ' (sha: ' + sha.substr(0,7) + ')');
     }
     shell.rm('-rf', output);
 
@@ -44,14 +47,43 @@ module.exports = function(output, sha) {
                     doc.getroot().find('content').attrib.src = 'autotest/pages/all.html';
                     fs.writeFileSync(config_path, doc.write({indent:4}), 'utf-8');
 
+                    // two copies of the project
+                    var playbook_target = path.join(output, '..', 'playbook');
+                    var bbten_target = path.join(output, '..', 'bb10');
+                    var final_pb = path.join(output, 'playbook');
+                    var final_bbten = path.join(output, 'bb10');
+                    shell.mv(output, playbook_target);
+                    shell.mkdir('-p', bbten_target);
+                    shell.cp('-R', path.join(playbook_target, '*'), bbten_target);
+                    shell.mkdir('-p', output);
+                    shell.mv(playbook_target, final_pb);
+                    shell.mv(bbten_target, final_bbten);
+
                     // scan for devices, figure out which of each kind we have.
                     scanner(config.blackberry, function(devices) {
                         if (devices) {
                             // determine how many of each device we have
-                            console.log(devices);
-                            // TODO: compile as needed, one for bb10, one for tablet
-                            // TODO: uninstall if exists on each device
-                            // TODO: 
+                            var tablets = {}, bbtens = {};
+                            var num_ts = 0, num_bs = 0;
+                            for (var ip in devices) if (devices.hasOwnProperty(ip)) {
+                                var device = devices[ip];
+                                var version = device.version;
+                                if (semver.satisfies(version.substring(0,version.lastIndexOf('.')), '>=2.0.0 && < 3.0.0')) {
+                                    num_ts++;
+                                    tablets[ip] = device;
+                                } else {
+                                    num_bs++;
+                                    bbtens[ip] = device;
+                                }
+                            }
+                            log(num_ts + ' Tablets and ' + num_bs + ' BB-10s detected.');
+                            // compile as needed, one for bb10, one for tablet
+                            if (num_bs) {
+                                bbten_builder(bbtens);
+                            }
+                            if (num_ts) {
+                                playbook_builder(tablets);
+                            }
                         } else {
                             log('No BlackBerry devices discovered. Aborting.');
                         }

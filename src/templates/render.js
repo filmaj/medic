@@ -6,15 +6,19 @@ html    += '<h2>cordova-android</h2>';
 html    += '{android}';
 html    += '<h2>cordova-ios</h2>';
 html    += '{ios}';
+html    += '<h2>cordova-blackberry-webworks</h2>';
+html    += '{blackberry}';
 html    += '</body></html>';
 
 function create_results_table(sha_list, result) {
     var data = {
         'android':null,
-        'ios':null
+        'ios':null,
+        'blackberry':null
     };
     for (var lib in sha_list) if (sha_list.hasOwnProperty(lib)) {
         var platform = lib.substr(18);
+        if (platform.indexOf('-') > -1) platform = platform.substring(0, platform.indexOf('-'));
         var platform_table = '<table><tr><td>commit</td><td>test results</td></tr>';
         var recent_shas = sha_list[lib];
         if (recent_shas) {

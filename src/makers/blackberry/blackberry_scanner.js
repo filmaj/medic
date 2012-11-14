@@ -1,10 +1,16 @@
 var path = require('path'),
     shell = require('shelljs');
 
+// hardware id -> model
+var hardware_map = {
+    '0x06001a06':{name:'Playbook',tablet:true},
+    '0x04002307':{name:'BB 10 Dev Alpha',tablet:false}
+};
+
 module.exports = function blackberry_scanner(config, callback) {
-    var range = config.networkRange;
-    var sdk_path = config.bb10Sdk;
-    var password = config.password;
+    var range = config.devices.networkRange;
+    var sdk_path = config.bb10.sdk || config.tablet.sdk;
+    var password = config.devices.password;
     var deploy = path.join(sdk_path, 'dependencies', 'tools', 'bin', 'blackberry-deploy');
 
     // figure out over what range of ips to scan
@@ -24,10 +30,11 @@ module.exports = function blackberry_scanner(config, callback) {
                     var lines = output.split('\n');
                     var version = lines.filter(function(l) { return l.indexOf('scmbundle::') > -1; })[0].split('::')[1];
                     var hardware = lines.filter(function(l) { return l.indexOf('hardwareid::') > -1; })[0].split('::')[1];
+                    if (hardware_map.hasOwnProperty(hardware)) hardware = hardware_map[hardware].name;
                     if (!devices) devices = {};
                     devices[ip] = {
                         hardware:hardware,
-                        version:version
+                        version:version,
                     };
                 } 
                 if (pings === 0) {

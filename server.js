@@ -16,12 +16,14 @@ var posts = path.join(__dirname, 'posts');
 var platformMap = {
     'ipod touch':'ios',
     'ipad':'ios',
-    'iphone':'ios'
+    'iphone':'ios',
+    'playbook':'blackberry'
 };
 
 http.createServer(function (req, res) {
     var route = url.parse(req.url).pathname.substr(1);
     var method = req.method.toLowerCase();
+    console.log('[HTTP ' + req.method + '] /' + route);
     switch (method) {
         case 'post':
             switch (route) {
@@ -31,7 +33,6 @@ http.createServer(function (req, res) {
                     req.on('end', function() {
                         res.writeHead(200);
                         res.end();
-                        console.log('Received a commit notification!');
                         var commits = JSON.parse(commitBody);
 
                         // Update relevant libraries
@@ -89,7 +90,7 @@ http.createServer(function (req, res) {
     };
 }).listen(config.port);
 
-console.log('Listening on port ' + config.port);
+console.log('[HTTP] Server listening on port ' + config.port);
 
 // where we store mobile-spec results
 var posts = path.join(__dirname, 'posts');

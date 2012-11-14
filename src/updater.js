@@ -29,5 +29,5 @@ module.exports = function(commits) {
             create_mobile_spec_app();
         }
     }
-    console.log('Libraries (' + counter + ' of \'em) have been updated.');
+    console.log('[UPDATER] Libraries (' + counter + ' of \'em) have been updated.');
 };
