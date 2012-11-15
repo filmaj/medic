@@ -23,9 +23,9 @@ var platformMap = {
 http.createServer(function (req, res) {
     var route = url.parse(req.url).pathname.substr(1);
     var method = req.method.toLowerCase();
-    console.log('[HTTP ' + req.method + '] /' + route);
     switch (method) {
         case 'post':
+            console.log('[HTTP POST] /' + route);
             switch (route) {
                 case 'commit':
                     var commitBody = '';
