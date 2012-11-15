@@ -22,9 +22,36 @@ function should_we_kill(process, buf, sha, device_id) {
 }
 
 function run_through(sha, devices, bundlePath, bundleId) {
+    function log(msg) {
+        console.log('[IOS] [DEPLOY] ' + msg + ' (' + sha.substr(0,7) + ')');
+    }
     var d = devices.shift();
     if (d) {
-
+        log('Uninstalling app on ' + d);
+        var cmd = listdevices + ' uninstall --id=' + d + ' --bundle-id=org.apache.cordova.example';
+        shell.exec(cmd, {silent:true,async:true}, function(code, output) {
+            if (code > 0) log('Uninstall on ' + d + ' failed, continuing anyways.');
+            log('Install + deploy on ' + d);
+            var args = ['--id=' + d, '--bundle=' + bundlePath, '--debug'];
+            var buf = '';
+            var fruit = cp.spawn(fruitstrap, args);
+            fruit.stdout.on('data', function(stdout) {
+                console.log(stdout.toString());
+                buf += stdout.toString();
+                if (should_we_kill(fruit, buf, sha, d)) {
+                    run_through(sha, devices, bundlePath, bundleId);
+                }
+            });
+            fruit.stderr.on('data', function(stderr) {
+                console.log(stderr.toString());
+                buf += stderr.toString();
+                if (should_we_kill(fruit, buf, sha, d)) {
+                    run_through(sha, devices, bundlePath, bundleId);
+                }
+            });
+        });
+    } else {
+        log('Finished deploying to devices.');
     }
 }
 
@@ -35,27 +62,7 @@ module.exports = function deploy(sha, devices, bundlePath, bundleId) {
     }
     if (devices.length > 0) {
         log('Devices: ' + devices.join(', '));
-        devices.forEach(function(d) {
-            log('Uninstalling app on ' + d);
-            var cmd = listdevices + ' uninstall --id=' + d + ' --bundle-id=org.apache.cordova.example';
-            shell.exec(cmd, {silent:true,async:true}, function(code, output) {
-                if (code > 0) log('Uninstall on ' + d + ' failed, continuing anyways.');
-                log('Install + deploy on ' + d);
-                var args = ['--id=' + d, '--bundle=' + bundlePath, '--debug'];
-                var buf = '';
-                var fruit = cp.spawn(fruitstrap, args);
-                fruit.stdout.on('data', function(stdout) {
-                    console.log(stdout.toString());
-                    buf += stdout.toString();
-                    should_we_kill(fruit, buf, sha, d);
-                });
-                fruit.stderr.on('data', function(stderr) {
-                    console.log(stderr.toString());
-                    buf += stderr.toString();
-                    should_we_kill(fruit, buf, sha, d);
-                });
-            });
-        });
+        run_through(sha, devices, bundlePath, bundleId);
     } else log('No iOS devices detected.');
 };
 
