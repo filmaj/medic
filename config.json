@@ -1,6 +1,8 @@
 {
     "server":"10.0.1.155",
     "port":"8088",
+    "keychainPassword":"",
+    "keychainLocation":"",
     "blackberry":{
         "devices":{
             "networkRange":"10.0.1.120-10.0.1.190",
