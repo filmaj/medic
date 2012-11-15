@@ -27,5 +27,5 @@ module.exports = function() {
     fs.writeFileSync(tempAll, fs.readFileSync(tempAll, 'utf-8').replace(/<script type=.text.javascript. src=.\.\..html.TrivialReporter\.js.><.script>/, '<script type="text/javascript" src="../html/TrivialReporter.js"></script><script type="text/javascript" src="../../junit-reporter.js"></script>'), 'utf-8');
     fs.writeFileSync(tempAll, fs.readFileSync(tempAll, 'utf-8').replace(/jasmine.HtmlReporter.../, 'jasmine.HtmlReporter(); var jr = new jasmine.JUnitXmlReporter("' + config.server + ':' + config.port + '");'), 'utf-8');
     fs.writeFileSync(tempAll, fs.readFileSync(tempAll, 'utf-8').replace(/addReporter.htmlReporter../, 'addReporter(htmlReporter);jasmineEnv.addReporter(jr);'), 'utf-8');
-    console.log('Mobile Spec HTML app is ready.');
+    console.log('[MOBILE-SPEC] HTML app created.');
 }
