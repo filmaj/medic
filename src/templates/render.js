@@ -1,5 +1,3 @@
-var clone = require('clone');
-
 // html template for the dashboard
 var html = '<html><head></head><body><h1>ghetto cordova dashboard</h1>';
 html    += '<h2>cordova-android</h2>';
