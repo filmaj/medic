@@ -3,7 +3,7 @@
     "version":"0.0.2",
     "description":"continuous integration setup for Apache Cordova",
     "author":"Fil Maj <maj.fil@gmail.com> (http://filmaj.ca)",
-    "main":"server.js",
+    "main":"dashboard.js",
     "scripts":{
         "install":"node bootstrap.js"
     },

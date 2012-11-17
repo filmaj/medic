@@ -2,15 +2,7 @@ var http                   = require('http'),
     url                    = require('url'),
     path                   = require('path'),
     config                 = require('./config'),
-    shell                  = require('shelljs'),
-    fs                     = require('fs'),
-    et                     = require('elementtree'),
     templates              = require('./src/templates'),
-    builder                = require('./src/builder'),
-    updater                = require('./src/updater');
-
-// where we keep test results
-var posts = path.join(__dirname, 'posts');
 
 // map of platform names for sanity sake
 var platformMap = {
@@ -25,28 +17,11 @@ http.createServer(function (req, res) {
     var method = req.method.toLowerCase();
     switch (method) {
         case 'post':
-            console.log('[HTTP POST] /' + route);
             switch (route) {
-                case 'commit':
-                    var commitBody = '';
-                    req.on('data', function(chunk) { commitBody += chunk; });
-                    req.on('end', function() {
-                        res.writeHead(200);
-                        res.end();
-                        var commits = JSON.parse(commitBody);
-
-                        // Update relevant libraries
-                        // TODO: what if multiple commits are new?
-                        // TODO: build queuing system.
-                        // TODO: on init run through and see which of the x recent commits have no results. queue those commits for builds. 
-                        // TODO: should also have a queue/check system for devices
-                        updater(commits);
-
-                        // trigger builds only for relevant libraries
-                        builder(commits);
-                    });
-                    break;
                 case 'results':
+                    // TODO: move this to the couchdb map function
+
+                    /*
                     var body = '';
                     req.on('data', function(chunk) { body += chunk; });
                     req.on('end', function() {
@@ -76,6 +51,7 @@ http.createServer(function (req, res) {
                             templates.add_mobile_spec_result(platform, lib_sha, version, name, body);
                         }
                     });
+                        */
                     break;
             };
         case 'get':
@@ -90,10 +66,7 @@ http.createServer(function (req, res) {
     };
 }).listen(config.port);
 
+// TODO: query couchdb and build up templates
+require('./src/templates/process_results')(config);
+
 console.log('[HTTP] Server listening on port ' + config.port);
-
-// where we store mobile-spec results
-var posts = path.join(__dirname, 'posts');
-
-// run through the file system and process results + errors
-require('./src/templates/process_results')(posts);

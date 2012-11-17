@@ -1,8 +1,7 @@
 {
-    "server":"10.0.1.155",
-    "port":"8088",
-    "keychainPassword":"",
-    "keychainLocation":"",
+    "couchdb":{
+        "host":""
+    },
     "blackberry":{
         "devices":{
             "networkRange":"10.0.1.120-10.0.1.190",
@@ -16,5 +15,9 @@
             "sdk":"/Users/fil/SDKs/WebWorks-Tablet-2.2/bbwp",
             "signingPassword":""
         }
+    },
+    "ios":{
+        "keychainPassword":"",
+        "keychainLocation":""
     }
 }
