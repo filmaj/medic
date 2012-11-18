@@ -3,8 +3,8 @@ var http                   = require('http'),
     path                   = require('path'),
     shell                  = require('shelljs'),
     config                 = require('./config'),
-    builder                = require('./src/builder'),
-    updater                = require('./src/updater');
+    builder                = require('./src/build/builder'),
+    updater                = require('./src/build/updater');
 
 var temp = path.join(__dirname, 'temp');
 shell.rm('-rf', temp);

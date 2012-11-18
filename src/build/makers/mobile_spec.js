@@ -1,11 +1,11 @@
 var shell = require('shelljs'),
     path  = require('path'),
-    config= require('../../config'),
+    config= require('../../../config'),
     fs    = require('fs');
 
-var mobile_spec = path.join(__dirname, '..', '..', 'lib', 'incubator-cordova-mobile-spec');
-var jasmineReporter = path.join(__dirname, '..', 'jasmine-jsreporter.js');
-var mobile_spec_out = path.join(__dirname, '..', '..', 'temp', 'mobspec');
+var mobile_spec = path.join(__dirname, '..', '..', '..', 'lib', 'incubator-cordova-mobile-spec');
+var jasmineReporter = path.join(__dirname, 'mobile-spec', 'jasmine-jsreporter.js');
+var mobile_spec_out = path.join(__dirname, '..', '..', '..', 'temp', 'mobspec');
 
 module.exports = function() {
     shell.rm('-Rf', mobile_spec_out);

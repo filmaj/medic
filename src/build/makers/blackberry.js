@@ -1,7 +1,7 @@
 var shell = require('shelljs'),
     path  = require('path'),
     et    = require('elementtree'),
-    config= require('../../config'),
+    config= require('../../../config'),
     semver= require('semver'),
     scanner=require('./blackberry/blackberry_scanner'),
     playbook_builder = require('./blackberry/playbook_builder'),
@@ -9,10 +9,9 @@ var shell = require('shelljs'),
     error_writer=require('./error_writer'),
     fs    = require('fs');
 
-var blackberry_lib = path.join(__dirname, '..', '..', 'lib', 'incubator-cordova-blackberry-webworks');
-var mobile_spec = path.join(__dirname, '..', '..', 'temp', 'mobspec');
+var blackberry_lib = path.join(__dirname, '..', '..', '..', 'lib', 'incubator-cordova-blackberry-webworks');
+var mobile_spec = path.join(__dirname, '..', '..', '..', 'temp', 'mobspec');
 var create = path.join(blackberry_lib, 'bin', 'create');
-var results = path.join(__dirname, '..', '..', 'posts', 'blackberry');
 
 module.exports = function(output, sha) {
     function log(msg) {
@@ -38,8 +37,8 @@ module.exports = function(output, sha) {
                     shell.cp('-Rf', path.join(mobile_spec, '*'), path.join(output, 'www'));
 
                     // drop the BlackBerry library SHA into the junit reporter
-                    var tempJunit = path.join(output, 'www', 'junit-reporter.js');
-                    fs.writeFileSync(tempJunit, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJunit, 'utf-8'), 'utf-8');
+                    var tempJasmine = path.join(output, 'www', 'jasmine-jsreporter.js');
+                    fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
 
                     // modify start page
                     var config_path = path.join(output, 'www', 'config.xml');
@@ -61,7 +60,7 @@ module.exports = function(output, sha) {
 
                     // scan for devices, figure out which of each kind we have.
                     log('Scanning for BlackBerry devices.');
-                    scanner(config.blackberry, function(devices) {
+                    scanner(unction(devices) {
                         if (devices) {
                             // determine how many of each device we have
                             var tablets = {}, bbtens = {};

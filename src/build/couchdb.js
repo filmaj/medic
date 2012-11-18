@@ -1,5 +1,5 @@
 var request = require('request'),
-    config = require('../config');
+    config = require('../../config');
 
 var couch = config.couchdb.host + '/medic';
 
@@ -23,6 +23,7 @@ module.exports = {
         var doc_id_array = [document.platform, sha]; 
         if (document.version) doc_id_array.push(document.version);
         if (document.model) doc_id_array.push(document.model);
+        doc_id_array = doc_id_array.map(encodeURIComponent);
         url += doc_id_array.join('__');
         
         request.put({

@@ -1,8 +1,7 @@
 var shell = require('shelljs'),
-    path  = require('path'),
-    templates = require('./templates');
+    path  = require('path');
 
-var libDir = path.join(__dirname, '..', 'lib');
+var libDir = path.join(__dirname, '..', '..', 'lib');
 
 module.exports = function(commits) {
     // commits format:
@@ -18,11 +17,6 @@ module.exports = function(commits) {
         var libPath = path.join(libDir, lib);
         var res = shell.exec('cd ' + libPath + ' && git checkout -- . && git pull origin master', {silent:true});
         if (res.code > 0) throw ('Failed git-pull\'ing ' + libPath + '!\n' + res.output); 
-
-        // update the templates with the new sha
-        // TODO: this hsouldnt be here anymore
-        // TODO: move to dashboard
-        templates.update_commit_list(lib);
     }
     console.log('[UPDATER] Libraries (' + counter + ' of \'em) have been updated.');
 };

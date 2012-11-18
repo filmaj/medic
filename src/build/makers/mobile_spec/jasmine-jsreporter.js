@@ -171,7 +171,7 @@
         postTests: function(json) {
             console.log('posting tests');
             var xhr = new XMLHttpRequest();
-            var doc_id = encodeURIComponent([json.platform, library_sha, json.version, json.model].join('__'));
+            var doc_id = [json.platform, library_sha, json.version, json.model].map(encodeURIComponent).join('__');
             var doc_url = this.server + '/medic/' + doc_id;
             xhr.open("PUT", doc_url, true);
             xhr.onreadystatechange=function() {

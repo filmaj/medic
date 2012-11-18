@@ -1,4 +1,4 @@
-var config = require('../../../config'),
+var config = require('../../../../config'),
     path = require('path'),
     error_writer = require('../error_writer'),
     shell = require('shelljs'),
@@ -10,7 +10,7 @@ var signing_password = config.blackberry.tablet.signingPassword;
 
 var deploy = path.join(sdk, 'blackberry-tablet-sdk', 'bin', 'blackberry-deploy');
 
-var app = path.join(__dirname, '..', '..', '..', 'temp', 'blackberry', 'playbook');
+var app = path.join(__dirname, '..', '..', '..', '..', 'temp', 'blackberry', 'playbook');
 var binary = path.join(app, 'build', 'cordovaExample.bar');
 
 var project_properties = path.join(app, 'project.properties');

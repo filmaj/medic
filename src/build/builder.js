@@ -6,17 +6,17 @@ var path = require('path'),
     blackberry_build = require('./makers/blackberry');
 
 // results location
-var posts = path.join(__dirname, '..', 'posts');
+var posts = path.join(__dirname, '..','..', 'posts');
 
 // im lazy
 var ms = 'incubator-cordova-mobile-spec';
 
 // where we store generated apps mapping
 var output_paths = {
-    'incubator-cordova-android':path.join(__dirname, '..', 'temp', 'android'),
-    'incubator-cordova-ios':path.join(__dirname, '..', 'temp', 'ios'),
-    'incubator-cordova-blackberry-webworks':path.join(__dirname, '..', 'temp', 'blackberry'),
-    'incubator-cordova-mobile-spec':path.join(__dirname, '..', 'temp', 'mobspec')
+    'incubator-cordova-android':path.join(__dirname, '..', '..', 'temp', 'android'),
+    'incubator-cordova-ios':path.join(__dirname, '..', '..', 'temp', 'ios'),
+    'incubator-cordova-blackberry-webworks':path.join(__dirname, '..', '..', 'temp', 'blackberry'),
+    'incubator-cordova-mobile-spec':path.join(__dirname, '..', '..', 'temp', 'mobspec')
 };
 
 // builder mapping

@@ -1,5 +1,11 @@
 var path = require('path'),
-    shell = require('shelljs');
+    shell = require('shelljs'),
+    config = require('../../../../config');
+
+// paths, ip ranges and passwords for devices
+var range = config.blackberry.devices.networkRange;
+var sdk_path = config.blackberry.bb10.sdk || config.blackberry.tablet.sdk;
+var password = config.blackberry.devices.password;
 
 // hardware id -> model
 var hardware_map = {
@@ -7,10 +13,7 @@ var hardware_map = {
     '0x04002307':{name:'BB 10 Dev Alpha',tablet:false}
 };
 
-module.exports = function blackberry_scanner(config, callback) {
-    var range = config.devices.networkRange;
-    var sdk_path = config.bb10.sdk || config.tablet.sdk;
-    var password = config.devices.password;
+module.exports = function blackberry_scanner(callback) {
     var deploy = path.join(sdk_path, 'dependencies', 'tools', 'bin', 'blackberry-deploy');
 
     // figure out over what range of ips to scan

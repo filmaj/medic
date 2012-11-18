@@ -3,14 +3,14 @@ var shell = require('shelljs'),
     cp    = require('child_process'),
     deploy= require('./ios/deploy'),
     error_writer = require('./error_writer'),
-    config= require('../../config'),
+    config= require('../../../config'),
     fs    = require('fs');
 
 var keychain_location = config.ios.keychainLocation;
 var keychain_password = config.ios.keychainPassword;
 
-var ios_lib = path.join(__dirname, '..', '..', 'lib', 'incubator-cordova-ios');
-var mobile_spec = path.join(__dirname, '..', '..', 'temp', 'mobspec');
+var ios_lib = path.join(__dirname, '..', '..', '..', 'lib', 'incubator-cordova-ios');
+var mobile_spec = path.join(__dirname, '..', '..', '..', 'temp', 'mobspec');
 var create = path.join(ios_lib, 'bin', 'create');
 
 module.exports = function(output, sha) {
