@@ -16,8 +16,8 @@ module.exports = function(commits) {
         
         // shell out to git
         var libPath = path.join(libDir, lib);
-        //var res = shell.exec('cd ' + libPath + ' && git checkout -- . && git pull origin master', {silent:true});
-        //if (res.code > 0) throw ('Failed git-pull\'ing ' + libPath + '!\n' + res.output); 
+        var res = shell.exec('cd ' + libPath + ' && git checkout -- . && git pull origin master', {silent:true});
+        if (res.code > 0) throw ('Failed git-pull\'ing ' + libPath + '!\n' + res.output); 
 
         // update the templates with the new sha
         // TODO: this hsouldnt be here anymore

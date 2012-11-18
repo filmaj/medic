@@ -2,21 +2,29 @@ var request = require('request'),
     config = require('../config');
 
 var couch = config.couchdb.host + '/medic';
-console.log(couch);
 
 function log(msg) {
     console.log('[COUCH] ' + msg);
 }
 
+log('Using host ' + couch);
+
 module.exports = {
     clobber:function(sha, document, callback) {
+        // Overwrites a sha result
+
         function e(msg, err) {
             console.error('[COUCH ERROR] ' + msg, err);
             callback({error:true,status:err});
         }
 
-        // Overwrites a sha result
-        var url = couch + '/' + sha;
+        // Form doc id + url for couch
+        var url = couch + '/';
+        var doc_id_array = [document.platform, sha]; 
+        if (document.version) doc_id_array.push(document.version);
+        if (document.model) doc_id_array.push(document.model);
+        url += doc_id_array.join('__');
+        
         request.put({
             url:url,
             json:document

@@ -6,17 +6,16 @@ var shell = require('shelljs'),
     config= require('../../config'),
     fs    = require('fs');
 
-var keychain_location = config.keychainLocation;
-var keychain_password = config.keychainPassword;
+var keychain_location = config.ios.keychainLocation;
+var keychain_password = config.ios.keychainPassword;
 
 var ios_lib = path.join(__dirname, '..', '..', 'lib', 'incubator-cordova-ios');
 var mobile_spec = path.join(__dirname, '..', '..', 'temp', 'mobspec');
-var logspot = path.join(__dirname, '..', '..', 'temp', 'log');
 var create = path.join(ios_lib, 'bin', 'create');
 
 module.exports = function(output, sha) {
     function log(msg) {
-        console.log('[IOS] ' + msg + ' (' + sha.substr(0,7) + ')');
+        console.log('[IOS] ' + msg + ' (sha: ' + sha.substr(0,7) + ')');
     }
     shell.rm('-rf', output);
 
@@ -37,20 +36,21 @@ module.exports = function(output, sha) {
                 shell.cp('-Rf', path.join(mobile_spec, '*'), projectWww);
 
                 // drop the iOS library SHA into the junit reporter
-                var tempJunit = path.join(projectWww, 'junit-reporter.js');
-                fs.writeFileSync(tempJunit, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJunit, 'utf-8'), 'utf-8');
+                var tempJasmine = path.join(projectWww, 'jasmine-jsreporter.js');
+                fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
 
                 // modify start page
                 var mFile = path.join(output, 'cordovaExample', 'Classes', 'AppDelegate.m'); 
                 fs.writeFileSync(mFile, fs.readFileSync(mFile, 'utf-8').replace(/index\.html/, 'autotest/pages/all.html'), 'utf-8');
 
                 // modify whitelist
+                // TODO if node-plist is fixed, use that instead
                 var plist = path.join(output, 'cordovaExample', 'Cordova.plist');
                 var contents = fs.readFileSync(plist, 'utf-8');
                 var re = /<key>ExternalHosts<\/key>\s*<array\/>/gi;
                 fs.writeFileSync(plist, contents.replace(re, '<key>ExternalHosts</key><array><string>*</string></array>'), 'utf-8');
 
-                // modify configuration to Release mode, i386 to armv7 and sdk to iphoneos6.0  so we can use it with fruitstrap
+                // modify configuration to Release mode, i386 to armv7 and sdk to iphoneos6.0 so we can use it with fruitstrap
                 var debugScript = path.join(output, 'cordova', 'debug');
                 fs.writeFileSync(debugScript, fs.readFileSync(debugScript, 'utf-8').replace(/configuration Debug/, 'configuration Release').replace(/i386/g,'armv7').replace(/SDK=`.*`/, 'SDK="iphoneos6.0"'), 'utf-8');
 

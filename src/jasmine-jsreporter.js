@@ -103,6 +103,10 @@
         return suiteData;
     }
 
+    var platformMap = {
+        'ipod touch':'ios'
+    };
+
     var JSReporter =  function (server) {
         this.server = server;
     };
@@ -142,16 +146,19 @@
             for (i = 0, ilen = suites.length; i < ilen; ++i) {
                 if (suites[i].parentSuite === null) {
                     jasmine.runnerResults.suites.push(getSuiteData(suites[i]));
+                    var l = jasmine.runnerResults.suites.length;
                     // If 1 suite fails, the whole runner fails
-                    jasmine.runnerResults.passed = !jasmine.runnerResults.suites[i].passed ? false : jasmine.runnerResults.passed;
+                    jasmine.runnerResults.passed = !jasmine.runnerResults.suites[l-1].passed ? false : jasmine.runnerResults.passed;
                     // Add up all the durations
-                    jasmine.runnerResults.durationSec += jasmine.runnerResults.suites[i].durationSec;
+                    jasmine.runnerResults.durationSec += jasmine.runnerResults.suites[l-1].durationSec;
                 }
             }
 
+            var p = device.platform.toLowerCase();
+
             this.postTests({
                 mobilespec:jasmine.runnerResults,
-                platform:device.platform.toLowerCase(),
+                platform:(platformMap.hasOwnProperty(p) ? platformMap[p] : p),
                 version:device.version.toLowerCase(),
                 model:device.model || device.name
             });
@@ -159,7 +166,8 @@
         postTests: function(json) {
             console.log('posting tests');
             var xhr = new XMLHttpRequest();
-            var doc_url = this.server + '/medic/' + library_sha;
+            var doc_id = encodeURIComponent([json.platform, library_sha, json.version, json.model].join('__'));
+            var doc_url = this.server + '/medic/' + doc_id;
             xhr.open("PUT", doc_url, true);
             xhr.onreadystatechange=function() {
                 console.log('onreadystatechange');

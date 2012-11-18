@@ -36,14 +36,12 @@ function run_through(sha, devices, bundlePath, bundleId) {
             var buf = '';
             var fruit = cp.spawn(fruitstrap, args);
             fruit.stdout.on('data', function(stdout) {
-                console.log(stdout.toString());
                 buf += stdout.toString();
                 if (should_we_kill(fruit, buf, sha, d)) {
                     run_through(sha, devices, bundlePath, bundleId);
                 }
             });
             fruit.stderr.on('data', function(stderr) {
-                console.log(stderr.toString());
                 buf += stderr.toString();
                 if (should_we_kill(fruit, buf, sha, d)) {
                     run_through(sha, devices, bundlePath, bundleId);
