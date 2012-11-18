@@ -1,7 +1,10 @@
 var shell = require('shelljs'),
-    path  = require('path');
+    path  = require('path'),
+    commit_list = require('./commit_list'),
+    couch = require('../couchdb/interface');
 
 var libDir = path.join(__dirname, '..', '..', 'lib');
+var num_commits = 20;
 
 module.exports = function(commits) {
     // commits format:
@@ -9,7 +12,7 @@ module.exports = function(commits) {
     //     incubator-cordova-android:sha
     // }
     var counter = 0;
-    for (var lib in commits) if (commits.hasOwnProperty(lib)) {
+    for (var repo in commits) if (commits.hasOwnProperty(repo)) (function(lib) {
         console.log('[UPDATER] Grabbing latest for ' + lib);
         counter++;
         
@@ -17,6 +20,16 @@ module.exports = function(commits) {
         var libPath = path.join(libDir, lib);
         var res = shell.exec('cd ' + libPath + ' && git checkout -- . && git pull origin master', {silent:true});
         if (res.code > 0) throw ('Failed git-pull\'ing ' + libPath + '!\n' + res.output); 
-    }
+
+        // update couch
+        couch.cordova_commits.clobber(lib, {
+            shas:commit_list(lib, num_commits)
+        }, function(res) {
+            if (res.error) {
+            } else {
+                console.log('[COUCH] Cordova commits for ' + lib + ' updated.');
+            }
+        });
+    }(repo));
     console.log('[UPDATER] Libraries (' + counter + ' of \'em) have been updated.');
 };

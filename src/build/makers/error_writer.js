@@ -24,7 +24,7 @@ module.exports = function error_writer(platform, sha, failure, details) {
     // generate couch doc
     var doc = {
         sha:sha,
-        timestamp:(new Date().getTime() / 1000)
+        timestamp:(new Date().getTime() / 1000),
         platform:platform.toLowerCase(),
         failure:failure,
         details:details

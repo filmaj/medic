@@ -6,6 +6,7 @@ var http                   = require('http'),
     builder                = require('./src/build/builder'),
     updater                = require('./src/build/updater');
 
+// Clean out temp directory, where we keep our generated apps
 var temp = path.join(__dirname, 'temp');
 shell.rm('-rf', temp);
 shell.mkdir(temp);

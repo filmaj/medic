@@ -16,5 +16,9 @@ libs.forEach(function(lib) {
         var cmd = 'git clone https://git-wip-us.apache.org/repos/asf/' + lib + '.git ' + path.join(libDir, lib);
         console.log('Cloning ' + lib);
         shell.exec(cmd, {silent:true});
+    } else {
+        // Have the lib, update it.
+        var cmd = 'cd ' + path.join(libDir, lib) + ' && git checkout -- . && git pull origin master';
+        shell.exec(cmd, {silent:true});
     }
 });

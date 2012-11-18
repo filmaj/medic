@@ -1,4 +1,5 @@
 var request = require('request'),
+    follow = require('follow'),
     config = require('../../config');
 
 var couch = config.couchdb.host;
@@ -12,7 +13,8 @@ log('Using host ' + couch);
 // Generic interface + convenience functions for working with couch dbs
 function db(name) {
     this.name = name;
-    this.db_url = couch + '/' + this.name
+    this.db_url = couch + '/' + this.name;
+    this.is_following = false;
 }
 
 db.prototype = {
@@ -27,7 +29,7 @@ db.prototype = {
             var key = callback;
             callback = arguments[3];
         }
-    }
+    },
     clobber:function(id, document, callback) {
         // Overwrites a document 
 
@@ -53,7 +55,7 @@ db.prototype = {
                             if (resp.statusCode == 200) {
                                 var existing = JSON.parse(bod);
                                 var rev = existing._rev;
-                                request.delete({
+                                request.del({
                                     url:url + '?rev=' + rev,
                                 }, function(er, res, boday) {
                                     if (er) e('DELETE ' + url, er);
@@ -75,10 +77,20 @@ db.prototype = {
                 } else e('PUT unexpected status', response);
             }
         });
+    },
+    follow:function(callback) {
+        if (!this.is_following) {
+            this.is_following = true;
+            follow(this.db_url, function(err, change) {
+                if (!err) callback(change);
+            });
+            return true;
+        } else return false;
     }
 };
 
 module.exports = {
     build_errors:new db('build_errors'),
-    mobilespec_results:new db('mobilespec_results')
+    mobilespec_results:new db('mobilespec_results'),
+    cordova_commits:new db('cordova_commits')
 };

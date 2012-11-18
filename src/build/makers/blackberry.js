@@ -19,8 +19,6 @@ module.exports = function(output, sha) {
     }
     shell.rm('-rf', output);
 
-    var shaDir = path.join(results, sha);
-
     // checkout appropriate tag
     shell.exec('cd ' + blackberry_lib + ' && git checkout ' + sha, {silent:true, async:true}, function(code, checkout_output) {
         if (code > 0) {

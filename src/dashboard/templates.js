@@ -2,25 +2,16 @@ var fs       = require('fs'),
     shell    = require('shelljs'),
     et       = require('elementtree'),
     path     = require('path'),
-    commit_list = require('./templates/commit_list'),
     renderer    = require('./templates/render');
 
-// show this number of the most recent commits in lib's histories
-var num_commits_to_show = 20;
-
 // location of platform libraries
-var libDir = path.join(__dirname, '..', 'lib');
+var libDir = path.join(__dirname, '..', '..', 'lib');
 var libraries = fs.readdirSync(libDir);
 
 // hash of libraries -> [shas] 
 var shas = {};
 // hash of platforms -> shas -> platform versions -> device models -> # of tests, # of failures, test runtimes, and failed assertions
 var results = {};
-
-// get latest repository commit lists
-libraries.forEach(function(lib) {
-    shas[lib] = commit_list(lib, num_commits_to_show);
-});
 
 // cached string of html
 var html = renderer(shas, results);
@@ -90,8 +81,5 @@ module.exports = {
             };
         }
         html = renderer(shas, results);
-    },
-    update_commit_list:function(lib) {
-        shas[lib] = commit_list(lib, num_commits_to_show);
     }
 };
