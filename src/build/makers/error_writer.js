@@ -23,6 +23,8 @@ module.exports = function error_writer(platform, sha, failure, details) {
 
     // generate couch doc
     var doc = {
+        sha:sha,
+        timestamp:(new Date().getTime() / 1000)
         platform:platform.toLowerCase(),
         failure:failure,
         details:details
@@ -35,9 +37,14 @@ module.exports = function error_writer(platform, sha, failure, details) {
     console.error(failure + '\n' + details);
 
     // fire off to couch
-    couch.clobber(sha, doc, function(resp) {
+    var doc_id_array = [doc.platform, sha]; 
+    if (version) doc_id_array.push(doc.version);
+    if (model) doc_id_array.push(doc.model);
+    doc_id_array = doc_id_array.map(encodeURIComponent);
+    var doc_id = doc_id_array.join('__');
+    couch.build_errors.clobber(doc_id, doc, function(resp) {
         if (resp.error) {
-            console.error('[COUCH ERROR] Saving ' + sha);
+            console.error('[COUCH ERROR] Saving doc with id ' + doc_id);
         }
     });
 }

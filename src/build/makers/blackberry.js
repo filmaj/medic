@@ -60,7 +60,7 @@ module.exports = function(output, sha) {
 
                     // scan for devices, figure out which of each kind we have.
                     log('Scanning for BlackBerry devices.');
-                    scanner(unction(devices) {
+                    scanner(function(devices) {
                         if (devices) {
                             // determine how many of each device we have
                             var tablets = {}, bbtens = {};

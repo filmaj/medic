@@ -1,7 +1,7 @@
 var request = require('request'),
     config = require('../../config');
 
-var couch = config.couchdb.host + '/medic';
+var couch = config.couchdb.host;
 
 function log(msg) {
     console.log('[COUCH] ' + msg);
@@ -9,22 +9,20 @@ function log(msg) {
 
 log('Using host ' + couch);
 
-module.exports = {
-    clobber:function(sha, document, callback) {
+function db(name) {
+    this.name = name;
+}
+
+db.prototype = {
+    clobber:function(id, document, callback) {
         // Overwrites a sha result
 
         function e(msg, err) {
-            console.error('[COUCH ERROR] ' + msg, err);
+            console.error('[COUCH ERROR] DB: ' + this.name + ' ' + msg, err);
             callback({error:true,status:err});
         }
 
-        // Form doc id + url for couch
-        var url = couch + '/';
-        var doc_id_array = [document.platform, sha]; 
-        if (document.version) doc_id_array.push(document.version);
-        if (document.model) doc_id_array.push(document.model);
-        doc_id_array = doc_id_array.map(encodeURIComponent);
-        url += doc_id_array.join('__');
+        var url = couch + '/' + this.name + '/' + id;
         
         request.put({
             url:url,
@@ -64,4 +62,8 @@ module.exports = {
             }
         });
     }
+};
+
+module.exports = {
+    build_errors:new db('build_errors')
 };

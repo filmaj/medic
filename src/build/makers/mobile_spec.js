@@ -4,7 +4,7 @@ var shell = require('shelljs'),
     fs    = require('fs');
 
 var mobile_spec = path.join(__dirname, '..', '..', '..', 'lib', 'incubator-cordova-mobile-spec');
-var jasmineReporter = path.join(__dirname, 'mobile-spec', 'jasmine-jsreporter.js');
+var jasmineReporter = path.join(__dirname, 'mobile_spec', 'jasmine-jsreporter.js');
 var mobile_spec_out = path.join(__dirname, '..', '..', '..', 'temp', 'mobspec');
 
 module.exports = function() {

@@ -1,0 +1,41 @@
+{
+    "_id" : "_design/results",
+    "views" : {
+        "android" : {
+            "map" : ["function(doc){",
+                         "if (doc.platform == 'android' && doc.mobilespec) {",
+                             "emit(doc.sha, {",
+                                "\"total\":doc.mobilespec.total,",
+                                "\"passed\":(doc.mobilespec.total - doc.mobilespec.failed),",
+                                "\"version\":doc.version,",
+                                "\"model\":doc.model",
+                             "});",
+                         "}",
+                     "}"].join('')
+        },
+        "blackberry" : {
+            "map" : ["function(doc){",
+                         "if (doc.platform == 'blackberry' && doc.mobilespec) {",
+                             "emit(doc.sha, {",
+                                "\"total\":doc.mobilespec.total,",
+                                "\"passed\":(doc.mobilespec.total - doc.mobilespec.failed),",
+                                "\"version\":doc.version,",
+                                "\"model\":doc.model",
+                             "});",
+                         "}",
+                     "}"].join('')
+        },
+        "ios" : {
+            "map" : ["function(doc){",
+                         "if (doc.platform == 'ios' && doc.mobilespec) {",
+                             "emit(doc.sha, {",
+                                "\"total\":doc.mobilespec.total,",
+                                "\"passed\":(doc.mobilespec.total - doc.mobilespec.failed),",
+                                "\"version\":doc.version,",
+                                "\"model\":doc.model",
+                             "});",
+                         "}",
+                     "}"].join('')
+        }
+    }
+}

@@ -163,8 +163,10 @@
 
             this.postTests({
                 mobilespec:jasmine.runnerResults,
+                sha:library_sha,
                 platform:(platformMap.hasOwnProperty(p) ? platformMap[p] : p),
                 version:device.version.toLowerCase(),
+                timestamp:Math.floor((new Date()).getTime() / 1000),
                 model:device.model || device.name
             });
         },
@@ -172,7 +174,7 @@
             console.log('posting tests');
             var xhr = new XMLHttpRequest();
             var doc_id = [json.platform, library_sha, json.version, json.model].map(encodeURIComponent).join('__');
-            var doc_url = this.server + '/medic/' + doc_id;
+            var doc_url = this.server + '/mobilespec_results/' + doc_id;
             xhr.open("PUT", doc_url, true);
             xhr.onreadystatechange=function() {
                 console.log('onreadystatechange');
