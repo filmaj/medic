@@ -1,5 +1,5 @@
 var request = require('request'),
-    couch = require('../couchdb');
+    couch = require('../../couchdb/interface');
 
 /* send error to couch
  * accepts:

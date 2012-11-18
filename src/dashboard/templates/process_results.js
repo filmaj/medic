@@ -1,7 +1,3 @@
-var fs = require('fs'),
-    path = require('path'),
-    readdirp = require('readdirp');
-
 // TODO: determine which commits have no results and queue them
 module.exports = function process_results(posts) {
     // Identify which commits have test results

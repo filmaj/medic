@@ -9,20 +9,34 @@ function log(msg) {
 
 log('Using host ' + couch);
 
+// Generic interface + convenience functions for working with couch dbs
 function db(name) {
     this.name = name;
+    this.db_url = couch + '/' + this.name
 }
 
 db.prototype = {
+    get:function(id, callback) {
+        // Gets a specific document by id
+    },
+    query_view:function(design, view, callback) {
+        // Queries a view.
+
+        // Some parameter massaging to allow optional key parameter
+        if (arguments.length == 4) {
+            var key = callback;
+            callback = arguments[3];
+        }
+    }
     clobber:function(id, document, callback) {
-        // Overwrites a sha result
+        // Overwrites a document 
 
         function e(msg, err) {
             console.error('[COUCH ERROR] DB: ' + this.name + ' ' + msg, err);
             callback({error:true,status:err});
         }
 
-        var url = couch + '/' + this.name + '/' + id;
+        var url = this.db_url + '/' + id;
         
         request.put({
             url:url,
@@ -65,5 +79,6 @@ db.prototype = {
 };
 
 module.exports = {
-    build_errors:new db('build_errors')
+    build_errors:new db('build_errors'),
+    mobilespec_results:new db('mobilespec_results')
 };
