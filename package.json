@@ -13,7 +13,8 @@
         "readdirp":"0.2.1",
         "fruitstrap":"git://github.com/filmaj/fruitstrap.git",
         "forever":"0.10.0",
-        "semver":"1.1.0"
+        "semver":"1.1.0",
+        "request":"2.12.0"
     },
     "devDependencies":{
         "jasmine-node":">=1.0.0"

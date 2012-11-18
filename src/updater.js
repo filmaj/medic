@@ -1,8 +1,6 @@
 var shell = require('shelljs'),
     path  = require('path'),
-    fs    = require('fs'),
-    templates = require('./templates'),
-    create_mobile_spec_app = require('./create_mobile_spec_app');
+    templates = require('./templates');
 
 var libDir = path.join(__dirname, '..', 'lib');
 
@@ -18,16 +16,13 @@ module.exports = function(commits) {
         
         // shell out to git
         var libPath = path.join(libDir, lib);
-        var res = shell.exec('cd ' + libPath + ' && git checkout -- . && git pull origin master', {silent:true});
-        if (res.code > 0) throw ('Failed git-pull\'ing ' + libPath + '!\n' + res.output); 
+        //var res = shell.exec('cd ' + libPath + ' && git checkout -- . && git pull origin master', {silent:true});
+        //if (res.code > 0) throw ('Failed git-pull\'ing ' + libPath + '!\n' + res.output); 
 
         // update the templates with the new sha
+        // TODO: this hsouldnt be here anymore
+        // TODO: move to dashboard
         templates.update_commit_list(lib);
-
-        // if we are updating mobile-spec, build a fresh medic-compatible html app
-        if (lib == 'incubator-cordova-mobile-spec') {
-            create_mobile_spec_app();
-        }
     }
     console.log('[UPDATER] Libraries (' + counter + ' of \'em) have been updated.');
 };

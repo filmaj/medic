@@ -1,34 +1,43 @@
-var path = require('path'),
-    fs   = require('fs'),
-    shell= require('shelljs'),
-    templates = require('../templates');
+var request = require('request'),
+    couch = require('../couchdb');
 
-var posts = path.join(__dirname, '..', '..', 'posts');
-
+/* send error to couch
+ * accepts:
+ *   error_writer(platform, sha, failure, details)
+ *   error_writer(platform, sha, version, failure details);
+ *   error_writer(platform, sha, version, model, failure, details);
+ */
 module.exports = function error_writer(platform, sha, failure, details) {
-    var shadir = path.join(posts, platform, sha);
+    // massage args
+    var version, model;
     if (arguments.length == 5) {
-        var version = failure;
+        version = failure;
         failure = details;
         details = arguments[4];
-        shadir = path.join(shadir, version);
     } else if (arguments.length == 6) {
-        var version = failure;
-        var model = details;
+        version = failure;
+        model = details;
         failure = arguments[4];
         details = arguments[5];
-        shadir = path.join(shadir, version, model);
     }
-    shell.mkdir('-p', shadir);
-    var filename = path.join(shadir, new Date().valueOf() + '.json');
-    var contents = JSON.stringify({
+
+    // generate couch doc
+    var doc = {
+        platform:platform.toLowerCase(),
         failure:failure,
         details:details
-    });
-    fs.writeFile(filename, contents, 'utf-8', function(err) {
-        if (err) throw ('Failed to write out error file to ' + filename);
-        console.error('[ERROR] [' + platform[0].toUpperCase() + platform.substr(1) + '] (sha: ' + sha.substr(0,7) +')');
-        console.error(failure);
-        templates.add_build_failure(platform, sha, failure, details);
+    };
+    if (version) doc.version = version.toLowerCase();
+    if (model) doc.model = model;
+
+    // build error, be noisy
+    console.error('[' + platform.toUpperCase() + ' ERROR]: (sha: ' + sha.substr(0,7) +')');
+    console.error(failure + '\n' + details);
+
+    // fire off to couch
+    couch.clobber(sha, doc, function(resp) {
+        if (resp.error) {
+            console.error('[COUCH ERROR] Saving ' + sha);
+        }
     });
 }

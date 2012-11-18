@@ -7,7 +7,6 @@ var android_lib = path.join(__dirname, '..', '..', 'lib', 'incubator-cordova-and
 var mobile_spec = path.join(__dirname, '..', '..', 'temp', 'mobspec');
 var create = path.join(android_lib, 'bin', 'create');
 
-
 module.exports = function(output, sha) {
     function log(msg) {
         console.log('[ANDROID] ' + msg + ' (sha: ' + sha.substr(0,7) + ')');
@@ -29,9 +28,10 @@ module.exports = function(output, sha) {
                     // copy over mobile spec modified html assets
                     log('Modifying Cordova application.');
                     shell.cp('-Rf', path.join(mobile_spec, '*'), path.join(output, 'assets', 'www'));
+                    
                     // add the sha to the junit reporter
-                    var tempJunit = path.join(output, 'assets', 'www', 'junit-reporter.js');
-                    fs.writeFileSync(tempJunit, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJunit, 'utf-8'), 'utf-8');
+                    var tempJasmine = path.join(output, 'assets', 'www', 'jasmine-jsreporter.js');
+                    fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
 
                     // modify start page
                     var javaFile = path.join(output, 'src', 'org', 'apache', 'cordova', 'example', 'cordovaExample.java'); 
