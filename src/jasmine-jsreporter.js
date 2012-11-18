@@ -139,7 +139,9 @@
             jasmine.runnerResults = {
                 suites: [],
                 durationSec : 0,
-                passed : true
+                passed : true,
+                total: 0,
+                failed: 0
             };
 
             // Loop over all the Suites
@@ -148,9 +150,12 @@
                     jasmine.runnerResults.suites.push(getSuiteData(suites[i]));
                     var l = jasmine.runnerResults.suites.length;
                     // If 1 suite fails, the whole runner fails
-                    jasmine.runnerResults.passed = !jasmine.runnerResults.suites[l-1].passed ? false : jasmine.runnerResults.passed;
+                    var last = jasmine.runnerResults.suites[l-1];
+                    jasmine.runnerResults.passed = !last.passed ? false : jasmine.runnerResults.passed;
                     // Add up all the durations
-                    jasmine.runnerResults.durationSec += jasmine.runnerResults.suites[l-1].durationSec;
+                    jasmine.runnerResults.durationSec += last.durationSec;
+                    jasmine.runnerResults.total += last.total;
+                    jasmine.runnerResults.failed += last.failed;
                 }
             }
 
