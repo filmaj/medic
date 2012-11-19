@@ -4,10 +4,6 @@ var http                   = require('http'),
     request                = require('request'),
     config                 = require('./config'),
     templates              = require('./src/dashboard/templates'),
-    init_from_couch        = require('./src/dashboard/templates/init_from_couch');
-
-// query couchdb and build up templates, set up listeners on couch changes
-init_from_couch(config);
 
 http.createServer(function (req, res) {
     var route = url.parse(req.url).pathname.substr(1);
@@ -17,6 +13,7 @@ http.createServer(function (req, res) {
             switch (route) {
                 case '':
                     // Home
+                    console.log('[HTTP ' + new Date() + '] GET /');
                     res.writeHead(200);
                     res.write(templates.html(), 'utf-8');
                     res.end();

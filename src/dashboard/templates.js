@@ -1,42 +1,37 @@
-var fs       = require('fs'),
-    shell    = require('shelljs'),
-    et       = require('elementtree'),
-    path     = require('path'),
-    renderer    = require('./templates/render');
+var renderer = require('./templates/render'),
+    couch = require('../couchdb/interface');
 
-// location of platform libraries
-var libDir = path.join(__dirname, '..', '..', 'lib');
-var libraries = fs.readdirSync(libDir);
-
+// hash of libraries -> paths
+var libraries = require('../../libraries');
 // hash of libraries -> [shas] 
 var shas = {};
 // hash of platforms -> shas -> platform versions -> device models -> # of tests, # of failures, test runtimes, and failed assertions
 var results = {};
-
 // cached string of html
 var html = renderer(shas, results);
 
+for (var repo in libraries) if (libraries.hasOwnProperty(repo)) (function(lib) {
+    // get commits from couch
+    couch.cordova_commits.get(lib, function(err, doc) {
+        shas[lib] = doc.shas;
+        shas[lib].forEach(function(sha) {
+            // TODO: couch: for each commit, get results
+            // TODO: update templates
+        });
+    });
+    // TODO: subscribe to couch changes for commits
+    // TODO: subscribe to couch changes for mobile spec results
+    // TODO: subscribe to couch changes for build errors
+})(repo);
+
+// TODO: currently, errors clobber over mobile spec results.
+// INSTEAD, system should be aware of timestamps and use that in the template appropriately
+// TODO: NEED UX HELP!
 module.exports = {
     html:function() { return html; },
-    add_mobile_spec_result:function(platform, sha, version, model, xmlData) {
-        var xml = new et.ElementTree(et.XML(xmlData));
+    add_mobile_spec_result:function(platform, sha, version, model, spec) {
+        // TODO: parse spec into:
         var tests = 0, num_fails = 0, time = 0, failText = [];
-        xml.getroot().findall('testsuites').forEach(function(set) {
-            set.getchildren().forEach(function(suite) {
-                tests += parseInt(suite.attrib.tests, 10);
-                var failures = parseInt(suite.attrib.failures, 10);
-                num_fails += failures;
-                time += parseFloat(suite.attrib.time);
-                if (failures > 0) {
-                    suite.getchildren().forEach(function(testcase) {
-                        var failTitle = testcase.attrib.classname + ' ' + testcase.attrib.name;
-                        testcase.findall('failure').forEach(function(failure) {
-                            failText.push(failTitle + ' :: Assertion failure: ' + failure.text);
-                        });
-                    });
-                }
-            });
-        });
 
         // Make sure results have proper parent objects
         if (!results[platform]) results[platform] = {};

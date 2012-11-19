@@ -10,7 +10,7 @@ shell.rm('-rf', temp);
 shell.mkdir(temp);
 
 // get latest commits (and set up interval for pinging for that)
-git_hooks({period:1000 * 60 * 15}, function(libraries) {
+git_hooks({period:1000 * 60 * 15 /* 15 mins */}, function(libraries) {
     if (libraries) {
         console.log('[GIT] New commits!');
         // Update relevant libraries

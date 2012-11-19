@@ -30,7 +30,7 @@ db.prototype = {
         request.get(url, function(error, response, body) {
             if (error) e('GET ' + url, error);
             else {
-                if (response.statusCode == 200) 
+                if (response.statusCode == 200) callback(JSON.parse(body));
                 else if (response.statusCode == 404) e('Not found', 404);
                 else e('GET unexpected status ' + response.statusCode, JSON.parse(body));
             }
