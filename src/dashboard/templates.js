@@ -25,6 +25,7 @@ for (var repo in libraries) if (libraries.hasOwnProperty(repo)) (function(lib) {
 })(repo);
 
 // TODO: currently, errors clobber over mobile spec results.
+// This isn't terrible but instead this information should be parallel (I think)
 // INSTEAD, system should be aware of timestamps and use that in the template appropriately
 // TODO: NEED UX HELP!
 module.exports = {

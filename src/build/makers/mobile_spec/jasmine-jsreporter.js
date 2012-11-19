@@ -95,6 +95,8 @@
             suiteData.suites[i] = getSuiteData(suites[i]); //< recursive population
             suiteData.passed = !suiteData.suites[i].passed ? false : suiteData.passed;
             suiteData.durationSec += suiteData.suites[i].durationSec;
+            suiteData.total += suiteData.suites[i].total;
+            suiteData.failed += suiteData.suites[i].failed;
         }
 
         // Rounding duration numbers to 3 decimal digits

@@ -11,6 +11,7 @@ module.exports = function(commits) {
     // {
     //     incubator-cordova-android:sha
     // }
+    // TODO: async + callback this shit
     var counter = 0;
     for (var repo in commits) if (commits.hasOwnProperty(repo)) (function(lib) {
         console.log('[UPDATER] Grabbing latest for ' + lib);

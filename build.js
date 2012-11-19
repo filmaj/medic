@@ -18,9 +18,9 @@ git_hooks({period:1000 * 60 * 15 /* 15 mins */}, function(libraries) {
         // TODO: build queuing system.
         // TODO: on init run through and see which of the x recent commits have no results. queue those commits for builds. 
         // TODO: should also have a queue/check system for devices
-        updater(commits);
+        updater(libraries);
 
         // trigger builds only for relevant libraries
-        builder(commits);
+        builder(libraries);
     }
 });
