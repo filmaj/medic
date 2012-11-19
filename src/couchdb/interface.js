@@ -20,9 +20,10 @@ function db(name) {
 db.prototype = {
     get:function(id, callback) {
         // Gets a specific document by id
+        var db = this;
 
         function e(msg, err) {
-            log(' [ERROR] DB: ' + this.name + ' ' + msg, err);
+            log(' [ERROR] DB: ' + db.name + ' ' + msg, err);
             callback(err);
         }
 
@@ -47,9 +48,10 @@ db.prototype = {
     },
     clobber:function(id, document, callback) {
         // Overwrites a document 
+        var db = this;
 
         function e(msg, err) {
-            log(' [ERROR] DB: ' + this.name + ' ' + msg, err);
+            log(' [ERROR] DB: ' + db.name + ' ' + msg, err);
             callback(err);
         }
 

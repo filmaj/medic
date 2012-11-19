@@ -209,20 +209,24 @@
                                                         if (x_h_r.status==201) {
                                                             console.log('>>> DONE <<<');
                                                         } else {
-                                                            console.log('the round trip delete+create failed. i give up.');
+                                                            console.log('the round trip delete+create failed. i give up. status was: ' + x_h_r.status);
+                                                            console.log(x_h_r.responseText);
                                                         }
                                                     }
                                                 };
+                                                x_h_r.send(JSON.stringify(json));
                                             } else {
                                                 console.log('look, we tried to add the results to couch. it said it alrady exists. now im trying to DELETE it. it fucked up. wtf. status on the DELETE: ' + eksatschargh.status);
                                             }
                                         }
                                     };
+                                    eksatschargh.send(null);
                                 } else {
                                     console.log('look, we tried to add the results to couch. it said it alrady exists. now im trying to GET it so i can DELETE it. it fucked up. wtf. status on the GET: ' + exehar.status);
                                 }
                             }
                         };
+                        exehar.send(null);
                     } else {
                         console.log('some crazy shit happened. couch returned some balltastic info. status code: ' + xhr.status);
                         console.log(xhr.responseText);
