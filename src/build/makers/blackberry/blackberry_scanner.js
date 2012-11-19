@@ -4,7 +4,13 @@ var path = require('path'),
 
 // paths, ip ranges and passwords for devices
 var range = config.blackberry.devices.networkRange;
-var sdk_path = config.blackberry.bb10.sdk || config.blackberry.tablet.sdk;
+
+// depending on what sdks we have installed, the blackberry deploy tool is in different spots
+if (config.blackberry.bb10.sdk.length > 0) {
+    var deploy = path.join(config.blackberry.bb10.sdk, 'dependencies', 'tools', 'bin', 'blackberry-deploy');
+} else {
+    var deploy = path.join(config.blackberry.tablet.sdk, 'blackberry-tablet-sdk', 'bin', 'blackberry-deploy');
+}
 var password = config.blackberry.devices.password;
 
 // hardware id -> model
@@ -14,8 +20,6 @@ var hardware_map = {
 };
 
 module.exports = function blackberry_scanner(callback) {
-    var deploy = path.join(sdk_path, 'dependencies', 'tools', 'bin', 'blackberry-deploy');
-
     // figure out over what range of ips to scan
     var ips = range.split('-');
     var low = parseInt(ips[0].split('.')[3]);
