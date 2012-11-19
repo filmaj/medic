@@ -4,6 +4,7 @@
         "android" : {
             "map" : ["function(doc){",
                          "if (doc.platform == 'android' && doc.mobilespec) {",
+                            
                              "emit(doc.sha, {",
                                 "\"total\":doc.mobilespec.total,",
                                 "\"passed\":(doc.mobilespec.total - doc.mobilespec.failed),",

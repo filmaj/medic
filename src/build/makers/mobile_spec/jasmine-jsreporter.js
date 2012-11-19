@@ -84,6 +84,13 @@
                 failedCount : r.failedCount,
                 totalCount : r.totalCount
             };
+            if (r.passedCount != r.totalCount) {
+                var msgs = [];
+                r.getItems().forEach(function(item) {
+                    if (i!item.passed_) msgs.push(item);
+                });
+                suiteData.specs[i].failures = msgs;
+            }
             suiteData.total += r.totalCount;
             suiteData.failed += r.failedCount;
             suiteData.passed = !suiteData.specs[i].passed ? false : suiteData.passed;
