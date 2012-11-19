@@ -1,8 +1,6 @@
-var http                   = require('http'),
-    url                    = require('url'),
-    path                   = require('path'),
+var path                   = require('path'),
     shell                  = require('shelljs'),
-    config                 = require('./config'),
+    git_hooks              = require('apache-git-commit-hooks'),
     builder                = require('./src/build/builder'),
     updater                = require('./src/build/updater');
 
@@ -11,32 +9,18 @@ var temp = path.join(__dirname, 'temp');
 shell.rm('-rf', temp);
 shell.mkdir(temp);
 
-http.createServer(function (req, res) {
-    var route = url.parse(req.url).pathname.substr(1);
-    var method = req.method.toLowerCase();
-    switch (method) {
-        case 'post':
-            console.log('[HTTP POST] /' + route);
-            switch (route) {
-                case 'commit':
-                    var commitBody = '';
-                    req.on('data', function(chunk) { commitBody += chunk; });
-                    req.on('end', function() {
-                        res.writeHead(200);
-                        res.end();
-                        var commits = JSON.parse(commitBody);
+// get latest commits (and set up interval for pinging for that)
+git_hooks({period:1000 * 60 * 15}, function(libraries) {
+    if (libraries) {
+        console.log('[GIT] New commits!');
+        // Update relevant libraries
+        // TODO: what if multiple commits are new?
+        // TODO: build queuing system.
+        // TODO: on init run through and see which of the x recent commits have no results. queue those commits for builds. 
+        // TODO: should also have a queue/check system for devices
+        updater(commits);
 
-                        // Update relevant libraries
-                        // TODO: what if multiple commits are new?
-                        // TODO: build queuing system.
-                        // TODO: on init run through and see which of the x recent commits have no results. queue those commits for builds. 
-                        // TODO: should also have a queue/check system for devices
-                        updater(commits);
-
-                        // trigger builds only for relevant libraries
-                        builder(commits);
-                    });
-                    break;
-            }
+        // trigger builds only for relevant libraries
+        builder(commits);
     }
-}).listen(8088);
+});

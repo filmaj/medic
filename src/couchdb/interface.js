@@ -20,6 +20,21 @@ function db(name) {
 db.prototype = {
     get:function(id, callback) {
         // Gets a specific document by id
+
+        function e(msg, err) {
+            log(' [ERROR] DB: ' + this.name + ' ' + msg, err);
+            callback(err);
+        }
+
+        var url = this.db_url + '/' + id;
+        request.get(url, function(error, response, body) {
+            if (error) e('GET ' + url, error);
+            else {
+                if (response.statusCode == 200) 
+                else if (response.statusCode == 404) e('Not found', 404);
+                else e('GET unexpected status ' + response.statusCode, JSON.parse(body));
+            }
+        });
     },
     query_view:function(design, view, callback) {
         // Queries a view.
@@ -34,8 +49,8 @@ db.prototype = {
         // Overwrites a document 
 
         function e(msg, err) {
-            console.error('[COUCH ERROR] DB: ' + this.name + ' ' + msg, err);
-            callback({error:true,status:err});
+            log(' [ERROR] DB: ' + this.name + ' ' + msg, err);
+            callback(err);
         }
 
         var url = this.db_url + '/' + id;
@@ -44,7 +59,7 @@ db.prototype = {
             url:url,
             json:document
         }, function(error, response, body) {
-            if (error)  e('PUT ' + url, error);
+            if (error) e('PUT ' + url, error);
             else {
                 var status = response.statusCode;
                 if (status == 201) callback(body);
@@ -74,7 +89,7 @@ db.prototype = {
                             } else e('GET unexpected status', resp.statusCode);
                         }
                     });
-                } else e('PUT unexpected status', response);
+                } else e('PUT unexpected status', response.statusCode);
             }
         });
     },
