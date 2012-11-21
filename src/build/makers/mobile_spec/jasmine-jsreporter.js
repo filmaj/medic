@@ -73,12 +73,12 @@
             spec.durationSec = elapsedSec(spec.startedAt.getTime(), spec.finishedAt.getTime());
             jasmine.runnerResults.durationSec += spec.durationSec;
             jasmine.runnerResults.total++;
-            var results = jasmine.runnerResults.results();
+            var results = spec.results();
             var failed = results.passed();
             if (failed) {
                 var failure = {spec:spec.getFullName(),assertions:[]};
                 jasmine.runnerResults.failed++;
-                failed.getItems().forEach(function(item) {
+                results.getItems().forEach(function(item) {
                     if (!item.passed) {
                         failure.assertions.push({exception:item.message,trace:item.trace.stack});
                     }
