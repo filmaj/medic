@@ -1,3 +1,5 @@
+var path = require('path');
+
 module.exports = {
     'incubator-cordova-android':path.join(__dirname, 'lib', 'incubator-cordova-android'),
     'incubator-cordova-ios':path.join(__dirname, 'lib', 'incubator-cordova-ios'),

@@ -8,6 +8,11 @@ function log(msg) {
     console.log('[COUCH] ' + msg);
 }
 
+if (couch.length < 4 || couch.indexOf('http') == -1) {
+    throw ('Pretty sure your couch config URL is wrong. Here it is wtf man: ' + couch);
+}
+
+
 log('Using host ' + couch);
 
 // Generic interface + convenience functions for working with couch dbs
