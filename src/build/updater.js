@@ -25,8 +25,9 @@ module.exports = function(commits) {
         // update couch
         couch.cordova_commits.clobber(lib, {
             shas:commit_list(lib, num_commits)
-        }, function(res) {
-            if (res.error) {
+        }, function(err, res) {
+            if (err) {
+                console.log('[COUCH] [ERROR] Could not update commits for ' + lib);
             } else {
                 console.log('[COUCH] Cordova commits for ' + lib + ' updated.');
             }

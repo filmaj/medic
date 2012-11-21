@@ -7,32 +7,63 @@ var libraries = require('../../libraries');
 var shas = {};
 // hash of platforms -> shas -> platform versions -> device models -> # of tests, # of failures, test runtimes, and failed assertions
 var results = {};
+var build_errors = {};
 // cached string of html
-var html = renderer(shas, results);
+var html;
 
-for (var repo in libraries) if (libraries.hasOwnProperty(repo)) (function(lib) {
-    // get commits from couch
-    couch.cordova_commits.get(lib, function(err, doc) {
-        shas[lib] = doc.shas;
-        shas[lib].forEach(function(sha) {
-            // TODO: couch: for each commit, get results
-            // TODO: update templates
-        });
-    });
-    // TODO: subscribe to couch changes for commits
-    // TODO: subscribe to couch changes for mobile spec results
-    // TODO: subscribe to couch changes for build errors
-})(repo);
+var should_render = false;
 
 // TODO: currently, errors clobber over mobile spec results.
 // This isn't terrible but instead this information should be parallel (I think)
 // INSTEAD, system should be aware of timestamps and use that in the template appropriately
 // TODO: NEED UX HELP!
 module.exports = {
+    boot:function(callback) {
+        // get commits from couch for each repo
+        var counter = 60; 
+        // TODO: get build errors from couch for each repo
+        for (var repo in libraries.paths) if (libraries.paths.hasOwnProperty(repo)) (function(lib) {
+            if (lib.indexOf('mobile-spec') > -1) return;
+            var platform = lib.substr('incubator-cordova-'.length);
+            if (platform.indexOf('webworks') > -1) platform = platform.split('-')[0];
+            couch.cordova_commits.get(lib, function(err, doc) {
+                if (err) {
+                    console.error('WTF CANT TALK TO COUCH?!');
+                    throw new Error(err);
+                } else {
+                    // couch returns twenty most recent commit shas for each repo
+                    // for each of these, query couch for results
+                    shas[lib] = doc.shas;
+                    shas[lib].forEach(function(sha) {
+                        couch.mobilespec_results.query_view('results', platform + '?key="' + sha + '"', function(error, result) {
+                            if (error) {
+                                console.error('query failed dude', error); throw 'Query failed';
+                            }
+                            if (result.rows.length) result.rows.forEach(function(row) {
+                                module.exports.add_mobile_spec_result(platform, sha, row);
+                            });
+                            counter--;
+                            if (counter === 0) {
+                                should_render = true;
+                                html = renderer(shas, results);
+                                callback();
+                            }
+                        });
+                    });
+                }
+            });
+            // TODO: subscribe to couch changes for commits
+        })(repo);
+        // TODO: subscribe to couch changes for mobile spec results
+        // TODO: subscribe to couch changes for build errors
+    },
     html:function() { return html; },
-    add_mobile_spec_result:function(platform, sha, version, model, spec) {
-        // TODO: parse spec into:
-        var tests = 0, num_fails = 0, time = 0, failText = [];
+    add_mobile_spec_result:function(platform, sha, doc) {
+        var tests = doc.value.total, num_fails = (doc.value.total - doc.value.passed), failText = doc.value.fails;
+
+        platform = platform.toLowerCase();
+        var model = doc.value.model;
+        var version = doc.value.version;
 
         // Make sure results have proper parent objects
         if (!results[platform]) results[platform] = {};
@@ -43,15 +74,15 @@ module.exports = {
         results[platform][sha][version][model] = {
             tests:tests,
             num_fails:num_fails,
-            time:time,
             fails:failText
         };
-        html = renderer(shas, results);
+        // TODO: shouldnt re-make all html templates, only relevant ones
+        if (should_render) html = renderer(shas, results);
     },
     add_build_failure:function(platform, sha, failure, details) {
-        if (!results[platform]) results[platform] = {};
+        if (!build_errors[platform]) build_errors[platform] = {};
         if (arguments.length == 4) {
-            results[platform][sha] = {
+            build_errors[platform][sha] = {
                 failure:failure,
                 details:details
             };
@@ -59,8 +90,8 @@ module.exports = {
             var version = failure;
             failure = details;
             details = arguments[4];
-            if (!results[platform][sha]) results[platform][sha] = {};
-            results[platform][sha][version] = {
+            if (!build_errors[platform][sha]) build_errors[platform][sha] = {};
+            build_errors[platform][sha][version] = {
                 failure:failure,
                 details:details
             };
@@ -69,13 +100,13 @@ module.exports = {
             var model = details;
             failure = arguments[4];
             details = arguments[5];
-            if (!results[platform][sha]) results[platform][sha] = {};
-            if (!results[platform][sha][version]) results[platform][sha][version] = {};
-            results[platform][sha][version][model] = {
+            if (!build_errors[platform][sha]) build_errors[platform][sha] = {};
+            if (!build_errors[platform][sha][version]) build_errors[platform][sha][version] = {};
+            build_errors[platform][sha][version][model] = {
                 failure:failure,
                 details:details
             };
         }
-        html = renderer(shas, results);
+        // TODO: how to render ?
     }
 };
