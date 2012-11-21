@@ -20,9 +20,6 @@ git_hooks({period:1000 * 60 * 15 /* 15 mins */}, function(libraries) {
         // TODO: build queuing system.
         // TODO: on init run through and see which of the x recent commits have no results. queue those commits for builds. 
         // TODO: should also have a queue/check system for devices
-        libraries = {
-            'incubator-cordova-blackberry-webworks':'9c1edccf60b48e1914f4b7093cf00d477908a05d'
-        };
         updater(libraries);
 
         // trigger builds only for relevant libraries
