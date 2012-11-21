@@ -2,9 +2,6 @@
     "couchdb":{
         "host":""
     },
-    "build":{
-        "host":""
-    },
     "dashboard":{
         "port":8088
     },

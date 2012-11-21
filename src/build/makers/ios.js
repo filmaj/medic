@@ -51,13 +51,13 @@ module.exports = function(output, sha) {
                 fs.writeFileSync(plist, contents.replace(re, '<key>ExternalHosts</key><array><string>*</string></array>'), 'utf-8');
 
                 // modify configuration to Release mode, i386 to armv7 and sdk to iphoneos6.0 so we can use it with fruitstrap
-                var debugScript = path.join(output, 'cordova', 'debug');
+                var debugScript = path.join(output, 'cordova', 'build');
                 fs.writeFileSync(debugScript, fs.readFileSync(debugScript, 'utf-8').replace(/configuration Debug/, 'configuration Release').replace(/i386/g,'armv7').replace(/SDK=`.*`/, 'SDK="iphoneos6.0"'), 'utf-8');
 
                 // compile
                 log('Compiling.');
                 
-                var debug = 'cd ' + output + ' && ./cordova/debug';
+                var debug = 'cd ' + output + ' && ./cordova/build';
                 var compile = shell.exec(debug, {silent:true});
                 if (compile.code > 0) {
                     error_writer('ios', sha, 'Compilation error.', compile.output);

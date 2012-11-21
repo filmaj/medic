@@ -23,7 +23,7 @@ db.prototype = {
         var db = this;
 
         function e(msg, err) {
-            log(' [ERROR] DB: ' + db.name + ' ' + msg, err);
+            log('[ERROR] DB: ' + db.name + ' ' + msg, err);
             callback(err);
         }
 
