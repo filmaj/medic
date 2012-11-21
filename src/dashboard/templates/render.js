@@ -1,5 +1,6 @@
 // html template for the dashboard
 var html = '<html><head></head><body><h1>ghetto cordova dashboard</h1>';
+html    += '<div style="position:fixed;margin-left:500px;;max-height:600px;overflow:scroll;"><h3>Errors (click on fail links)</h3><p id="errors"></p></div>';
 html    += '<h2>cordova-android</h2>';
 html    += '{android}';
 html    += '<h2>cordova-ios</h2>';
@@ -40,7 +41,27 @@ function create_results_table(sha_list, result) {
                                     } else {
                                         var pass = (results.tests - results.num_fails);
                                         var percent = ((pass / results.tests)*100).toFixed(2);
-                                        result_table += '<tr><td>' + version + '</td><td>' + model + '</td><td>pass: ' + pass + ', fail: <a href="#" onclick="alert(\'' + results.fails.map(function(f) {return f.spec + '\\n' + f.assertions.map(function(a) {return a.exception + '\\n' + a.trace + '\\n----';}).join('\\n') + '====\\n';}).join('\\n').replace(/'/g,"\\'") + '\');return false;">' + results.num_fails + '</a>, %: ' + percent + '</td></tr>';
+                                        var error_table = '<div>';
+                                        for (var i = 0, l = results.fails.length; i < l; i++) {
+                                            var f = results.fails[i];
+                                            error_table += '<h4 style=\'text-decoration:underline\'>' + f.spec + '</h4>';
+                                            for (var j = 0, m = f.assertions.length; j < m; j++) {
+                                                var a = f.assertions[j];
+                                                error_table += '<b>' + a.exception + '</b>';
+                                                if (a.trace && a.trace.length > 0) {
+                                                    var traces = a.trace.split('\n');
+                                                    for (var k = 0, n = traces.length; k < n; k++) {
+                                                        error_table += '<p style=\'font-size:11px\'>';
+                                                        var t = traces[k].replace(/</g,'').replace(/>/g,'');
+                                                        error_table += t + '</p>';
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        error_table += '</div>';
+                                        error_table = error_table.replace(/\n/g,'\\n').replace(/'/g,"\\'").replace(/"/g,'\\"');
+                                        var show = 'document.getElementById(\'errors\').innerHTML = \'' + error_table + '\';return false;';
+                                        result_table += '<tr><td>' + version + '</td><td>' + model + '</td><td>pass: ' + pass + ', fail: <a href="#" onclick="'+show+'">' + results.num_fails + '</a>, %: ' + percent + '</td></tr>';
                                     }
                                 }
                             }
