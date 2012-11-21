@@ -43,7 +43,8 @@
     }
 
     var platformMap = {
-        'ipod touch':'ios'
+        'ipod touch':'ios',
+        'iphone':'ios'
     };
 
     var JSReporter =  function (server) {
@@ -74,7 +75,7 @@
             jasmine.runnerResults.durationSec += spec.durationSec;
             jasmine.runnerResults.total++;
             var results = spec.results();
-            var failed = results.passed();
+            var failed = !(results.passed());
             if (failed) {
                 var failure = {spec:spec.getFullName(),assertions:[]};
                 jasmine.runnerResults.failed++;

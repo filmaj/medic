@@ -16,7 +16,7 @@ var libs_that_weve_built = {};
 git_hooks({period:1000 * 60 * 15 /* 15 mins */}, function(libraries) {
     if (libraries) {
         console.log('-------------------------------------------------');
-        console.log('[GIT] New commits!');
+        console.log('[GIT] New commits at ' + new Date());
         console.log('-------------------------------------------------');
         // Update relevant libraries
         // TODO: what if multiple commits are new?
