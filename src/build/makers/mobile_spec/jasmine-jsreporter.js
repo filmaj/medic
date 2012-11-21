@@ -42,76 +42,6 @@
         return (finishMs - startMs) / 1000;
     }
 
-    /**
-     * Round an amount to the given number of Digits.
-     * If no number of digits is given, than '2' is assumed.
-     * @param amount Amount to round
-     * @param numOfDecDigits Number of Digits to round to. Default value is '2'.
-     * @return Rounded amount */
-    function round (amount, numOfDecDigits) {
-        numOfDecDigits = numOfDecDigits || 2;
-        return Math.round(amount * Math.pow(10, numOfDecDigits)) / Math.pow(10, numOfDecDigits);
-    }
-
-    /**
-     * Collect information about a Suite, recursively, and return a JSON result.
-     * @param suite The Jasmine Suite to get data from
-     */
-    function getSuiteData (suite) {
-        var suiteData = {
-                description : suite.description,
-                durationSec : 0,
-                specs: [],
-                suites: [],
-                passed: true,
-                total: 0,
-                failed: 0
-            },
-            specs = suite.specs(),
-            suites = suite.suites(),
-            i, ilen;
-
-        // Loop over all the Suite's Specs
-        for (i = 0, ilen = specs.length; i < ilen; ++i) {
-            var spec = specs[i];
-            var r = spec.results();
-            suiteData.specs[i] = {
-                description : spec.description,
-                durationSec : spec.durationSec,
-                passed : r.passedCount === r.totalCount,
-                skipped : r.skipped,
-                passedCount : r.passedCount,
-                failedCount : r.failedCount,
-                totalCount : r.totalCount
-            };
-            if (r.passedCount != r.totalCount) {
-                var msgs = [];
-                r.getItems().forEach(function(item) {
-                    if (!item.passed_) msgs.push(spec.getFullName() + ': ' + item.message);
-                });
-                suiteData.specs[i].failures = msgs;
-            }
-            suiteData.total += r.totalCount;
-            suiteData.failed += r.failedCount;
-            suiteData.passed = !suiteData.specs[i].passed ? false : suiteData.passed;
-            suiteData.durationSec += suiteData.specs[i].durationSec;
-        }
-
-        // Loop over all the Suite's sub-Suites
-        for (i = 0, ilen = suites.length; i < ilen; ++i) {
-            suiteData.suites[i] = getSuiteData(suites[i]); //< recursive population
-            suiteData.passed = !suiteData.suites[i].passed ? false : suiteData.passed;
-            suiteData.durationSec += suiteData.suites[i].durationSec;
-            suiteData.total += suiteData.suites[i].total;
-            suiteData.failed += suiteData.suites[i].failed;
-        }
-
-        // Rounding duration numbers to 3 decimal digits
-        suiteData.durationSec = round(suiteData.durationSec, 4);
-
-        return suiteData;
-    }
-
     var platformMap = {
         'ipod touch':'ios'
     };
@@ -122,7 +52,14 @@
 
     JSReporter.prototype = {
         reportRunnerStarting: function (runner) {
-            // Nothing to do
+            // Attach results to the "jasmine" object to make those results easy to scrap/find
+            jasmine.runnerResults = {
+                failures: [],
+                durationSec : 0,
+                passed : true,
+                total: 0,
+                failed: 0
+            };
         },
 
         reportSpecStarting: function (spec) {
@@ -134,6 +71,20 @@
             // Finish timing this spec and calculate duration/delta (in sec)
             spec.finishedAt = new Date();
             spec.durationSec = elapsedSec(spec.startedAt.getTime(), spec.finishedAt.getTime());
+            jasmine.runnerResults.durationSec += spec.durationSec;
+            jasmine.runnerResults.total++;
+            var results = jasmine.runnerResults.results();
+            var failed = results.passed();
+            if (failed) {
+                var failure = {spec:spec.getFullName(),assertions:[]};
+                jasmine.runnerResults.failed++;
+                failed.getItems().forEach(function(item) {
+                    if (!item.passed) {
+                        failure.assertions.push({exception:item.message,trace:item.trace.stack});
+                    }
+                });
+                jasmine.runnerResults.failures.push(failure);
+            }
         },
 
         reportSuiteResults: function (suite) {
@@ -141,33 +92,6 @@
         },
 
         reportRunnerResults: function (runner) {
-            var suites = runner.suites(),
-                i, ilen;
-
-            // Attach results to the "jasmine" object to make those results easy to scrap/find
-            jasmine.runnerResults = {
-                suites: [],
-                durationSec : 0,
-                passed : true,
-                total: 0,
-                failed: 0
-            };
-
-            // Loop over all the Suites
-            for (i = 0, ilen = suites.length; i < ilen; ++i) {
-                if (suites[i].parentSuite === null) {
-                    jasmine.runnerResults.suites.push(getSuiteData(suites[i]));
-                    var l = jasmine.runnerResults.suites.length;
-                    // If 1 suite fails, the whole runner fails
-                    var last = jasmine.runnerResults.suites[l-1];
-                    jasmine.runnerResults.passed = !last.passed ? false : jasmine.runnerResults.passed;
-                    // Add up all the durations
-                    jasmine.runnerResults.durationSec += last.durationSec;
-                    jasmine.runnerResults.total += last.total;
-                    jasmine.runnerResults.failed += last.failed;
-                }
-            }
-
             var p = device.platform.toLowerCase();
 
             this.postTests({
@@ -175,7 +99,7 @@
                 sha:library_sha,
                 platform:(platformMap.hasOwnProperty(p) ? platformMap[p] : p),
                 version:device.version.toLowerCase(),
-                timestamp:Math.floor((new Date()).getTime() / 1000),
+                timestamp:Math.round(Math.floor((new Date()).getTime() / 1000)),
                 model:device.model || device.name
             });
         },
