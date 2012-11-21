@@ -17,11 +17,11 @@ Only tested on Mac OS 10.7.5.
 
 1. Customize the parameters laid out in the `./config.json` file in this
    directory
-2. `sudo npm install`
-2. `./node_modules/forever/bin/forever start server.js`
-3. POST to `/commit` with library name + sha pairs as JSON and medic will build and deploy a test suite wrapped in different flavours of Cordova applications to all connected and supported devices.
-4. This app swarm will POST test suite results back to `/results`
-5. GET `/` to see the results
+2. `sudo npm install`, if you get warning about bootstrap.js, try `npm install`
+3. `./node_modules/forever/bin/forever start server.js`
+4. POST to `/commit` with library name + sha pairs as JSON and medic will build and deploy a test suite wrapped in different flavours of Cordova applications to all connected and supported devices.
+5. This app swarm will POST test suite results back to `/results`
+6. GET `/` to see the results
 
 ## Contents
 
