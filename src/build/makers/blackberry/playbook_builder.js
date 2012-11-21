@@ -15,7 +15,7 @@ var binary = path.join(app, 'build', 'cordovaExample.bar');
 
 var project_properties = path.join(app, 'project.properties');
 
-module.exports = function playbook_builder(tablets, sha) {
+module.exports = function playbook_builder(tablets, sha, callback) {
     function log(msg) {
         console.log('[BLACKBERRY] [BUILDER:Tablet] ' + msg + ' (' + sha.substr(0,7) + ')');
     }
@@ -35,6 +35,7 @@ module.exports = function playbook_builder(tablets, sha) {
             shell.exec(cmd, {silent:true,async:true}, function(code, output) {
                 if (code > 0) {
                     error_writer('blackberry', sha, 'Compilation error.', output);
+                    callback(true);
                 } else {
                     // deploy and launch to tablets
                     if (tablets) for (var i in tablets) if (tablets.hasOwnProperty(i)) (function(ip) {
@@ -48,6 +49,7 @@ module.exports = function playbook_builder(tablets, sha) {
                             }
                         });
                     }(i));
+                    callback();
                 }
             });
         });

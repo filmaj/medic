@@ -21,7 +21,7 @@ function should_we_kill(process, buf, sha, device_id) {
     return false;
 }
 
-function run_through(sha, devices, bundlePath, bundleId) {
+function run_through(sha, devices, bundlePath, bundleId, callback) {
     function log(msg) {
         console.log('[IOS] [DEPLOY] ' + msg + ' (' + sha.substr(0,7) + ')');
     }
@@ -50,17 +50,21 @@ function run_through(sha, devices, bundlePath, bundleId) {
         });
     } else {
         log('Finished deploying to devices.');
+        callback();
     }
 }
 
 // deploy and run a specified bundle to specified devices
-module.exports = function deploy(sha, devices, bundlePath, bundleId) {
+module.exports = function deploy(sha, devices, bundlePath, bundleId, callback) {
     function log(msg) {
         console.log('[IOS] [DEPLOY] ' + msg + ' (' + sha.substr(0,7) + ')');
     }
     if (devices.length > 0) {
         log('Devices: ' + devices.join(', '));
-        run_through(sha, devices, bundlePath, bundleId);
-    } else log('No iOS devices detected.');
+        run_through(sha, devices, bundlePath, bundleId, callback);
+    } else {
+        log('No iOS devices detected.');
+        callback();
+    }
 };
 

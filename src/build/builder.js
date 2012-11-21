@@ -1,23 +1,13 @@
 var path = require('path'),
     fs = require('fs'),
+    libraries = require('../../libraries'),
     android_build    = require('./makers/android'),
     mobspec_build    = require('./makers/mobile_spec'),
     ios_build        = require('./makers/ios'),
     blackberry_build = require('./makers/blackberry');
 
-// results location
-var posts = path.join(__dirname, '..','..', 'posts');
-
 // im lazy
 var ms = 'incubator-cordova-mobile-spec';
-
-// where we store generated apps mapping
-var output_paths = {
-    'incubator-cordova-android':path.join(__dirname, '..', '..', 'temp', 'android'),
-    'incubator-cordova-ios':path.join(__dirname, '..', '..', 'temp', 'ios'),
-    'incubator-cordova-blackberry-webworks':path.join(__dirname, '..', '..', 'temp', 'blackberry'),
-    'incubator-cordova-mobile-spec':path.join(__dirname, '..', '..', 'temp', 'mobspec')
-};
 
 // builder mapping
 var builders = {
@@ -27,18 +17,37 @@ var builders = {
     'incubator-cordova-mobile-spec':mobspec_build
 };
 
+function build_the_queue(queue) {
+    var job = queue.shift();
+    if (job) {
+        console.log('[BUILDER] Starting job ' + job.library);
+        job.builder(job.output_location, job.sha, function(err) {
+            if (err) console.error('[BUILDER] Previous job failed.');
+            else build_the_queue(queue);
+        });
+    } else {
+        console.log('[BUILDER] Job queue emptied.');
+    }
+}
+
 module.exports = function builder(commits) {
     // build mobile-spec first if its in the commits
-    if (ms in commits) mobspec_build();
     // if a medic-flavoured mobile spec isnt built, build it
-    if (!fs.existsSync(output_paths[ms])) mobspec_build();
+    if (ms in commits || !fs.existsSync(libraries.output[ms])) mobspec_build();
 
     // commits format:
     // { incubator-cordova-android:'sha',
     //   incubator-cordova-ios:'sha' }
-    for (var lib in commits) if (commits.hasOwnProperty(lib)) {
+    var queue = [];
+    for (var lib in commits) if (commits.hasOwnProperty(lib) && lib != ms) {
         if (builders.hasOwnProperty(lib)) {
-            builders[lib](output_paths[lib], commits[lib]);
+            queue.push({
+                library:lib,
+                builder:builders[lib],
+                output_location:libraries.output[lib],
+                sha:commits[lib]
+            });
         }
     }
+    build_the_queue(queue);
 };

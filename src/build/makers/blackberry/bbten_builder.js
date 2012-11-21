@@ -21,7 +21,7 @@ var bbwp_cmd = bbwp + ' ' + zip + ' -o ' + build_dir + ' -d';
 
 var project_properties = path.join(app, 'project.properties');
 
-module.exports = function bbten_builder(tens, sha) {
+module.exports = function bbten_builder(tens, sha, callback) {
     function log(msg) {
         console.log('[BLACKBERRY] [BUILDER:OS 10] ' + msg + ' (' + sha.substr(0,7) + ')');
     }
@@ -40,11 +40,13 @@ module.exports = function bbten_builder(tens, sha) {
             shell.exec(cmd, {silent:true,async:true}, function(code, output) {
                 if (code > 0) {
                     error_writer('blackberry', sha, 'Packaging error.', output);
+                    callback();
                 } else {
                     // compile using bbwp
                     shell.exec(bbwp_cmd, {silent:true,async:true}, function(cowed, oatpoat) {
                         if (cowed > 0) {
                             error_writer('blackberry', sha, 'bbwp compilation error.', oatpoat);
+                            callback();
                         } else {
                             // deploy and launch to bb10s 
                             if (tens) for (var i in tens) if (tens.hasOwnProperty(i)) (function(ip) {
@@ -58,6 +60,7 @@ module.exports = function bbten_builder(tens, sha) {
                                     }
                                 });
                             }(i));
+                            callback();
                         }
                     });
                 }

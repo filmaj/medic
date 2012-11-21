@@ -1,13 +1,14 @@
 var shell = require('shelljs'),
     path  = require('path'),
     error_writer=require('./error_writer'),
+    n     = require('ncallbacks'),
     fs    = require('fs');
 
 var android_lib = path.join(__dirname, '..', '..', '..', 'lib', 'incubator-cordova-android');
 var mobile_spec = path.join(__dirname, '..', '..', '..', 'temp', 'mobspec');
 var create = path.join(android_lib, 'bin', 'create');
 
-module.exports = function(output, sha) {
+module.exports = function(output, sha, callback) {
     function log(msg) {
         console.log('[ANDROID] ' + msg + ' (sha: ' + sha.substr(0,7) + ')');
     }
@@ -18,12 +19,14 @@ module.exports = function(output, sha) {
     shell.exec('cd ' + android_lib + ' && git checkout ' + sha, {silent:true, async:true}, function(code, checkout_output) {
         if (code > 0) {
             error_writer('android', sha, 'error git-checking out sha ' + sha, checkout_output);
+            callback(true);
         } else {
             // create an android app into output dir
             log('Creating project.');
             shell.exec(create + ' ' + output, {silent:true,async:true}, function(code, create_out) {
                 if (code > 0) {
                     error_writer('android', sha, './bin/create error', create_out);
+                    callback(true);
                 } else {
                     // copy over mobile spec modified html assets
                     log('Modifying Cordova application.');
@@ -43,12 +46,14 @@ module.exports = function(output, sha) {
                     shell.exec(ant, {silent:true,async:true},function(code, compile_output) {
                         if (code > 0) {
                             error_writer('android', sha, 'Compilation error', compile_output);
+                            callback(true);
                         } else {
                             // get list of connected devices
                             shell.exec('adb devices', {silent:true,async:true},function(code, devices_output) {
                                 if (code > 0) {
                                     // Could not obtain device list...
                                     log('Error obtaining device list.');
+                                    callback();
                                 } else {
                                     var devices = devices_output.split('\n').slice(1);
                                     devices = devices.filter(function(d) { return d.length>0 && d.indexOf('daemon') == -1 && d.indexOf('attached') == -1; });
@@ -57,6 +62,7 @@ module.exports = function(output, sha) {
                                     // deploy and run on each device
                                     if (devices.length > 0) {
                                         log(devices.length + ' Android devices detected.');
+                                        var end = n(devices.length, callback);
                                         devices.forEach(function(d) {
                                             var cmd = 'adb -s ' + d + ' uninstall org.apache.cordova.example';
                                             var uninstall = shell.exec(cmd, {silent:true,async:true},function(code, uninstall_output) {
@@ -66,6 +72,7 @@ module.exports = function(output, sha) {
                                                 var install = shell.exec(cmd, {silent:true,async:true},function(code, install_output) {
                                                     if (code > 0) {
                                                         log('Error installing on device ' + d);
+                                                        end();
                                                     } else {
                                                         log('Running on device ' + d);
                                                         cmd = 'adb -s ' + d + ' shell am start -n org.apache.cordova.example/org.apache.cordova.example.cordovaExample';
@@ -75,12 +82,16 @@ module.exports = function(output, sha) {
                                                             } else {
                                                                 log('Mobile-spec successfully launched on device ' + d);
                                                             }
+                                                            end();
                                                         });
                                                     }
                                                 });
                                             });
                                         });
-                                    } else log('No Android devices connected. Aborting.');
+                                    } else {
+                                        log('No Android devices connected. Aborting.');
+                                        callback();
+                                    }
                                 }
                             });
                         }
