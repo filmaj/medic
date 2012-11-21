@@ -40,7 +40,7 @@ function create_results_table(sha_list, result) {
                                     } else {
                                         var pass = (results.tests - results.num_fails);
                                         var percent = ((pass / results.tests)*100).toFixed(2);
-                                        result_table += '<tr><td>' + version + '</td><td>' + model + '</td><td>pass: ' + pass + ', fail: <a href="#" onclick="alert(\'' + results.fails.join('\\n').replace(/'/g,"\\'") + '\');return false;">' + results.num_fails + '</a>, %: ' + percent + '</td></tr>';
+                                        result_table += '<tr><td>' + version + '</td><td>' + model + '</td><td>pass: ' + pass + ', fail: <a href="#" onclick="alert(\'' + results.fails.map(function(f) {return f.spec + '\\n' + f.assertions.map(function(a) {return a.exception + '\\n' + a.trace + '\\n----';}).join('\\n') + '====\\n';}).join('\\n').replace(/'/g,"\\'") + '\');return false;">' + results.num_fails + '</a>, %: ' + percent + '</td></tr>';
                                     }
                                 }
                             }
