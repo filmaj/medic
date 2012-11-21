@@ -17,6 +17,10 @@ module.exports = function(output, sha) {
     function log(msg) {
         console.log('[IOS] ' + msg + ' (sha: ' + sha.substr(0,7) + ')');
     }
+    if (keychain_location.length === 0 || keychain_password.length === 0) {
+        log('No keychain information. Fill that shit out in config.json if you want to build for iOS.');
+        return;
+    }
     shell.rm('-rf', output);
 
     // unlock the chain
