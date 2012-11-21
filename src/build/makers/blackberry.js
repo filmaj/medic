@@ -13,6 +13,9 @@ var blackberry_lib = path.join(__dirname, '..', '..', '..', 'lib', 'incubator-co
 var mobile_spec = path.join(__dirname, '..', '..', '..', 'temp', 'mobspec');
 var create = path.join(blackberry_lib, 'bin', 'create');
 
+var bb10_sdk = config.blackberry.bb10.sdk;
+var tablet_sdk = config.blackberry.tablet.sdk;
+
 module.exports = function(output, sha) {
     function log(msg) {
         console.log('[BLACKBERRY] ' + msg + ' (sha: ' + sha.substr(0,7) + ')');
@@ -76,10 +79,10 @@ module.exports = function(output, sha) {
                             }
                             log(num_ts + ' Tablets and ' + num_bs + ' BB-10s detected.');
                             // compile as needed, one for bb10, one for tablet
-                            if (num_bs) {
+                            if (num_bs && bb10_sdk.length > 0) {
                                 bbten_builder(bbtens, sha);
                             }
-                            if (num_ts) {
+                            if (num_ts && tablet_sdk.length > 0) {
                                 playbook_builder(tablets, sha);
                             }
                         } else {

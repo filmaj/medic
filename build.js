@@ -10,6 +10,8 @@ shell.rm('-rf', temp);
 shell.mkdir(temp);
 
 // get latest commits (and set up interval for pinging for that)
+// TODO: on first run should compare to cordova_commits on couch to see if builds are necessary
+// TODO: also should allow for a -f command line arg to forcibly-build platforms
 git_hooks({period:1000 * 60 * 15 /* 15 mins */}, function(libraries) {
     if (libraries) {
         console.log('-------------------------------------------------');
