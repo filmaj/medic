@@ -79,11 +79,13 @@
             if (failed) {
                 var failure = {spec:spec.getFullName(),assertions:[]};
                 jasmine.runnerResults.failed++;
-                results.getItems().forEach(function(item) {
-                    if (!item.passed) {
-                        failure.assertions.push({exception:item.message,trace:item.trace.stack});
+                var items = results.getItems();
+                for (var i = 0, l = items.length; i < l; i++) {
+                    var item = items[i];
+                    if (!item.passed_) {
+                        failure.assertions.push({exception:item.message,trace:(item.trace && item.trace.stack ? item.trace.stack : "")});
                     }
-                });
+                }
                 jasmine.runnerResults.failures.push(failure);
             }
         },

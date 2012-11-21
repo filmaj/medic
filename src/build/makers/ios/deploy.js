@@ -38,13 +38,13 @@ function run_through(sha, devices, bundlePath, bundleId, callback) {
             fruit.stdout.on('data', function(stdout) {
                 buf += stdout.toString();
                 if (should_we_kill(fruit, buf, sha, d)) {
-                    run_through(sha, devices, bundlePath, bundleId);
+                    run_through(sha, devices, bundlePath, bundleId, callback);
                 }
             });
             fruit.stderr.on('data', function(stderr) {
                 buf += stderr.toString();
                 if (should_we_kill(fruit, buf, sha, d)) {
-                    run_through(sha, devices, bundlePath, bundleId);
+                    run_through(sha, devices, bundlePath, bundleId, callback);
                 }
             });
         });
