@@ -9,7 +9,7 @@ var num_commits = 20;
 module.exports = function(commits) {
     // commits format:
     // {
-    //     incubator-cordova-android:sha
+    //     cordova-android:sha
     // }
     // TODO: async + callback this shit
     var counter = 0;

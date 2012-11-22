@@ -9,7 +9,7 @@ var shell = require('shelljs'),
 var keychain_location = config.ios.keychainLocation;
 var keychain_password = config.ios.keychainPassword;
 
-var ios_lib = path.join(__dirname, '..', '..', '..', 'lib', 'incubator-cordova-ios');
+var ios_lib = path.join(__dirname, '..', '..', '..', 'lib', 'cordova-ios');
 var mobile_spec = path.join(__dirname, '..', '..', '..', 'temp', 'mobspec');
 var create = path.join(ios_lib, 'bin', 'create');
 

@@ -28,8 +28,8 @@ There are three components in this system: a build process, a web server acting 
 - a couchdb full of medic result docs, with currently three databases: `mobilespec_results`, `cordova_commits` and `build_errors`
 - **dashboard.js**: small node web server that aggregates data from the above couch
 - **build.js**: a node process that pings the git apache servers for updates to the [Apache Cordova](http://cordova.io) project repositories.
-  - when it detects a new commit, it will run through and wrap up the Cordova test suite, [mobile-spec](http://github.com/apache/incubator-cordova-mobile-spec), in each platform implementation currently supported
-  - this version of [mobile-spec](http://github.com/apache/incubator-cordova-mobile-spec) will save results to couchdb
+  - when it detects a new commit, it will run through and wrap up the Cordova test suite, [mobile-spec](http://github.com/apache/cordova-mobile-spec), in each platform implementation currently supported
+  - this version of [mobile-spec](http://github.com/apache/cordova-mobile-spec) will save results to couchdb
 
 ## Supported Platforms
 

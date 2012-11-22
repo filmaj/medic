@@ -36,8 +36,8 @@ module.exports = function builder(commits) {
     if (ms in commits || !fs.existsSync(libraries.output[ms])) mobspec_build();
 
     // commits format:
-    // { incubator-cordova-android:'sha',
-    //   incubator-cordova-ios:'sha' }
+    // { cordova-android:'sha',
+    //   cordova-ios:'sha' }
     var queue = [];
     for (var lib in commits) if (commits.hasOwnProperty(lib) && lib != ms) {
         if (builders.hasOwnProperty(lib)) {
