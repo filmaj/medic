@@ -16,8 +16,7 @@ function create_results_table(sha_list, result) {
         'blackberry':null
     };
     for (var lib in sha_list) if (sha_list.hasOwnProperty(lib)) {
-        var platform = lib.substr(18);
-        if (platform.indexOf('-') > -1) platform = platform.substring(0, platform.indexOf('-'));
+        var platform = lib.substr('cordova-'.length);
         var platform_table = '<table><tr><td>commit</td><td>test results</td></tr>';
         var recent_shas = sha_list[lib];
         if (recent_shas) {

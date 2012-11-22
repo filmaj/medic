@@ -38,11 +38,12 @@ module.exports = {
                             if (error) {
                                 console.error('query failed dude', error); throw 'Query failed';
                             }
-                            if (result.rows.length) result.rows.forEach(function(row) {
-                                module.exports.add_mobile_spec_result(platform, sha, row);
-                            });
-                            counter--;
-                            if (counter === 0) {
+                            if (result.rows.length) {
+                                result.rows.forEach(function(row) {
+                                    module.exports.add_mobile_spec_result(platform, sha, row);
+                                });
+                            }
+                            if (--counter === 0) {
                                 should_render = true;
                                 html = renderer(shas, results);
                                 callback();
