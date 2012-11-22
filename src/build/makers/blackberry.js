@@ -10,7 +10,7 @@ var shell = require('shelljs'),
     error_writer=require('./error_writer'),
     fs    = require('fs');
 
-var blackberry_lib = path.join(__dirname, '..', '..', '..', 'lib', 'incubator-cordova-blackberry-webworks');
+var blackberry_lib = path.join(__dirname, '..', '..', '..', 'lib', 'cordova-blackberry');
 var mobile_spec = path.join(__dirname, '..', '..', '..', 'temp', 'mobspec');
 var create = path.join(blackberry_lib, 'bin', 'create');
 

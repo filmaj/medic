@@ -24,8 +24,7 @@ module.exports = {
         // TODO: get build errors from couch for each repo
         for (var repo in libraries.paths) if (libraries.paths.hasOwnProperty(repo)) (function(lib) {
             if (lib.indexOf('mobile-spec') > -1) return;
-            var platform = lib.substr('incubator-cordova-'.length);
-            if (platform.indexOf('webworks') > -1) platform = platform.split('-')[0];
+            var platform = lib.substr('cordova-'.length);
             couch.cordova_commits.get(lib, function(err, doc) {
                 if (err) {
                     console.error('WTF CANT TALK TO COUCH?!');

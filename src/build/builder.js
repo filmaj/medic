@@ -7,14 +7,14 @@ var path = require('path'),
     blackberry_build = require('./makers/blackberry');
 
 // im lazy
-var ms = 'incubator-cordova-mobile-spec';
+var ms = 'cordova-mobile-spec';
 
 // builder mapping
 var builders = {
-    'incubator-cordova-android':android_build,
-    'incubator-cordova-ios':ios_build,
-    'incubator-cordova-blackberry-webworks':blackberry_build,
-    'incubator-cordova-mobile-spec':mobspec_build
+    'cordova-android':android_build,
+    'cordova-ios':ios_build,
+    'cordova-blackberry':blackberry_build,
+    'cordova-mobile-spec':mobspec_build
 };
 
 function build_the_queue(queue) {

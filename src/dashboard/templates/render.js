@@ -5,7 +5,7 @@ html    += '<h2>cordova-android</h2>';
 html    += '{android}';
 html    += '<h2>cordova-ios</h2>';
 html    += '{ios}';
-html    += '<h2>cordova-blackberry-webworks</h2>';
+html    += '<h2>cordova-blackberry</h2>';
 html    += '{blackberry}';
 html    += '</body></html>';
 
@@ -59,7 +59,7 @@ function create_results_table(sha_list, result) {
                                             }
                                         }
                                         error_table += '</div>';
-                                        error_table = error_table.replace(/\n/g,'\\n').replace(/'/g,"\\'").replace(/"/g,'\\"');
+                                        error_table = error_table.replace(/\n/g,'\\n').replace(/'/g,"\\'").replace(/"/g,"\\'");
                                         var show = 'document.getElementById(\'errors\').innerHTML = \'' + error_table + '\';return false;';
                                         result_table += '<tr><td>' + version + '</td><td>' + model + '</td><td>pass: ' + pass + ', fail: <a href="#" onclick="'+show+'">' + results.num_fails + '</a>, %: ' + percent + '</td></tr>';
                                     }
