@@ -81,8 +81,11 @@ db.prototype = {
                                                 url:url,
                                                 json:document
                                             }, function(argh, r, bodee) {
-                                                if (r.statusCode == 201) callback(null, bodee);
-                                                else db.e('RE-PUT unexpected status', r.statusCode, callback);
+                                                if (argh) db.e('Re-PUT ' + url, argh, callback);
+                                                else {
+                                                    if (r.statusCode == 201) callback(null, bodee);
+                                                    else db.e('RE-PUT unexpected status', r.statusCode, callback);
+                                                }
                                             });
                                         } else db.e('DELETE unexpected status', res.statusCode, callback);
                                     }
