@@ -22,22 +22,22 @@ module.exports = function(output, sha, callback) {
         console.log('[BLACKBERRY] ' + msg + ' (sha: ' + sha.substr(0,7) + ')');
     }
 
-    try {
-        shell.rm('-rf', output);
+    shell.rm('-rf', output);
 
-        // checkout appropriate tag
-        shell.exec('cd ' + blackberry_lib + ' && git checkout ' + sha, {silent:true, async:true}, function(code, checkout_output) {
-            if (code > 0) {
-                error_writer('blackberry', sha, 'error git-checking out sha ' + sha, checkout_output);
-                callback(true);
-            } else {
-                // create a blackberry app into output dir
-                log('Creating project.');
-                shell.exec(create + ' ' + output + ' cordovaExample', {silent:true,async:true}, function(code, create_out) {
-                    if (code > 0) {
-                        error_writer('blackberry', sha, './bin/create error', create_out);
-                        callback(true);
-                    } else {
+    // checkout appropriate tag
+    shell.exec('cd ' + blackberry_lib + ' && git checkout ' + sha, {silent:true, async:true}, function(code, checkout_output) {
+        if (code > 0) {
+            error_writer('blackberry', sha, 'error git-checking out sha ' + sha, checkout_output);
+            callback(true);
+        } else {
+            // create a blackberry app into output dir
+            log('Creating project.');
+            shell.exec(create + ' ' + output + ' cordovaExample', {silent:true,async:true}, function(code, create_out) {
+                if (code > 0) {
+                    error_writer('blackberry', sha, './bin/create error', create_out);
+                    callback(true);
+                } else {
+                    try {
                         // copy over mobile spec modified html assets
                         log('Modifying Cordova application.');
                         shell.cp('-Rf', path.join(mobile_spec, '*'), path.join(output, 'www'));
@@ -63,46 +63,47 @@ module.exports = function(output, sha, callback) {
                         shell.mkdir('-p', output);
                         shell.mv(playbook_target, final_pb);
                         shell.mv(bbten_target, final_bbten);
-
-                        // scan for devices, figure out which of each kind we have.
-                        log('Scanning for BlackBerry devices.');
-                        scanner(function(devices) {
-                            if (devices) {
-                                // determine how many of each device we have
-                                var tablets = {}, bbtens = {};
-                                var num_ts = 0, num_bs = 0;
-                                for (var ip in devices) if (devices.hasOwnProperty(ip)) {
-                                    var device = devices[ip];
-                                    var version = device.version;
-                                    if (semver.satisfies(version.substring(0,version.lastIndexOf('.')), '>=2.0.0 && < 3.0.0')) {
-                                        num_ts++;
-                                        tablets[ip] = device;
-                                    } else {
-                                        num_bs++;
-                                        bbtens[ip] = device;
-                                    }
-                                }
-                                log(num_ts + ' Tablets and ' + num_bs + ' BB-10s detected.');
-                                var counter = (num_bs && bb10_sdk.length > 0 ? 1 : 0) + (num_ts && tablet_sdk.length > 0 ? 1 : 0);
-                                var end = n(counter, callback);
-                                // compile as needed, one for bb10, one for tablet
-                                if (num_bs && bb10_sdk.length > 0) {
-                                    bbten_builder(bbtens, sha, end);
-                                }
-                                if (num_ts && tablet_sdk.length > 0) {
-                                    playbook_builder(tablets, sha, end);
-                                }
-                            } else {
-                                log('No BlackBerry devices discovered. Aborting.');
-                                callback();
-                            }
-                        });
+                    } catch(e) {
+                        error_writer('blackberry', sha, 'Exception thrown modifying mobile spec application for BlackBerry.', e.message);
+                        callback(true);
+                        return;
                     }
-                });
-            }
-        });
-    } catch(e) {
-        error_writer('blackberry', sha, 'Exception thrown (' + e.type + ') during build.', e.message);
-        callback(true);
-    }
+
+                    // scan for devices, figure out which of each kind we have.
+                    log('Scanning for BlackBerry devices.');
+                    scanner(function(devices) {
+                        if (devices) {
+                            // determine how many of each device we have
+                            var tablets = {}, bbtens = {};
+                            var num_ts = 0, num_bs = 0;
+                            for (var ip in devices) if (devices.hasOwnProperty(ip)) {
+                                var device = devices[ip];
+                                var version = device.version;
+                                if (semver.satisfies(version.substring(0,version.lastIndexOf('.')), '>=2.0.0 && < 3.0.0')) {
+                                    num_ts++;
+                                    tablets[ip] = device;
+                                } else {
+                                    num_bs++;
+                                    bbtens[ip] = device;
+                                }
+                            }
+                            log(num_ts + ' Tablets and ' + num_bs + ' BB-10s detected.');
+                            var counter = (num_bs && bb10_sdk.length > 0 ? 1 : 0) + (num_ts && tablet_sdk.length > 0 ? 1 : 0);
+                            var end = n(counter, callback);
+                            // compile as needed, one for bb10, one for tablet
+                            if (num_bs && bb10_sdk.length > 0) {
+                                bbten_builder(bbtens, sha, end);
+                            }
+                            if (num_ts && tablet_sdk.length > 0) {
+                                playbook_builder(tablets, sha, end);
+                            }
+                        } else {
+                            log('No BlackBerry devices discovered. Aborting.');
+                            callback();
+                        }
+                    });
+                }
+            });
+        }
+    });
 }
