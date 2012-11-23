@@ -52,13 +52,6 @@ module.exports = function(output, sha, callback) {
                     var mFile = path.join(output, 'cordovaExample', 'Classes', 'AppDelegate.m'); 
                     fs.writeFileSync(mFile, fs.readFileSync(mFile, 'utf-8').replace(/index\.html/, 'autotest/pages/all.html'), 'utf-8');
 
-                    // modify whitelist
-                    // TODO if node-plist is fixed, use that instead
-                    var plist = path.join(output, 'cordovaExample', 'Cordova.plist');
-                    var contents = fs.readFileSync(plist, 'utf-8');
-                    var re = /<key>ExternalHosts<\/key>\s*<array\/>/gi;
-                    fs.writeFileSync(plist, contents.replace(re, '<key>ExternalHosts</key><array><string>*</string></array>'), 'utf-8');
-
                     // modify configuration to Release mode, i386 to armv7 and sdk to iphoneos6.0 so we can use it with fruitstrap
                     var debugScript = path.join(output, 'cordova', 'build');
                     fs.writeFileSync(debugScript, fs.readFileSync(debugScript, 'utf-8').replace(/configuration Debug/, 'configuration Release').replace(/i386/g,'armv7').replace(/SDK=`.*`/, 'SDK="iphoneos6.0"'), 'utf-8');
