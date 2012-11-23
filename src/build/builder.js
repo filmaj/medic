@@ -22,8 +22,8 @@ function build_the_queue(queue) {
     if (job) {
         console.log('[BUILDER] Starting job ' + job.library);
         job.builder(job.output_location, job.sha, function(err) {
-            if (err) console.error('[BUILDER] Previous job failed.');
-            else build_the_queue(queue);
+            if (err) console.error('[BUILDER] Previous job failed, continuing.');
+            build_the_queue(queue);
         });
     } else {
         console.log('[BUILDER] Job queue emptied.');
