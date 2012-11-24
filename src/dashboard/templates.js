@@ -97,12 +97,14 @@ module.exports = {
             if (err) console.error('mobspecresult FOLLOW ERR OMFGWTFBBQ', err);
             else if (change.deleted) return;
             else {
-                console.log('[COUCH] [MOBILE-SPEC] Notification of new result.');
+                console.log('[COUCH] New mobile-spec result for ' + change.doc.platform + ' ' + change.doc.version + ', ' + change.doc.model);
                 var doc = {
                     value:{
                         total:change.doc.mobilespec.total,
                         passed:(change.doc.mobilespec.total - change.doc.mobilespec.failed),
-                        fails:change.doc.mobilespec.failures
+                        fails:change.doc.mobilespec.failures,
+                        model:change.doc.model,
+                        version:change.doc.version
                     }
                 };
                 module.exports.add_mobile_spec_result(change.doc.platform, change.doc.sha, doc);
@@ -113,7 +115,7 @@ module.exports = {
         couch.build_errors.follow(function(err, change) {
             if (err) console.error('builderros FOLLOW ERR OMFGWTFBBQ', err);
             else {
-                console.log('[COUCH] [BUILD ERRORS] Notification of new error.');
+                console.log('[COUCH] New build error.');
                 module.exports.add_build_failure(change.doc.platform, change.doc.sha, change.doc);
             }
         });
