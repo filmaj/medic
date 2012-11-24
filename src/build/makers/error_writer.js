@@ -1,5 +1,4 @@
-var request = require('request'),
-    couch = require('../../couchdb/interface');
+var couch = require('../../couchdb/interface');
 
 /* send error to couch
  * accepts:
