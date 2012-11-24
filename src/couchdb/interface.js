@@ -100,8 +100,12 @@ db.prototype = {
     follow:function(callback) {
         if (!this.is_following) {
             this.is_following = true;
-            follow(this.db_url, function(err, change) {
-                if (!err) callback(change);
+            follow({
+                db:this.db_url,
+                since:'now',
+                include_docs:true
+            }, function(err, change) {
+                if (!err) callback(false, change);
                 else callback(err);
             });
             return true;

@@ -22,14 +22,24 @@ module.exports = function(commits) {
         var res = shell.exec('cd ' + libPath + ' && git checkout -- . && git pull origin master', {silent:true});
         if (res.code > 0) throw ('Failed git-pull\'ing ' + libPath + '!\n' + res.output); 
 
-        // update couch
-        couch.cordova_commits.clobber(lib, {
-            shas:commit_list(lib, num_commits)
-        }, function(err, res) {
-            if (err) {
-                console.log('[COUCH] [ERROR] Could not update commits for ' + lib);
-            } else {
-                console.log('[COUCH] Cordova commits for ' + lib + ' updated.');
+        // update couch if necessary
+        var latest_shas = commit_list(lib, num_commits);
+        couch.cordova_commits.get(lib, function(error, response) {
+            if (error) console.error('[COUCH] [ERROR] Could not retrieve latest commits from couch.');
+            else {
+                var stored_shas = response.shas;
+                if (stored_shas[0] != latest_shas[0]) {
+                    // we should update the shas.
+                    couch.cordova_commits.clobber(lib, {
+                        shas:latest_shas
+                    }, function(err, res) {
+                        if (err) {
+                            console.error('[COUCH] [ERROR] Could not update commits for ' + lib, err);
+                        } else {
+                            console.log('[COUCH] Cordova commits for ' + lib + ' updated.');
+                        }
+                    });
+                }
             }
         });
     }(repo));
