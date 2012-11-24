@@ -1,5 +1,6 @@
 var render = require('./templates/render'),
-    couch = require('../couchdb/interface');
+    couch  = require('../couchdb/interface'),
+    n      = require('ncallbacks');
 
 // hash of libraries -> paths
 var libraries = require('../../libraries');
@@ -15,8 +16,12 @@ var should_render = false;
 module.exports = {
     boot:function(callback) {
         // get commits from couch for each repo
-        var counter = 20 * 3 * 1; 
-        // TODO: get build errors from couch for each repo
+        var counter = 20 * 3 * 2; 
+        var end = n(counter, function() {
+            should_render = true;
+            html = render(shas, results, build_errors);
+            callback();
+        });
         for (var repo in libraries.paths) if (libraries.paths.hasOwnProperty(repo)) (function(lib) {
             if (lib.indexOf('mobile-spec') > -1) return;
             var platform = lib.substr('cordova-'.length);
@@ -26,23 +31,32 @@ module.exports = {
                     throw new Error(err);
                 } else {
                     // couch returns twenty most recent commit shas for each repo
-                    // for each of these, query couch for results
                     shas[lib] = doc.shas;
                     shas[lib].forEach(function(sha) {
-                        couch.mobilespec_results.query_view('results', platform + '?key="' + sha + '"', function(error, result) {
+                        // for each of these, get mobile spec results
+                        var view = platform + '?key="' + sha + '"';
+                        couch.mobilespec_results.query_view('results', view, function(error, result) {
                             if (error) {
-                                console.error('query failed dude', error); throw 'Query failed';
+                                console.error('query failed for mobile spec results', error); throw 'Query failed';
                             }
                             if (result.rows.length) {
                                 result.rows.forEach(function(row) {
                                     module.exports.add_mobile_spec_result(platform, sha, row);
                                 });
                             }
-                            if (--counter === 0) {
-                                should_render = true;
-                                html = render(shas, results, build_errors);
-                                callback();
+                            end();
+                        });
+                        // get build errors from couch for each repo
+                        couch.build_errors.query_view('errors', view, function(error, result) {
+                            if (error) {
+                                console.error('query failed for build errors', error); throw 'Query failed';
                             }
+                            if (result.rows.length) {
+                                result.rows.forEach(function(row) {
+                                    module.exports.add_build_failure(platform, sha, row);
+                                });
+                            }
+                            end();
                         });
                     });
                 }

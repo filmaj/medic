@@ -1,0 +1,14 @@
+{
+    "_id" : "_design/errors",
+    "views" : {
+        "android" : {
+            "map" : "function(doc){if (doc.platform == 'android' && doc.failure) {emit(doc.sha, {\"timestamp\":doc.timestamp,\"failure\":doc.failure,\"details\":doc.details,\"version\":doc.version,\"model\":doc.model});}}"
+        },
+        "blackberry" : {
+            "map" : "function(doc){if (doc.platform == 'blackberry' && doc.failure) {emit(doc.sha, {\"timestamp\":doc.timestamp,\"failure\":doc.failure,\"details\":doc.details,\"version\":doc.version,\"model\":doc.model});}}"
+        },
+        "ios" : {
+            "map" : "function(doc){if (doc.platform == 'ios' && doc.failure) {emit(doc.sha, {\"timestamp\":doc.timestamp,\"failure\":doc.failure,\"details\":doc.details,\"version\":doc.version,\"model\":doc.model});}}"
+        }
+    }
+}
