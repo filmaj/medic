@@ -164,6 +164,7 @@
                     } else {
                         console.log('some crazy shit happened. couch returned some balltastic info. status code: ' + xhr.status);
                         console.log(xhr.responseText);
+                        console.log('>>> DONE <<<');
                     }
                 }
             };

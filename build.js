@@ -11,8 +11,6 @@ shell.mkdir(temp);
 
 var libs_that_weve_built = {};
 // get latest commits (and set up interval for pinging for that)
-// TODO: on first run should compare to cordova_commits on couch to see if builds are necessary
-// TODO: also should allow for a -f command line arg to forcibly-build platforms
 git_hooks({period:1000 * 60 * 15 /* 15 mins */}, function(libraries) {
     if (libraries) {
         console.log('-------------------------------------------------');
@@ -20,9 +18,7 @@ git_hooks({period:1000 * 60 * 15 /* 15 mins */}, function(libraries) {
         console.log('-------------------------------------------------');
         // Update relevant libraries
         // TODO: what if multiple commits are new?
-        // TODO: build queuing system.
-        // TODO: on init run through and see which of the x recent commits have no results. queue those commits for builds. 
-        // TODO: should also have a queue/check system for devices
+        // TODO: build queuing system: every commit successfully built locally should be written to filesystem
         updater(libraries);
 
         // trigger builds only for relevant libraries
