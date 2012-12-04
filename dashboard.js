@@ -1,7 +1,5 @@
 var http                   = require('http'),
     url                    = require('url'),
-    path                   = require('path'),
-    request                = require('request'),
     config                 = require('./config'),
     templates              = require('./src/dashboard/templates');
 
