@@ -6,9 +6,9 @@ Continuous integration setup for [Apache Cordova](http://cordova.io)
 
 1. **VERY IMPORTANT**: Customize the parameters laid out in the `./config.json` file, especially the couch endpoint. If you're keen on getting to the data, contact me (@filmaj).
 2. `sudo npm install`
-  - If you get a warning about bootstrap.js, make sure you run it yourself after npm is done (`node bootstrap.js`)
-3. `node build.js` to run the builds
-4. `node dashboard.js` to run the server
+3. `node bootstrap.js`
+4. `node build.js` to run the builds and listen for Cordova commits
+5. `node dashboard.js` to run the dashboard server summarizing test results
 
 ## Requirements
 
