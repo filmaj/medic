@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "shelljs": "0.0.8",
+    "request": "2.12.0",
     "ncallbacks": "1.0.0"
   },
   "devDependencies": {
@@ -17,7 +18,6 @@
     "fruitstrap": "git://github.com/filmaj/fruitstrap.git",
     "forever": "0.10.0",
     "semver": "1.1.0",
-    "request": "2.12.0",
     "follow": "0.8.0",
     "apache-git-commit-hooks": "0.0.7",
     "jasmine-node": ">=1.0.0"
