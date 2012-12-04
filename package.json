@@ -1,6 +1,6 @@
 {
   "name": "medic",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "continuous integration setup for Apache Cordova",
   "author": "Fil Maj <maj.fil@gmail.com> (http://filmaj.ca)",
   "main": "dashboard.js",
@@ -9,10 +9,10 @@
     "start": "dashboard.js"
   },
   "dependencies": {
+    "shelljs": "0.0.8",
     "ncallbacks": "1.0.0"
   },
   "devDependencies": {
-    "shelljs": "0.0.8",
     "elementtree": "0.1.4",
     "readdirp": "0.2.1",
     "fruitstrap": "git://github.com/filmaj/fruitstrap.git",
