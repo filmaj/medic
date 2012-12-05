@@ -54,6 +54,7 @@ function create_results_table(sha_list, result, build_errors) {
             recent_shas.forEach(function(sha) {
                 var sha_template = commit_row_template;
                 var sha_data = {
+                    platform:platform,
                     sha:sha,
                     shortsha:sha.substr(0,7),
                     results:'',
