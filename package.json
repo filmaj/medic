@@ -1,6 +1,6 @@
 {
   "name": "medic",
-  "version": "0.0.4-4",
+  "version": "0.0.5",
   "description": "continuous integration setup for Apache Cordova",
   "author": "Fil Maj <maj.fil@gmail.com> (http://filmaj.ca)",
   "main": "dashboard.js",

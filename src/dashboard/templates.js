@@ -139,12 +139,12 @@ module.exports = {
             num_fails:num_fails,
             fails:failText
         };
-        if (should_render) render(shas, results, build_errors);
+        if (should_render) html = render(shas, results, build_errors);
     },
     add_build_failure:function(platform, sha, doc) {
         if (!build_errors[platform]) build_errors[platform] = {};
         if (!build_errors[platform][sha]) build_errors[platform][sha] = [];
         build_errors[platform][sha].push(doc);
-        if (should_render) render(shas, results, build_errors);
+        if (should_render) html = render(shas, results, build_errors);
     }
 };
