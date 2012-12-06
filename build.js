@@ -9,16 +9,19 @@ var temp = path.join(__dirname, 'temp');
 shell.rm('-rf', temp);
 shell.mkdir(temp);
 
-var libs_that_weve_built = {};
-// get latest commits (and set up interval for pinging for that)
-git_hooks({period:1000 * 60 * 15 /* 15 mins */}, function(libraries) {
+// TODO: get latest x commits, scan for devices, see if couch has results for each commit+device. if no, build to that device.
+// TODO: android doable by using adb devices + adb shell cat system/build.prop
+// TODO: bb also likely doable using bb-deploy
+// TODO: ios? ...
+
+// on new commits, update + build libraries.
+// TODO: once queue system in place this needs a refactor
+git_hooks({period:1000 * 60 * 5 /* 5 mins */}, function(libraries) {
     if (libraries) {
         console.log('-------------------------------------------------');
         console.log('[GIT] New commits at ' + new Date());
         console.log('-------------------------------------------------');
         // Update relevant libraries
-        // TODO: what if multiple commits are new?
-        // TODO: build queuing system: every commit successfully built locally should be written to filesystem
         updater(libraries);
 
         // trigger builds only for relevant libraries
