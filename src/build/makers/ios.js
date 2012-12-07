@@ -13,7 +13,7 @@ var ios_lib = path.join(__dirname, '..', '..', '..', 'lib', 'cordova-ios');
 var mobile_spec = path.join(__dirname, '..', '..', '..', 'temp', 'mobspec');
 var create = path.join(ios_lib, 'bin', 'create');
 
-module.exports = function(output, sha, callback) {
+module.exports = function(output, sha, devices, callback) {
     function log(msg) {
         console.log('[IOS] ' + msg + ' (sha: ' + sha.substr(0,7) + ')');
     }

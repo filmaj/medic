@@ -17,37 +17,47 @@ var builders = {
     'cordova-mobile-spec':mobspec_build
 };
 
-function build_the_queue(queue) {
-    var job = queue.shift();
+function build_the_queue(q, callback) {
+    var job = q.shift();
     if (job) {
-        console.log('[BUILDER] Starting job ' + job.library);
-        job.builder(job.output_location, job.sha, function(err) {
-            if (err) console.error('[BUILDER] Previous job failed, continuing.');
-            build_the_queue(queue);
+        job.builder(job.output_location, job.sha, job.devices, function(err) {
+            if (err) console.error('[BUILDER] Previous build failed, continuing.');
+            build_the_queue(q, callback);
         });
-    } else {
-        console.log('[BUILDER] Job queue emptied.');
-    }
+    } else callback();
 }
 
-module.exports = function builder(commits) {
+module.exports = function builder(commits, callback) {
     // build mobile-spec first if its in the commits
     // if a medic-flavoured mobile spec isnt built, build it
     if (ms in commits || !fs.existsSync(libraries.output[ms])) mobspec_build();
 
     // commits format:
-    // { cordova-android:'sha',
-    //   cordova-ios:'sha' }
-    var queue = [];
+    // { cordova-android:'sha'}
+    // OR
+    // { cordova-android:{
+    //     sha:'sha',
+    //     devices:[]
+    //   }
+    // }
+    var miniq = [];
     for (var lib in commits) if (commits.hasOwnProperty(lib) && lib != ms) {
         if (builders.hasOwnProperty(lib)) {
-            queue.push({
+            var job = {
                 library:lib,
                 builder:builders[lib],
-                output_location:libraries.output[lib],
-                sha:commits[lib]
-            });
+                output_location:libraries.output[lib]
+            };
+
+            // Some jobs might be for all devices, or specific devices
+            if (typeof commits[lib] == 'string') {
+                job.sha = commits[lib];
+            } else {
+                job.sha = commits[lib].sha;
+                job.devices = commits[lib].devices;
+            }
+            miniq.push(job);
         }
     }
-    build_the_queue(queue);
+    build_the_queue(miniq, callback);
 };

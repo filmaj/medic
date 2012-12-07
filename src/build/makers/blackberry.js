@@ -17,7 +17,7 @@ var create = path.join(blackberry_lib, 'bin', 'create');
 var bb10_sdk = config.blackberry.bb10.sdk;
 var tablet_sdk = config.blackberry.tablet.sdk;
 
-module.exports = function(output, sha, callback) {
+module.exports = function(output, sha, devices, callback) {
     function log(msg) {
         console.log('[BLACKBERRY] ' + msg + ' (sha: ' + sha.substr(0,7) + ')');
     }

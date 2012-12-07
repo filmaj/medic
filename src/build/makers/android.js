@@ -8,7 +8,7 @@ var android_lib = path.join(__dirname, '..', '..', '..', 'lib', 'cordova-android
 var mobile_spec = path.join(__dirname, '..', '..', '..', 'temp', 'mobspec');
 var create = path.join(android_lib, 'bin', 'create');
 
-module.exports = function(output, sha, callback) {
+module.exports = function(output, sha, devices, callback) {
     function log(msg) {
         console.log('[ANDROID] ' + msg + ' (sha: ' + sha.substr(0,7) + ')');
     }
