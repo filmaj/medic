@@ -4,6 +4,7 @@ var shell = require('shelljs'),
     deploy= require('./ios/deploy'),
     error_writer = require('./error_writer'),
     config= require('../../../config'),
+    scan  = require('./ios/devices'),
     fs    = require('fs');
 
 var keychain_location = config.ios.keychainLocation;
@@ -71,16 +72,13 @@ module.exports = function(output, sha, devices, callback) {
                     callback(true);
                 } else {
                     // get list of connected devices
-                    // TODO: what if this section fails?
-                    var devices = [],
-                        bundle = path.join(output, 'build', 'cordovaExample.app'),
-                        bundleId = 'org.apache.cordova.example';
-                    cp.exec('./node_modules/fruitstrap/listdevices --timeout 1 list-devices', function(err, stdout, stderr) {
-                        if (stdout) {
-                            var lines = stdout.split('\n');
-                            devices = lines.filter(function(l) {
-                                return (l.length > 0 && (l.indexOf('Waiting') == -1 && l.indexOf('found') == -1 && l.indexOf('Timed out') == -1));
-                            });
+                    scan(function(err, devices) {
+                        if (err) {
+                            error_writer('ios', sha, devices, 'No further details dude.');
+                            callback(true);
+                        } else {
+                            var bundle = path.join(output, 'build', 'cordovaExample.app'),
+                                bundleId = 'org.apache.cordova.example';
                             deploy(sha, devices, bundle, bundleId, callback);
                         }
                     });

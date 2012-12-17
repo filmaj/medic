@@ -1,5 +1,6 @@
-var path = require('path'),
-    shell = require('shelljs'),
+var path   = require('path'),
+    shell  = require('shelljs'),
+    n      = require('ncallbacks'),
     config = require('../../../../config');
 
 // paths, ip ranges and passwords for devices
@@ -27,12 +28,15 @@ module.exports = function blackberry_scanner(callback) {
     var base = ips[0].split('.').slice(0,3).join('.');
     var pings = high - low;
     var devices = null;
+    var end = n(pings, function() {
+        callback(false, devices);
+    });
     for (var i = low; i <= high; i++) {
         (function(last) {
             var ip = base + '.' + last;
             var cmd = deploy + ' -listDeviceInfo ' + ip + ' -password ' + password;
             shell.exec(cmd,{silent:true,async:true},function(code, output) {
-                pings--;
+                // TODO: what if exit code > 0 ?
                 if (code === 0) {
                     var lines = output.split('\n');
                     var version = lines.filter(function(l) { return l.indexOf('scmbundle::') > -1; })[0].split('::')[1];
@@ -44,9 +48,7 @@ module.exports = function blackberry_scanner(callback) {
                         version:version
                     };
                 } 
-                if (pings === 0) {
-                    callback(devices);
-                }
+                end();
             });
         }(i));
     }

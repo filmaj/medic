@@ -14,6 +14,9 @@ var q = function() {
 q.prototype.__proto__ = events.EventEmitter.prototype;
 
 q.prototype.push = function(i) {
+    var job_desc = [];
+    for (var p in i) if (i.hasOwnProperty(p)) job_desc.push(p);
+    console.log('[BUILDER] Queued job for ' + job_desc.join(', '));
     var r = this.q.push(i);
     this.emit('push', i);
     return r;
@@ -36,6 +39,7 @@ q.prototype.build = function() {
         // first should update the necessary libs
         updater(job, function() {
             builder(job, function() {
+                console.log('[BUILDER] Job complete.');
                 self.building = false;
                 self.build();
             });

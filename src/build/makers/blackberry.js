@@ -3,7 +3,7 @@ var shell = require('shelljs'),
     et    = require('elementtree'),
     config= require('../../../config'),
     semver= require('semver'),
-    scanner=require('./blackberry/blackberry_scanner'),
+    scan  = require('./blackberry/devices'),
     playbook_builder = require('./blackberry/playbook_builder'),
     bbten_builder = require('./blackberry/bbten_builder'),
     n     = require('ncallbacks'),
@@ -71,7 +71,7 @@ module.exports = function(output, sha, devices, callback) {
 
                     // scan for devices, figure out which of each kind we have.
                     log('Scanning for BlackBerry devices.');
-                    scanner(function(devices) {
+                    scan(function(err, devices) {
                         if (devices) {
                             // determine how many of each device we have
                             var tablets = {}, bbtens = {};

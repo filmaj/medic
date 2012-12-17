@@ -2,6 +2,7 @@ var shell = require('shelljs'),
     path  = require('path'),
     error_writer=require('./error_writer'),
     n     = require('ncallbacks'),
+    scan  = require('./android/devices'),
     fs    = require('fs');
 
 var android_lib = path.join(__dirname, '..', '..', '..', 'lib', 'cordova-android');
@@ -55,25 +56,19 @@ module.exports = function(output, sha, devices, callback) {
                             callback(true);
                         } else {
                             // get list of connected devices
-                            shell.exec('adb devices', {silent:true,async:true},function(code, devices_output) {
-                                if (code > 0) {
+                            scan(function(err, devices) {
+                                if (err) {
                                     // Could not obtain device list...
-                                    log('Error obtaining device list.');
-                                    callback();
+                                    var error_message = devices;
+                                    log(error_message);
+                                    callback(true);
                                 } else {
-                                    try {
-                                        var devices = devices_output.split('\n').slice(1);
-                                        devices = devices.filter(function(d) { return d.length>0 && d.indexOf('daemon') == -1 && d.indexOf('attached') == -1; });
-                                        devices = devices.map(function(d) { return d.split('\t')[0]; });
-                                    } catch(e) {
-                                        error_writer('android', sha, 'Exception thrown filtering output of `adb devices`.', e.message);
-                                        callback(true);
-                                        return;
-                                    }
-
                                     // deploy and run on each device
-                                    if (devices.length > 0) {
-                                        log(devices.length + ' Android devices detected.');
+                                    if (devices.length === 0) {
+                                        log('No Android devices connected. Aborting.');
+                                        callback();
+                                    } else {
+                                        log(devices.length + ' Android(s) detected.');
                                         // TODO: set a timeout for deploying to all n devices and if it happens, callback with error.
                                         var end = n(devices.length, callback);
                                         devices.forEach(function(d) {
@@ -101,9 +96,6 @@ module.exports = function(output, sha, devices, callback) {
                                                 });
                                             });
                                         });
-                                    } else {
-                                        log('No Android devices connected. Aborting.');
-                                        callback();
                                     }
                                 }
                             });
