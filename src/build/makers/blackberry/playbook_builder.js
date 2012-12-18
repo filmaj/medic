@@ -40,12 +40,12 @@ module.exports = function playbook_builder(tablets, sha, callback) {
                     // deploy and launch to tablets
                     if (tablets) for (var i in tablets) if (tablets.hasOwnProperty(i)) (function(ip) {
                         var tablet = tablets[ip];
-                        log('Installing and running on ' + tablet.hardware + ' (' + ip + ').');
+                        log('Installing and running on ' + tablet.model + ' (' + ip + ').');
                         shell.exec(deploy + ' -installApp -launchApp -device ' + ip + ' -password ' + device_password + ' ' + binary, {silent:true,async:true}, function(kode, ootput) {
                             if (kode > 0) {
-                                error_writer('blackberry', sha, tablet.version, tablet.hardware, 'Deployment error.', ootput);
+                                error_writer('blackberry', sha, tablet.version, tablet.model, 'Deployment error.', ootput);
                             } else {
-                                log('Mobile-spec successfully launched on ' + tablet.hardware + ' (' + ip + ').');
+                                log('Mobile-spec successfully launched on ' + tablet.model + ' (' + ip + ').');
                             }
                         });
                     }(i));

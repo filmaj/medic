@@ -20,6 +20,15 @@ var hardware_map = {
     '0x04002307':{name:'BB 10 Dev Alpha',tablet:false}
 };
 
+/*
+ * device object returned is of the form:
+   {
+       'ip':{
+           model:'name',
+           version:'version'
+       }, ...
+   }
+ */
 module.exports = function blackberry_scanner(callback) {
     // figure out over what range of ips to scan
     var ips = range.split('-');
@@ -44,7 +53,7 @@ module.exports = function blackberry_scanner(callback) {
                     if (hardware_map.hasOwnProperty(hardware)) hardware = hardware_map[hardware].name;
                     if (!devices) devices = {};
                     devices[ip] = {
-                        hardware:hardware,
+                        model:hardware,
                         version:version
                     };
                 } 

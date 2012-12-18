@@ -1,9 +1,9 @@
-var shell = require('shelljs'),
-    path  = require('path'),
-    error_writer=require('./error_writer'),
-    n     = require('ncallbacks'),
-    scan  = require('./android/devices'),
-    fs    = require('fs');
+var shell        = require('shelljs'),
+    path         = require('path'),
+    error_writer = require('./error_writer'),
+    n            = require('ncallbacks'),
+    scan         = require('./android/devices'),
+    fs           = require('fs');
 
 var android_lib = path.join(__dirname, '..', '..', '..', 'lib', 'cordova-android');
 var mobile_spec = path.join(__dirname, '..', '..', '..', 'temp', 'mobspec');
@@ -55,50 +55,24 @@ module.exports = function(output, sha, devices, callback) {
                             error_writer('android', sha, 'Compilation error', compile_output);
                             callback(true);
                         } else {
-                            // get list of connected devices
-                            scan(function(err, devices) {
-                                if (err) {
-                                    // Could not obtain device list...
-                                    var error_message = devices;
-                                    log(error_message);
-                                    callback(true);
-                                } else {
-                                    // deploy and run on each device
-                                    if (devices.length === 0) {
-                                        log('No Android devices connected. Aborting.');
-                                        callback();
+                            var binary_path = path.join(output, 'bin', 'cordovaExample-debug.apk');
+                            var package = 'org.apache.cordova.example';
+                            if (devices) {
+                                // already have a specific set of devices to deploy to
+                                deploy(sha, devices, binary_path, package, callback);
+                            } else {
+                                // get list of connected devices
+                                scan(function(err, devices) {
+                                    if (err) {
+                                        // Could not obtain device list...
+                                        var error_message = devices;
+                                        log(error_message);
+                                        callback(true);
                                     } else {
-                                        log(devices.length + ' Android(s) detected.');
-                                        // TODO: set a timeout for deploying to all n devices and if it happens, callback with error.
-                                        var end = n(devices.length, callback);
-                                        devices.forEach(function(d) {
-                                            var cmd = 'adb -s ' + d + ' uninstall org.apache.cordova.example';
-                                            var uninstall = shell.exec(cmd, {silent:true,async:true},function(code, uninstall_output) {
-                                                // NOTE: if uninstall failed with code > 0, keep going.
-                                                log('Installing on device ' + d);
-                                                cmd = 'adb -s ' + d + ' install -r ' + path.join(output, 'bin', 'cordovaExample-debug.apk');
-                                                var install = shell.exec(cmd, {silent:true,async:true},function(code, install_output) {
-                                                    if (code > 0) {
-                                                        log('Error installing on device ' + d);
-                                                        end();
-                                                    } else {
-                                                        log('Running on device ' + d);
-                                                        cmd = 'adb -s ' + d + ' shell am start -n org.apache.cordova.example/org.apache.cordova.example.cordovaExample';
-                                                        var deploy = shell.exec(cmd, {silent:true,async:true},function(code, run_output) {
-                                                            if (code > 0) {
-                                                                log('Error launching mobile-spec on device ' + d);
-                                                            } else {
-                                                                log('Mobile-spec successfully launched on device ' + d);
-                                                            }
-                                                            end();
-                                                        });
-                                                    }
-                                                });
-                                            });
-                                        });
+                                        deploy(sha, devices, binary_path, package, callback);
                                     }
-                                }
-                            });
+                                });
+                            }
                         }
                     });
                 }

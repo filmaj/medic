@@ -51,12 +51,12 @@ module.exports = function bbten_builder(tens, sha, callback) {
                             // deploy and launch to bb10s 
                             if (tens) for (var i in tens) if (tens.hasOwnProperty(i)) (function(ip) {
                                 var ten = tens[ip];
-                                log('Installing and running on ' + ten.hardware + ' (' + ip + ').');
+                                log('Installing and running on ' + ten.model + ' (' + ip + ').');
                                 shell.exec(deploy + ' -installApp -launchApp -device ' + ip + ' -password ' + device_password + ' ' + binary, {silent:true,async:true}, function(kode, ootput) {
                                     if (kode > 0) {
-                                        error_writer('blackberry', sha, ten.version, ten.hardware, 'Deployment error.', ootput);
+                                        error_writer('blackberry', sha, ten.version, ten.model, 'Deployment error.', ootput);
                                     } else {
-                                        log('Mobile-spec successfully launched on ' + ten.hardware + ' (' + ip + ').');
+                                        log('Mobile-spec successfully launched on ' + ten.model + ' (' + ip + ').');
                                     }
                                 });
                             }(i));

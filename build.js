@@ -10,13 +10,21 @@ var temp = path.join(__dirname, 'temp');
 shell.rm('-rf', temp);
 shell.mkdir(temp);
 
+// Look at results for specific devices of recent commits. Compare to connected devices. See which are missing from server. Queue those builds.
 // get latest commits for each repo
 var ms = 'cordova-mobile-spec';
 for (var lib in libraries.paths) if (libraries.paths.hasOwnProperty(lib) && lib != ms) (function(repo) {
     var platform = repo.substr(repo.indexOf('-')+1);
     couch.cordova_commits.get(repo, function(err, commits_doc) {
         var commits = commits_doc.shas;
-        // scan for devices for said platform 
+        // scan for devices for said platform
+        var platform_scanner = require('./src/build/makers/' + platform + '/devices');
+        platform_scanner(function(err, devices) {
+            if (err) console.log('[BUILD] Error scanning for ' + platform + ' devices: ' + devices);
+            else {
+                console.log(devices);
+            }
+        });
     });
 })(lib);
 // TODO: android doable by using adb devices + adb shell cat system/build.prop
@@ -29,6 +37,8 @@ git_hooks({period:1000 * 60 * 5}, function(updated_projects) {
         console.log('-------------------------------------------------');
         console.log('[GIT] New commit(s) at ' + new Date());
         console.log('-------------------------------------------------');
+        // TODO: multiple commits?
+        // TODO: if multiple commits, rescan for devices to see which combo of device+libshas we are missing results for?
         //queue.push(updated_projects);
     }
 });
