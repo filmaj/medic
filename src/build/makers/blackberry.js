@@ -46,6 +46,8 @@ module.exports = function(output, sha, devices, callback) {
                         var tempJasmine = path.join(output, 'www', 'jasmine-jsreporter.js');
                         fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
 
+                        // TODO: make sure we are using blackberry lib's version in mobile-spec's cordoa.js
+
                         // modify start page
                         var config_path = path.join(output, 'www', 'config.xml');
                         var doc = new et.ElementTree(et.XML(fs.readFileSync(config_path, 'utf-8')));
