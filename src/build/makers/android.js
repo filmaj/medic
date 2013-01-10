@@ -3,6 +3,7 @@ var shell        = require('shelljs'),
     error_writer = require('./error_writer'),
     n            = require('ncallbacks'),
     scan         = require('./android/devices'),
+    deploy       = require('./android/deploy'),
     fs           = require('fs');
 
 var android_lib = path.join(__dirname, '..', '..', '..', 'lib', 'cordova-android');
@@ -41,6 +42,11 @@ module.exports = function(output, sha, devices, callback) {
                         // modify start page
                         var javaFile = path.join(output, 'src', 'org', 'apache', 'cordova', 'example', 'cordovaExample.java'); 
                         fs.writeFileSync(javaFile, fs.readFileSync(javaFile, 'utf-8').replace(/www\/index\.html/, 'www/autotest/pages/all.html'), 'utf-8');
+                        
+                        // look at which cordova-<v>.js current lib uses
+                        var version = fs.readFileSync(path.join(android_lib, 'VERSION'), 'utf-8').replace(/\r?\n/,'');
+                        var cordovajs = path.join(output, 'assets', 'www', 'cordova.js');
+                        fs.writeFileSync(cordovajs, fs.readFileSync(cordovajs, 'utf-8').replace(/var VERSION='.*';/, "var VERSION='" + version + "';"), 'utf-8');
                     } catch (e) {
                         error_writer('android', sha, 'Exception thrown modifying Android mobile spec application.', e.message);
                         callback(true);

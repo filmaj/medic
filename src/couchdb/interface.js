@@ -4,10 +4,6 @@ var request = require('request'),
 
 var couch = config.couchdb.host;
 
-function log(msg) {
-    console.log('[COUCH] ' + msg);
-}
-
 if (couch.length < 4 || couch.indexOf('http') == -1) {
     throw ('Pretty sure your couch config URL is wrong. Here it is wtf man: ' + couch);
 }
@@ -26,11 +22,11 @@ db.prototype = {
         var db = this;
         var url = this.db_url + '/' + id;
         request.get(url, function(error, response, body) {
-            if (error) db.e('GET ' + url, error, callback);
+            if (error) callback(error);
             else {
-                if (response.statusCode == 200) callback(null, JSON.parse(body));
-                else if (response.statusCode == 404) db.e('Not found', 404, callback);
-                else db.e('GET unexpected status ' + response.statusCode, JSON.parse(body), callback);
+                if (response.statusCode == 200) callback(false, JSON.parse(body));
+                else if (response.statusCode == 404) callback(true, 404);
+                else callback(true, response.statusCode);
             }
         });
     },
@@ -41,11 +37,11 @@ db.prototype = {
         var url = this.db_url + '/_design/' + design + '/_view/' + view;
 
         request.get(url, function(error, response, body) {
-            if (error) db.e('GET ' + url, error, callback);
+            if (error) callback(error);
             else {
-                if (response.statusCode == 200) callback(null, JSON.parse(body));
-                else if (response.statusCode == 404) db.e('Not found', 404, callback);
-                else db.e('GET unexpected status ' + response.statusCode, JSON.parse(body), callback);
+                if (response.statusCode == 200) callback(false, JSON.parse(body));
+                else if (response.statusCode == 404) callback(true, 404);
+                else callback(true, response.statusCode);
             }
         });
     },
@@ -58,13 +54,13 @@ db.prototype = {
             url:url,
             json:document
         }, function(error, response, body) {
-            if (error) db.e('PUT ' + url, error, callback);
+            if (error) callback(error);
             else {
                 var status = response.statusCode;
-                if (status == 201) callback(null, body);
+                if (status == 201) callback(false, body);
                 else if (status == 409) {
                     request.get(url, function(err, resp, bod) {
-                        if (err) db.e('GET ' + url, err, callback);
+                        if (err) callback(err);
                         else {
                             if (resp.statusCode == 200) {
                                 var existing = JSON.parse(bod);
@@ -72,26 +68,26 @@ db.prototype = {
                                 request.del({
                                     url:url + '?rev=' + rev,
                                 }, function(er, res, boday) {
-                                    if (er) db.e('DELETE ' + url, er, callback);
+                                    if (er) callback(er);
                                     else {
                                         if (res.statusCode == 200) {
                                             request.put({
                                                 url:url,
                                                 json:document
                                             }, function(argh, r, bodee) {
-                                                if (argh) db.e('Re-PUT ' + url, argh, callback);
+                                                if (argh) callback(argh);
                                                 else {
-                                                    if (r.statusCode == 201) callback(null, bodee);
-                                                    else db.e('RE-PUT unexpected status', r.statusCode, callback);
+                                                    if (r.statusCode == 201) callback(false, bodee);
+                                                    else callback(true, r.statusCode);
                                                 }
                                             });
-                                        } else db.e('DELETE unexpected status', res.statusCode, callback);
+                                        } else callback(true, r.statusCode);
                                     }
                                 });
-                            } else db.e('GET unexpected status', resp.statusCode, callback);
+                            } else callback(true, resp.statusCode);
                         }
                     });
-                } else db.e('PUT unexpected status', response.statusCode, callback);
+                } else callback(true, response.statusCode);
             }
         });
     },
@@ -108,10 +104,6 @@ db.prototype = {
             });
             return true;
         } else return false;
-    },
-    e:function(msg, err, callback) {
-        log('[ERROR] DB: ' + this.name + ' ' + msg, err);
-        callback(err);
     }
 };
 

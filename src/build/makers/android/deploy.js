@@ -1,3 +1,7 @@
+var n     = require('ncallbacks'),
+    shell = require('shelljs'),
+    cp    = require('child_process');
+
 module.exports = function deploy(sha, devices, path, id, callback) {
     function log(msg) {
         console.log('[ANDROID] [DEPLOY] ' + msg + ' (' + sha.substr(0,7) + ')');
@@ -14,7 +18,6 @@ module.exports = function deploy(sha, devices, path, id, callback) {
         if (count === 0) done();
         else {
             log(count + ' Android(s) detected.');
-            // TODO: set a timeout for deploying to all n devices and if it happens, callback with error.
             var end = n(count, callback);
             for (var device in devices) if (devices.hasOwnProperty(device)) (function(d) {
                 var cmd = 'adb -s ' + d + ' uninstall ' + id;
@@ -32,10 +35,29 @@ module.exports = function deploy(sha, devices, path, id, callback) {
                             var deploy = shell.exec(cmd, {silent:true,async:true},function(code, run_output) {
                                 if (code > 0) {
                                     log('Error launching mobile-spec on device ' + d + ', continuing.');
+                                    end();
                                 } else {
                                     log('Mobile-spec successfully launched on device ' + d);
+                                    // Wait for mobile-spec to be done.
+                                    var logcat = cp.spawn('adb', ['-s', d, 'logcat']);
+                                    var buf = '';
+                                    // set a timeout in case mobile-spec doesnt run to the end 
+                                    var timer = setTimeout(function() {
+                                        logcat.kill();
+                                        end();
+                                    }, 1000 * 60 * 5);
+
+                                    // >>> DONE <<< gets logged when mobile-spec finished everything
+                                    logcat.stdout.on('data', function(stdout) {
+                                        buf += stdout.toString();
+                                        if (buf.indexOf('>>> DONE <<<') > -1) {
+                                            // kill process and clear timeout
+                                            clearTimeout(timer);
+                                            logcat.kill();
+                                            end();
+                                        }
+                                    });
                                 }
-                                end();
                             });
                         }
                     });

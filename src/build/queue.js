@@ -14,9 +14,9 @@ var q = function() {
 q.prototype.__proto__ = events.EventEmitter.prototype;
 
 q.prototype.push = function(i) {
-    var job_desc = [];
-    for (var p in i) if (i.hasOwnProperty(p)) job_desc.push(p);
-    console.log('[BUILDER] Queued job for ' + job_desc.join(', '));
+    var job_desc = '';
+    for (var p in i) if (i.hasOwnProperty(p)) job_desc = p;
+    console.log('[QUEUE] Queued ' + job_desc + '@' + i.sha.substr(0,7) + ' for ' + i.numDevices + ' devices.');
     var r = this.q.push(i);
     this.emit('push', i);
     return r;
@@ -35,8 +35,17 @@ q.prototype.build = function() {
     var self = this;
     if (job) {
         this.building = true;
-        console.log('[BUILDER] Starting a job.');
+        console.log('[BUILDER] Starting Job');
         // first should update the necessary libs
+
+        // job can be of the form
+        // {'cordova-android':'sha'}, OR
+        // {'cordova-android':
+        //   {
+        //     'sha':'sha',
+        //     'devices':['id1','id2']
+        //   }
+        // }
         updater(job, function() {
             builder(job, function() {
                 console.log('[BUILDER] Job complete.');
