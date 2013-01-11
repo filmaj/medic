@@ -45,8 +45,12 @@ module.exports = function(output, sha, devices, callback) {
                         fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
 
                         // modify start page
+                        // 1. old cordova-android: modify the .java file
                         var javaFile = path.join(output, 'src', 'org', 'apache', 'cordova', 'example', 'cordovaExample.java'); 
                         fs.writeFileSync(javaFile, fs.readFileSync(javaFile, 'utf-8').replace(/www\/index\.html/, 'www/autotest/pages/all.html'), 'utf-8');
+                        // 2. new cordova-android: modify the config.xml
+                        var configFile = path.join(output, 'res', 'xml', 'config.xml');
+                        fs.writeFileSync(configFile, fs.readFileSync(configFile, 'utf-8').replace(/<content\s*src=".*"/, '<content src="autotest/pages/all.html"'), 'utf-8');
                         
                         // look at which cordova-<v>.js current lib uses
                         var version = fs.readFileSync(path.join(android_lib, 'VERSION'), 'utf-8').replace(/\r?\n/,'');

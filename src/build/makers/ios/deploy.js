@@ -49,7 +49,6 @@ function run_through(sha, devices, bundlePath, bundleId, callback) {
             });
         });
     } else {
-        log('Finished deploying to devices.');
         callback();
     }
 }
