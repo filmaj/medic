@@ -17,7 +17,7 @@ module.exports = function deploy(sha, devices, path, id, callback) {
         // deploy and run on each device
         if (count === 0) done();
         else {
-            log(count + ' Android(s) detected.');
+            log('Target: ' + count + ' Android(s).');
             var end = n(count, callback);
             for (var device in devices) if (devices.hasOwnProperty(device)) (function(d) {
                 var cmd = 'adb -s ' + d + ' uninstall ' + id;
