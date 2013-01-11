@@ -37,7 +37,7 @@ for (var lib in libraries.paths) if (libraries.paths.hasOwnProperty(lib) && lib 
                         };
                         var end = n(numDs, function() {
                             if (targets > 0) {
-                                job.numDevices = targets;
+                                job[repo].numDevices = targets;
                                 queue.push(job);
                             }
                         });

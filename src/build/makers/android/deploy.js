@@ -37,21 +37,24 @@ module.exports = function deploy(sha, devices, path, id, callback) {
                                     log('Error launching mobile-spec on device ' + d + ', continuing.');
                                     end();
                                 } else {
-                                    log('Mobile-spec successfully launched on device ' + d);
+                                    log('Mobile-spec launched on device ' + d);
+                                    // Clear out logcat buffer for specific device
+                                    shell.exec('adb -s ' + d + ' logcat -c', {silent:true});
                                     // Wait for mobile-spec to be done.
                                     var logcat = cp.spawn('adb', ['-s', d, 'logcat']);
-                                    var buf = '';
                                     // set a timeout in case mobile-spec doesnt run to the end 
                                     var timer = setTimeout(function() {
                                         logcat.kill();
+                                        log('Mobile-spec timed out on ' + d + ', continuing.');
                                         end();
                                     }, 1000 * 60 * 5);
 
                                     // >>> DONE <<< gets logged when mobile-spec finished everything
                                     logcat.stdout.on('data', function(stdout) {
-                                        buf += stdout.toString();
+                                        var buf = stdout.toString();
                                         if (buf.indexOf('>>> DONE <<<') > -1) {
                                             // kill process and clear timeout
+                                            log('Mobile-spec finished on ' + d);
                                             clearTimeout(timer);
                                             logcat.kill();
                                             end();

@@ -16,7 +16,7 @@ q.prototype.__proto__ = events.EventEmitter.prototype;
 q.prototype.push = function(i) {
     var job_desc = '';
     for (var p in i) if (i.hasOwnProperty(p)) job_desc = p;
-    console.log('[QUEUE] Queued ' + job_desc + '@' + i.sha.substr(0,7) + ' for ' + i.numDevices + ' devices.');
+    console.log('[QUEUE] Queued ' + job_desc + '@' + i[job_desc].sha.substr(0,7) + ' for ' + i[job_desc].numDevices + ' devices.');
     var r = this.q.push(i);
     this.emit('push', i);
     return r;

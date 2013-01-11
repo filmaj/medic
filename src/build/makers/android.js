@@ -33,6 +33,11 @@ module.exports = function(output, sha, devices, callback) {
                     try {
                         // copy over mobile spec modified html assets
                         log('Modifying Cordova application.');
+
+                        // make sure android app got created first.
+                        if (!fs.existsSync(output)) {
+                            throw new Error('./bin/create must have failed as output path does not exist.');
+                        }
                         shell.cp('-Rf', path.join(mobile_spec, '*'), path.join(output, 'assets', 'www'));
                         
                         // add the sha to the junit reporter
