@@ -1,6 +1,6 @@
 // simple stream object to handle apache gitpubsub json events
 var Stream    = require('stream').Stream,
-    queue     = require('build/queue'),
+    queue     = require('./build/queue'),
     libraries = require('../libraries');
 
 var s = new Stream();
