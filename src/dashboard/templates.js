@@ -50,7 +50,7 @@ function query_for_errors(platform, shas, callback) {
 module.exports = {
     boot:function(callback) {
         // get commits from couch for each repo
-        var counter = 20 * 3 * 2; 
+        var counter = 20 * 2 * 2; 
         var end = n(counter, function() {
             should_render = true;
             html = render(shas, results, build_errors);
@@ -143,8 +143,8 @@ module.exports = {
     },
     add_build_failure:function(platform, sha, doc) {
         if (!build_errors[platform]) build_errors[platform] = {};
-        if (!build_errors[platform][sha]) build_errors[platform][sha] = [];
-        build_errors[platform][sha].push(doc);
+        if (!build_errors[platform][sha]) build_errors[platform][sha] = {};
+        build_errors[platform][sha] = doc;
         if (should_render) html = render(shas, results, build_errors);
     }
 };

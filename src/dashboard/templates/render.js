@@ -23,7 +23,7 @@ var results_row_template = '<tr><td>{version}</td><td>{model}</td><td>{mobspec}<
 
 // template for build errors
 var errors_template = '<table><tr><td>message</td><td>details</td></tr>{rows}</table>';
-var errors_row_template = '<tr><td>{message></td><td>{details}</td></tr>';
+var errors_row_template = '<tr><td>{message}</td><td>{details}</td></tr>';
 
 // simple templating
 function interpolate_template(tmpl, object) {
@@ -110,20 +110,18 @@ function create_results_table(sha_list, result, build_errors) {
 
                 // get build error results
                 if (build_errors[platform] && build_errors[platform][sha])  {
-                    var sha_errors = build_errors[platform][sha];
+                    var doc = build_errors[platform][sha].value;
                     var error_table = errors_template;
                     var error_rows = [];
-                    sha_errors.forEach(function(doc) {
-                        var msg = doc.failure;
-                        var deets = doc.details;
-                        var err_row_template = errors_row_template;
-                        if (doc.model) msg = 'Model: ' + doc.model + ', ' + msg;
-                        if (doc.version) msg = 'Version: ' + doc.version + ', ' + msg;
-                        error_rows.push(interpolate_template(err_row_template, {
-                            message:msg,
-                            details:deets
-                        }));
-                    });
+                    var msg = doc.failure;
+                    var deets = doc.details;
+                    var err_row_template = errors_row_template;
+                    if (doc.model) msg = 'Model: ' + doc.model + ', ' + msg;
+                    if (doc.version) msg = 'Version: ' + doc.version + ', ' + msg;
+                    error_rows.push(interpolate_template(err_row_template, {
+                        message:msg,
+                        details:deets
+                    }));
                     sha_data.errors = interpolate_template(error_table, {
                         rows:error_rows.join('')
                     });

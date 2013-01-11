@@ -1,18 +1,26 @@
-var path      = require('path'),
-    shell     = require('shelljs'),
-    git_hooks = require('apache-git-commit-hooks'),
-    couch     = require('./src/couchdb/interface'),
-    libraries = require('./libraries'),
-    n         = require('ncallbacks'),
-    queue     = require('./src/build/queue');
+var path          = require('path'),
+    shell         = require('shelljs'),
+    apache_parser = require('./src/apache-gitpubsub-parser'),
+    request       = require('request'),
+    couch         = require('./src/couchdb/interface'),
+    libraries     = require('./libraries'),
+    n             = require('ncallbacks'),
+    queue         = require('./src/build/queue');
 
 // Clean out temp directory, where we keep our generated apps
 var temp = path.join(__dirname, 'temp');
 shell.rm('-rf', temp);
 shell.mkdir(temp);
 
+// on new commits, queue builds for relevant projects.
+var apache_url = "http://urd.zones.apache.org:2069/json";
+var gitpubsub = request.get(apache_url);
+
+gitpubsub.pipe(apache_parser);
+console.log('[MEDIC] Now listening to Apache git commits from ' + apache_url);
+
 // Look at results for specific devices of recent commits. Compare to connected devices. See which are missing from server. Queue those builds.
-// TODO: figure out ios device scanning.
+// TODO: figure out ios device scanning. issue: determine what model and version connected ios devices are running. until then, we can't queue ios builds on devices that we are missing results for, so we skip ios in the next section.
 var ms = 'cordova-mobile-spec';
 for (var lib in libraries.paths) if (libraries.paths.hasOwnProperty(lib) && lib != ms && lib != 'cordova-ios') (function(repo) {
     var platform = repo.substr(repo.indexOf('-')+1);
@@ -64,6 +72,3 @@ for (var lib in libraries.paths) if (libraries.paths.hasOwnProperty(lib) && lib 
         });
     });
 })(lib);
-
-// on new commits, queue builds for relevant projects.
-// TODO: use gitpubsub
