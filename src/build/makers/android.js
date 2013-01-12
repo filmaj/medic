@@ -50,7 +50,7 @@ module.exports = function(output, sha, devices, callback) {
                         fs.writeFileSync(javaFile, fs.readFileSync(javaFile, 'utf-8').replace(/www\/index\.html/, 'www/autotest/pages/all.html'), 'utf-8');
                         // 2. new cordova-android: modify the config.xml
                         var configFile = path.join(output, 'res', 'xml', 'config.xml');
-                        fs.writeFileSync(configFile, fs.readFileSync(configFile, 'utf-8').replace(/<content\s*src=".*"/, '<content src="autotest/pages/all.html"'), 'utf-8');
+                        fs.writeFileSync(configFile, fs.readFileSync(configFile, 'utf-8').replace(/<content\s*src=".*"/gi, '<content src="autotest/pages/all.html"'), 'utf-8');
                         
                         // look at which cordova-<v>.js current lib uses
                         var version = fs.readFileSync(path.join(android_lib, 'VERSION'), 'utf-8').replace(/\r?\n/,'');

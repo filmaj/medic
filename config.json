@@ -20,7 +20,7 @@
         }
     },
     "ios":{
-        "keychainPassword":"",
-        "keychainLocation":""
+        "keychainPassword":"europe",
+        "keychainLocation":"/Users/fil/Library/Keychains/login.keychain"
     }
 }

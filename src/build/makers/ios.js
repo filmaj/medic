@@ -55,7 +55,7 @@ module.exports = function(output, sha, devices, callback) {
                     fs.writeFileSync(mFile, fs.readFileSync(mFile, 'utf-8').replace(/index\.html/, 'autotest/pages/all.html'), 'utf-8');
                     // 2. new way: modify config.xml
                     var configFile = path.join(output, 'cordovaExample', 'config.xml');
-                    fs.writeFileSync(configFile, fs.readFileSync(configFile, 'utf-8').replace(/<content\s*src=".*"/, '<content src="autotest/pages/all.html"'), 'utf-8');
+                    fs.writeFileSync(configFile, fs.readFileSync(configFile, 'utf-8').replace(/<content\s*src=".*"/gi, '<content src="autotest/pages/all.html"'), 'utf-8');
 
                     // modify configuration to Release mode, i386 to armv7 and sdk to iphoneos6.0 so we can use it with fruitstrap
                     var debugScript = path.join(output, 'cordova', 'build');
