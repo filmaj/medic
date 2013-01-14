@@ -41,11 +41,9 @@ module.exports = function(commits, callback) {
                 if (error) console.error('[COUCH] [ERROR] Could not retrieve latest commits from couch.');
                 else {
                     var stored_shas = response.shas;
-                    if (stored_shas[0] != latest_shas[0]) {
+                    if (stored_shas[0] != latest_shas.shas[0]) {
                         // we should update the shas.
-                        couch.cordova_commits.clobber(lib, {
-                            shas:latest_shas
-                        }, function(err, res) {
+                        couch.cordova_commits.clobber(lib, latest_shas, function(err, res) {
                             if (err) {
                                 console.error('[COUCH] [ERROR] Could not update commits for ' + lib, err);
                             } else {
