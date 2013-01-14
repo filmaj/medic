@@ -22,7 +22,7 @@ s.write = function(data) {
         }
     } catch(e) {
         console.error('[GITPUBSUB] [ERROR]: ' + e.message);
-        console.log('[GITPUBSUB] Continuing.');
+        console.error('[GITPUBSUB] [ERROR] Attempted to parse: ' + json);
     }
     return true;
 };
