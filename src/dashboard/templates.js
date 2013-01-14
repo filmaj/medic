@@ -1,4 +1,4 @@
-var render = require('./templates/render'),
+var render = require('./render'),
     couch  = require('../couchdb/interface'),
     n      = require('ncallbacks');
 

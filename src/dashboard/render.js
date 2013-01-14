@@ -1,17 +1,9 @@
+var fs   = require('fs'),
+    path = require('path');
+
 // final html
 var html = '';
-
-// top-level template template for the dashboard
-var template = '<html><head></head><body><h1>ghetto cordova dashboard</h1>';
-template    += '<div style="position:fixed;margin-left:600px;;max-height:600px;overflow:scroll;"><h3>Errors (click on fail links)</h3><p id="errors"></p></div>';
-template    += '<h2>cordova-android</h2>';
-template    += '{android}';
-template    += '<h2>cordova-ios</h2>';
-template    += '{ios}';
-template    += '<h2>cordova-blackberry</h2>';
-template    += '{blackberry}';
-template    += '<script type="text/javascript">var _gaq = _gaq || [];_gaq.push([\'_setAccount\', \'UA-36811541-1\']);_gaq.push([\'_trackPageview\']);(function() {var ga = document.createElement(\'script\'); ga.type = \'text/javascript\'; ga.async = true;ga.src = (\'https:\' == document.location.protocol ? \'https://ssl\' : \'http://www\') + \'.google-analytics.com/ga.js\';var s = document.getElementsByTagName(\'script\')[0]; s.parentNode.insertBefore(ga, s);})();</script>';
-template    += '</body></html>';
+var template = fs.readFileSync(path.join(__dirname, 'templates', 'index.html'), 'utf-8');
 
 // template for the commit table
 var commit_table_template = '<table id="{platform}"><tr><td>commit</td><td>mobile-spec results</td><td>build errors</td></tr>{rows}</table>';
