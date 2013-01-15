@@ -36,7 +36,7 @@ module.exports = function(commits, callback) {
             if (res.code > 0) throw ('Failed git-pull\'ing ' + libPath + '!\n' + res.output); 
 
             // update couch if necessary
-            var latest_shas = commit_list(lib, num_commits);
+            var latest_shas = commit_list.recent(lib, num_commits);
             couch.cordova_commits.get(lib, function(error, response) {
                 if (error) console.error('[COUCH] [ERROR] Could not retrieve latest commits from couch.');
                 else {

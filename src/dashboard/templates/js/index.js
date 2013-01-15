@@ -1,12 +1,19 @@
-var first_ios_commit = {
-    sha:'6e60c222f8194bb43de6b52c5ea9ff84cc92e040',
-    timestamp:1352505397000
+// holds info on first tracked commit in medic, so we can set baselines for graphing
+var info = {
+    ios:{
+        sha:'6e60c222f8194bb43de6b52c5ea9ff84cc92e040',
+        timestamp:1352505397000,
+        masterChart:null,
+        detailChart:null
+    },
+    android:{
+        sha:'538e90f23aaeebe4cc08ad87d17d0ab2dde6185d',
+        timestamp:1353515245,
+        masterChart:null,
+        detailChart:null
+    }
 };
-var first_android_commit = {
-    sha:'538e90f23aaeebe4cc08ad87d17d0ab2dde6185d',
-    timestamp:1353515245000
-};
-
+function $(id) { return document.getElementById(id); }
 function XHR(url, cb) {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
@@ -20,6 +27,90 @@ function XHR(url, cb) {
        }
     };
     xhr.send(null);
+}
+function createMaster(platform) {
+    var container = document.createElement('div');
+    container.setAttribute('id', 'container-' + platform);
+    var master_container = document.createElement('div');
+    master_container.setAttribute('id', 'master-' + platform);
+    master_container.style = "min-width: 400px; max-width:1000px; height:100px;"
+    container.appendChild(master_container);
+    var detail_container = document.createElement('div');
+    detail_container.setAttribute('id', 'detail-' + platform);
+    container.appendChild(detail_container);
+    $('container').appendChild(container);
+
+
+    data = [];
+    info[platform].masterChart = new Highcharts.Chart({
+        chart:{
+            renderTo:'master-' + platform,
+            reflow:false,
+            borderWidth:0,
+            backgroundColor:null,
+            marginLeft:25,
+            marginRight:15,
+            zoomType:'x',
+            events:{
+            }
+        },
+        title:{text:null},
+        xAxis:{
+            type:'datetime',
+            showLastTickLabel:true,
+            maxZoom:24*60*60*1000, //1 day
+            plotBands:[{
+                id:'mask-before',
+                from:info[platform].timestamp,
+                to:((new Date().getTime()) - 7*24*60*60*1000), // show most recent week by default
+                color: 'rgba(0,0,0,0.2)'
+            }],
+            title:{text:null}
+        },
+        yAxis:{
+            gridLineWidth:0,
+            labels:{enabled:false},
+            title:{text:null},
+            min:80,
+            max:100,
+            showFirstLabel:false
+        },
+        tooltip:{
+            formatter:function() { return false; }
+        },
+        legend:{enabled:false},
+        credits:{enabled:false},
+        plotOptions:{
+            series:{
+                fillColor:{
+                    linearGradient:[0,0,0,70],
+                    stops:[
+                        [0, '#4572A7'],
+                        [1, 'rgba(0,0,0,0)']
+                    ]
+                },
+                lineWidth:1,
+                marker:{enabled:false},
+                shadow:false,
+                states:{hover:{lineWidth:1}},
+                enableMoustTracking:false
+            }
+        },
+        series:[{
+            type:'area',
+            name:platform + ' Test Results',
+            pointInterval:24*60*60*1000,
+            pointStart:info[platform].timestamp,
+            data:data
+        }],
+        exporting:{enabled:false}
+    }, function(masterChart) {
+        createDetail(masterChart);
+    });
+}
+function createDetail(platform) {
+    var div = document.createElement('div');
+    div.style = "min-width: 400px; max-width:1000px; min-height: 400px;max-height:800px;"
 }
 function go() {
     var chart;
