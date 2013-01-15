@@ -1,14 +1,14 @@
-var path = require('path'),
-    shell = require('shelljs'),
+var path         = require('path'),
+    shell        = require('shelljs'),
     error_writer = require('../error_writer'),
-    cp = require('child_process');
+    cp           = require('child_process');
 
 var root = path.join(__dirname, '..', '..', '..', '..');
 var fruitstrap = path.join(root, 'node_modules', 'fruitstrap', 'fruitstrap');
 // current fruitstrap dependency has two binaries, uninstall exists under the "listdevices" one
 var listdevices = path.join(root, 'node_modules', 'fruitstrap', 'listdevices');
 
-function should_we_kill(process, buf, sha, device_id) {
+function kill(process, buf, sha, device_id) {
     if (buf.indexOf('>>> DONE <<<') > -1) {
         process.kill();
         return true;
@@ -31,19 +31,30 @@ function run_through(sha, devices, bundlePath, bundleId, callback) {
         var cmd = listdevices + ' uninstall --id=' + d + ' --bundle-id=org.apache.cordova.example';
         shell.exec(cmd, {silent:true,async:true}, function(code, output) {
             if (code > 0) log('Uninstall on ' + d + ' failed, continuing anyways.');
+
             log('Install + deploy on ' + d);
             var args = ['--id=' + d, '--bundle=' + bundlePath, '--debug'];
             var buf = '';
             var fruit = cp.spawn(fruitstrap, args);
+            // set up a timeout in case mobile-spec doesnt deploy or run
+            var timer = setTimeout(function() {
+                fruit.kill();
+                log('Mobile-spec timed out on ' + d + ', continuing.');
+                run_through(sha, devices, bundlePath, bundleId, callback);
+            }, 1000 * 60 * 5);
+
+            // when fruitstrap is done, kill the process and go on to the next device 
             fruit.stdout.on('data', function(stdout) {
                 buf += stdout.toString();
-                if (should_we_kill(fruit, buf, sha, d)) {
+                if (kill(fruit, buf, sha, d)) {
+                    clearTimeout(timer);
                     run_through(sha, devices, bundlePath, bundleId, callback);
                 }
             });
             fruit.stderr.on('data', function(stderr) {
                 buf += stderr.toString();
-                if (should_we_kill(fruit, buf, sha, d)) {
+                if (kill(fruit, buf, sha, d)) {
+                    clearTimeout(timer);
                     run_through(sha, devices, bundlePath, bundleId, callback);
                 }
             });
