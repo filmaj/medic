@@ -3,6 +3,7 @@ var path = require('path');
 // 'cordova-blackberry':path.join(__dirname, 'lib', 'cordova-blackberry'),
 // 'cordova-blackberry':path.join(__dirname, 'temp', 'blackberry'),
 module.exports = {
+    count:2,
     paths:{
         'cordova-android':path.join(__dirname, 'lib', 'cordova-android'),
         'cordova-ios':path.join(__dirname, 'lib', 'cordova-ios'),
