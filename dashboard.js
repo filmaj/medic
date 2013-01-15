@@ -1,5 +1,7 @@
 var http                   = require('http'),
     url                    = require('url'),
+    fs                     = require('fs'),
+    path                   = require('path'),
     config                 = require('./config'),
     templates              = require('./src/dashboard/templates'),
     api                    = require('./src/dashboard/api');
@@ -36,6 +38,17 @@ var routes = {
     "api/errors":routeApi('errors'),
     "api/commits":routeApi('commits')
 };
+
+// cache local js content
+var js_dir = path.join(__dirname, 'src', 'dashboard', 'templates', 'js');
+fs.readdirSync(js_dir).forEach(function(js) {
+    var contents = fs.readFileSync(path.join(js_dir, js));
+    routes["js/" + js] = function(req, res) {
+        res.writeHead(200);
+        res.write(contents);
+        res.end();
+    }
+});
 
 http.createServer(function (req, res) {
     var method = req.method.toLowerCase();
