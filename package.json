@@ -1,12 +1,12 @@
 {
   "name": "medic",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "continuous integration setup for Apache Cordova",
   "author": "Fil Maj <maj.fil@gmail.com> (http://filmaj.ca)",
   "main": "dashboard.js",
   "scripts": {
     "start": "node dashboard.js",
-    "predeploy":"node bootstrap.js"
+    "postinstall": "echo 'Bootstrapping...' && node bootstrap.js && echo '... done.'"
   },
   "dependencies": {
     "shelljs": "0.1.2",
