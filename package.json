@@ -1,12 +1,11 @@
 {
   "name": "medic",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "continuous integration setup for Apache Cordova",
   "author": "Fil Maj <maj.fil@gmail.com> (http://filmaj.ca)",
   "main": "dashboard.js",
   "scripts": {
-    "start": "node dashboard.js",
-    "postinstall": "node bootstrap.js"
+    "start": "node dashboard.js"
   },
   "dependencies": {
     "shelljs": "0.1.2",
@@ -21,7 +20,7 @@
     "forever": "0.10.0",
     "semver": "1.1.0",
     "jasmine-node": ">=1.0.0",
-    "memwatch":""
+    "memwatch": ""
   },
   "subdomain": "cordova.medic",
   "engines": {

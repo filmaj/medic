@@ -21,20 +21,25 @@ for (var repo in libs.paths) if (libs.paths.hasOwnProperty(repo)) (function(lib)
     command_queue.push(cmd);
 })(repo);
 
-function go(q) {
+function go(q, cb) {
     var cmd = q.shift();
     if (cmd) {
-        console.log('Executing "' + cmd + '"');
+        console.log('[BOOTSTRAP] Executing "' + cmd + '"');
         shell.exec(cmd, {silent:true, async:true}, function(code, output) {
             if (code > 0) {
                 console.error('Error running previous command! Output to follow.');
                 console.error(output);
             }
-            go(q);
+            go(q, cb);
         });
     } else {
-        console.log('Bootstrap complete.');
+        console.log('[BOOTSTRAP] Complete.');
+        cb();
     }
 }
 
-go(command_queue);
+module.exports = {
+    go:function(callback) {
+        go(command_queue, callback);
+    }
+};

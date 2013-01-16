@@ -4,7 +4,8 @@ var http                   = require('http'),
     path                   = require('path'),
     config                 = require('./config'),
     templates              = require('./src/dashboard/templates'),
-    api                    = require('./src/dashboard/api');
+    api                    = require('./src/dashboard/api'),
+    bootstrap              = require('./bootstrap');
 
 // Different way of doing routes :P
 function routeApi(resource) {
@@ -67,7 +68,12 @@ http.createServer(function (req, res) {
     }
 }).listen(config.dashboard.port);
 
-console.log('[COUCH] Retrieving results...');
-api.boot(function() {
-    console.log('[HTTP] Server listening on port ' + config.dashboard.port);
-});
+setTimeout(function() {
+    console.log('[BOOT] Cloning necessary git repos (bootstrap).');
+    bootstrap.go(function() {
+        console.log('[BOOT] Retrieving results from couch...');
+        api.boot(function() {
+            console.log('READY TO ROCK!');
+        });
+    });
+}, 2500);
