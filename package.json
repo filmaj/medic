@@ -5,7 +5,8 @@
   "author": "Fil Maj <maj.fil@gmail.com> (http://filmaj.ca)",
   "main": "dashboard.js",
   "scripts": {
-    "start": "node dashboard.js"
+    "start": "node dashboard.js",
+    "predeploy":"node bootstrap.js"
   },
   "dependencies": {
     "shelljs": "0.1.2",
