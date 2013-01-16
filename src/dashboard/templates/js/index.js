@@ -1,18 +1,12 @@
-// holds info on first tracked commit in medic, so we can set baselines for graphing
-var info = {
-    ios:{
-        sha:'6e60c222f8194bb43de6b52c5ea9ff84cc92e040',
-        timestamp:1352505397000,
-        masterChart:null,
-        detailChart:null
-    },
-    android:{
-        sha:'538e90f23aaeebe4cc08ad87d17d0ab2dde6185d',
-        timestamp:1353515245,
-        masterChart:null,
-        detailChart:null
-    }
-};
+var libraries = ['cordova-android','cordova-ios'];
+var charts = {};
+libraries.forEach(function(lib) {
+    charts[lib] = {
+        master:null,
+        detail:null
+    };
+});
+
 function $(id) { return document.getElementById(id); }
 function XHR(url, cb) {
     var xhr = new XMLHttpRequest();
@@ -28,21 +22,19 @@ function XHR(url, cb) {
     };
     xhr.send(null);
 }
-function createMaster(platform) {
+function createMaster(platform, data, shas) {
     var container = document.createElement('div');
     container.setAttribute('id', 'container-' + platform);
     var master_container = document.createElement('div');
     master_container.setAttribute('id', 'master-' + platform);
-    master_container.style = "min-width: 400px; max-width:1000px; height:100px;"
+    master_container.setAttribute('style',"min-width: 400px; max-width:1000px; height:200px;");
     container.appendChild(master_container);
     var detail_container = document.createElement('div');
     detail_container.setAttribute('id', 'detail-' + platform);
     container.appendChild(detail_container);
     $('container').appendChild(container);
 
-
-    data = [];
-    info[platform].masterChart = new Highcharts.Chart({
+    charts['cordova-'+platform].master = new Highcharts.Chart({
         chart:{
             renderTo:'master-' + platform,
             reflow:false,
@@ -54,14 +46,14 @@ function createMaster(platform) {
             events:{
             }
         },
-        title:{text:null},
+        title:{text:'cordova-' + platform + ' tested commits'},
         xAxis:{
             type:'datetime',
             showLastTickLabel:true,
             maxZoom:24*60*60*1000, //1 day
             plotBands:[{
                 id:'mask-before',
-                from:info[platform].timestamp,
+                from:data[0][0],
                 to:((new Date().getTime()) - 7*24*60*60*1000), // show most recent week by default
                 color: 'rgba(0,0,0,0.2)'
             }],
@@ -69,14 +61,17 @@ function createMaster(platform) {
         },
         yAxis:{
             gridLineWidth:0,
-            labels:{enabled:false},
-            title:{text:null},
-            min:80,
-            max:100,
+            labels:{enabled:true},
+            title:{text:'Devices run on'},
+            min:0,
+            max:10,
             showFirstLabel:false
         },
         tooltip:{
-            formatter:function() { return false; }
+            formatter:function() { 
+                var stamp = this.x;
+                return '<a href="https://git-wip-us.apache.org/repos/asf?p=cordova-' + platform + '.git;a=commit;h=' + shas[stamp] + '">' + shas[stamp].substr(0,7) + '</a>';
+            }
         },
         legend:{enabled:false},
         credits:{enabled:false},
@@ -97,10 +92,10 @@ function createMaster(platform) {
             }
         },
         series:[{
-            type:'area',
+            type:'column',
             name:platform + ' Test Results',
             pointInterval:24*60*60*1000,
-            pointStart:info[platform].timestamp,
+            pointStart:data[0][0],
             data:data
         }],
         exporting:{enabled:false}
@@ -108,71 +103,34 @@ function createMaster(platform) {
         createDetail(masterChart);
     });
 }
-function createDetail(platform) {
+function createDetail(masterChart) {
     var div = document.createElement('div');
     div.style = "min-width: 400px; max-width:1000px; min-height: 400px;max-height:800px;"
 }
 function go() {
-    var chart;
-    var chart_options = {
-       chart:{
-           renderTo:"container",
-           zoomType:"x"
-       },
-       title:{
-           text: "Test Suite Results"
-       },
-       xAxis:{
-           type: "datetime",
-           tickInterval: 24 * 3600000, //1 day
-           maxZoom: 2 * 3600000, // 2 hours
-       },
-       yAxis:{
-           title:{
-               text:null
-           },
-           labels:{
-               align: 'left',
-               x: -3,
-               y: 16
-           },
-           min:75,
-           max:100
-       },
-       series:[{
-           name:'Android',
-       }, {
-           name:'iOS'
-       }]
-    };
-    XHR("/api/commits", function(err, commits) {
-       var data = {};
+    XHR("/api/commits/tested", function(err, commits) {
        XHR("/api/results", function(err, results) {
-           ['cordova-android', 'cordova-ios'].forEach(function(lib) {
-               data[lib] = [];
+           libraries.forEach(function(lib) {
                var platform = lib.substr(8);
+               var data = [];
+               var shas = {};
                for (var i = commits[lib].shas.length-1; i >= 0; i--) {
                    var sha = commits[lib].shas[i];
                    var stamp = parseInt(commits[lib].dates[i],10) * 1000;
+                   shas[stamp] = sha;
                    var rs = results[platform][sha];
-                   var total_tests = 0;
-                   var total_fails = 0;
+                   console.log(platform, sha, rs);
+                   var num_devices = 0;
                    for (var version in rs) if (rs.hasOwnProperty(version)) {
                        var models = rs[version];
                        for (var model in models) if (models.hasOwnProperty(model)) {
-                           var numbers = models[model];
-                           var fail_objects = numbers.fails;
-                           total_fails += parseInt(numbers.num_fails,10);
-                           total_tests += parseInt(numbers.tests,10);
+                           num_devices++;
                        }
                    }
-                   var percent = total_tests ? parseFloat((((total_tests-total_fails)/total_tests)*100).toFixed(3)) : 0;
-                   data[lib].push([stamp,percent]);
+                   data.push([stamp,num_devices]);
                }
+               createMaster(platform, data, shas);
            });
-           chart_options.series[0].data = data['cordova-android'];
-           chart_options.series[1].data = data['cordova-ios'];
-           chart = new Highcharts.Chart(chart_options);
        });
     });
 }

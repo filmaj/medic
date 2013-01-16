@@ -36,7 +36,8 @@ var routes = {
     },
     "api/results":routeApi('results'),
     "api/errors":routeApi('errors'),
-    "api/commits":routeApi('commits')
+    "api/commits/recent":routeApi('commits'),
+    "api/commits/tested":routeApi('tested_shas')
 };
 
 // cache local js content

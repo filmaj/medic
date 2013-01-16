@@ -1,9 +1,14 @@
-var libraries = require('../../libraries'),
-    n         = require('ncallbacks'),
-    templates = require('./templates'),
-    couch     = require('../couchdb/interface');
+var libraries   = require('../../libraries'),
+    n           = require('ncallbacks'),
+    templates   = require('./templates'),
+    commit_list = require('../build/commit_list'),
+    updater     = require('../build/updater'),
+    couch       = require('../couchdb/interface');
 
 function query_for_results(platform, shas, callback) {
+    console.log('[COUCH] Querying results for ' + shas.length + ' SHAs...'); 
+    var end = n(shas.length, callback);
+
     shas.forEach(function(sha) {
         var view = platform + '?key="' + sha + '"';
         couch.mobilespec_results.query_view('results', view, function(error, result) {
@@ -15,11 +20,14 @@ function query_for_results(platform, shas, callback) {
                     module.exports.add_mobile_spec_result(platform, sha, row);
                 });
             }
-            callback();
+            end();
         });
     });
 }
 function query_for_errors(platform, shas, callback) {
+    console.log('[COUCH] Querying errors for ' + shas.length + ' SHAs...'); 
+    var end = n(shas.length, callback);
+
     shas.forEach(function(sha) {
         var view = platform + '?key="' + sha + '"';
         // get build errors from couch for each repo
@@ -32,7 +40,7 @@ function query_for_errors(platform, shas, callback) {
                     module.exports.add_build_failure(platform, sha, row);
                 });
             }
-            callback();
+            end();
         });
     });
 }
@@ -41,15 +49,27 @@ module.exports = {
     commits:{},
     results:{},
     errors:{},
+    tested_shas:{},
     boot:function(callback) {
-        // get commits from couch for each repo
-        var counter = 20 * libraries.count * 2; 
-        var end = n(counter, function() {
-            callback();
+        // final callback setup
+        var counter = (libraries.count * 2); 
+        var end = n(counter, callback);
+
+        // update all libs, then get list of all sha's we've tested
+        updater(libraries.first_tested_commit, function() {
+            for (var lib in libraries.first_tested_commit) if (libraries.first_tested_commit.hasOwnProperty(lib)) {
+                var platform = lib.substr('cordova-'.length);
+                module.exports.tested_shas[lib] = commit_list.since(lib, libraries.first_tested_commit[lib]);
+                // query each sha for data
+                query_for_results(platform, module.exports.tested_shas[lib].shas, end);
+                query_for_errors(platform, module.exports.tested_shas[lib].shas, end);
+            }
         });
+
+        // TODO: is this necessary?
+        // get recent commits from couch for each repo
         for (var repo in libraries.paths) if (libraries.paths.hasOwnProperty(repo)) (function(lib) {
             if (lib.indexOf('mobile-spec') > -1) return;
-            var platform = lib.substr('cordova-'.length);
             couch.cordova_commits.get(lib, function(err, doc) {
                 if (err) {
                     console.error('WTF CANT TALK TO COUCH?!');
@@ -60,10 +80,6 @@ module.exports = {
                         "shas":doc.shas,
                         "dates":doc.dates
                     };
-
-                    // query each sha for data
-                    query_for_results(platform, doc.shas, end);
-                    query_for_errors(platform, doc.shas, end);
                 }
             });
         })(repo);
