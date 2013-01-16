@@ -254,6 +254,7 @@ function createDetail(masterChart, platform, shas, results) {
 function go() {
     XHR("/api/commits/tested", function(err, commits) {
        XHR("/api/results", function(err, results) {
+           $('load').style.display = 'none';
            libraries.forEach(function(lib) {
                var platform = lib.substr(8);
                var data = [];
