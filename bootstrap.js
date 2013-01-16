@@ -32,7 +32,9 @@ function go(q) {
             }
             go(q);
         });
-    } else console.log('Bootstrap complete.');
+    } else {
+        console.log('Bootstrap complete.');
+    }
 }
 
 go(command_queue);

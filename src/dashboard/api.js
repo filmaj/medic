@@ -6,10 +6,9 @@ var libraries   = require('../../libraries'),
     couch       = require('../couchdb/interface');
 
 function query_for_results(platform, shas, callback) {
-    console.log('[COUCH] Querying ' + platform + ' results for ' + shas.length + ' SHAs...'); 
-    var end = n(shas.length, callback);
-
-    shas.forEach(function(sha) {
+    var commits = shas.slice(0);
+    var sha = commits.shift();
+    if (sha) {
         var view = platform + '?key="' + sha + '"';
         couch.mobilespec_results.query_view('results', view, function(error, result) {
             if (error) {
@@ -20,15 +19,17 @@ function query_for_results(platform, shas, callback) {
                     module.exports.add_mobile_spec_result(platform, sha, row);
                 });
             }
-            end();
+            query_for_results(platform, commits, callback);
         });
-    });
+    } else {
+        callback();
+    }
 }
 function query_for_errors(platform, shas, callback) {
-    console.log('[COUCH] Querying ' + platform + ' errors for ' + shas.length + ' SHAs...'); 
-    var end = n(shas.length, callback);
+    var commits = shas.slice(0);
+    var sha = commits.shift();
 
-    shas.forEach(function(sha) {
+    if (sha) {
         var view = platform + '?key="' + sha + '"';
         // get build errors from couch for each repo
         couch.build_errors.query_view('errors', view, function(error, result) {
@@ -40,9 +41,11 @@ function query_for_errors(platform, shas, callback) {
                     module.exports.add_build_failure(platform, sha, row);
                 });
             }
-            end();
+            query_for_errors(platform, commits, callback);
         });
-    });
+    } else {
+        callback();
+    }
 }
 
 module.exports = {
@@ -61,6 +64,7 @@ module.exports = {
                 var platform = lib.substr('cordova-'.length);
                 module.exports.tested_shas[lib] = commit_list.since(lib, libraries.first_tested_commit[lib]);
                 // query each sha for data
+                console.log('[COUCH] Querying ' + platform + ' for ' + module.exports.tested_shas[lib].shas.length + ' SHAs...'); 
                 query_for_results(platform, module.exports.tested_shas[lib].shas, end);
                 query_for_errors(platform, module.exports.tested_shas[lib].shas, end);
             }
