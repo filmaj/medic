@@ -6,7 +6,7 @@ var libraries   = require('../../libraries'),
     couch       = require('../couchdb/interface');
 
 function query_for_results(platform, shas, callback) {
-    console.log('[COUCH] Querying results for ' + shas.length + ' SHAs...'); 
+    console.log('[COUCH] Querying ' + platform + ' results for ' + shas.length + ' SHAs...'); 
     var end = n(shas.length, callback);
 
     shas.forEach(function(sha) {
@@ -25,7 +25,7 @@ function query_for_results(platform, shas, callback) {
     });
 }
 function query_for_errors(platform, shas, callback) {
-    console.log('[COUCH] Querying errors for ' + shas.length + ' SHAs...'); 
+    console.log('[COUCH] Querying ' + platform + ' errors for ' + shas.length + ' SHAs...'); 
     var end = n(shas.length, callback);
 
     shas.forEach(function(sha) {
