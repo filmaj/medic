@@ -2,10 +2,13 @@ var http                   = require('http'),
     url                    = require('url'),
     fs                     = require('fs'),
     path                   = require('path'),
+    mime                   = require('mime'),
     config                 = require('./config'),
     templates              = require('./src/dashboard/templates'),
     api                    = require('./src/dashboard/api'),
     bootstrap              = require('./bootstrap');
+
+var boot_start = new Date().getTime();
 
 // Different way of doing routes :P
 function routeApi(resource) {
@@ -41,15 +44,20 @@ var routes = {
     "api/commits/tested":routeApi('tested_shas')
 };
 
-// cache local js content
-var js_dir = path.join(__dirname, 'src', 'dashboard', 'templates', 'js');
-fs.readdirSync(js_dir).forEach(function(js) {
-    var contents = fs.readFileSync(path.join(js_dir, js));
-    routes["js/" + js] = function(req, res) {
-        res.writeHead(200);
-        res.write(contents);
-        res.end();
-    }
+// cache local static content in memory (in memory? k)
+['js', 'img', 'css'].forEach(function(media) {
+    var dir = path.join(__dirname, 'src', 'dashboard', 'templates', media);
+    fs.readdirSync(dir).forEach(function(m) {
+        var file_path = path.join(dir, m);
+        var contents = fs.readFileSync(file_path);
+        var type = mime.lookup(file_path);
+        routes[media + "/" + m] = function(req, res) {
+            res.setHeader('Content-Type', type);
+            res.writeHead(200);
+            res.write(contents);
+            res.end();
+        }
+    });
 });
 
 http.createServer(function (req, res) {
@@ -73,7 +81,9 @@ setTimeout(function() {
     bootstrap.go(function() {
         console.log('[BOOT] Retrieving results from couch...');
         api.boot(function() {
-            console.log('READY TO ROCK!');
+            var boot_end = new Date().getTime();
+            var diff = (boot_end - boot_start)/1000;
+            console.log('[BOOT] Finished in ' + diff + ' seconds. READY TO ROCK!');
         });
     });
-}, 2500);
+}, 1000);

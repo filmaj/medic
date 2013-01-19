@@ -1,22 +1,46 @@
+<!DOCTYPE html>
 <html>
     <head>
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
         <title>Apache Cordova Test Results</title>
-        <link rel="stylesheet" type="text/css" href="http://cordova.apache.org/master.css">
+        <link rel="stylesheet" type="text/css" href="/css/medic.css">
     </head>
     <body onload="go();">
-        <div id="header">
-            <div class="wrap">
-                <a class="logo" href="#top"></a>
-            </div>
-        </div>
-        <br/><br/><br/><br/>
-        <h1 id="load">Loading...</h1>
-        <div id="container">
+        <div id="content">
+            <h1>Apache Cordova Test Dashboard</h1>
+            <table id="dashboard">
+                <thead>
+                    <tr>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="android">
+                        <td valign="middle" class="icon"><div id="android_icon"></div></td>
+                        <td class="last_commit">
+                            <p id="android_commit_date" class="date"></p>
+                            <a id="android_last_commit" href="#" target="_blank" class="commit"></a>
+                        </td>
+                        <td id="android_last_percentage" class="percentage"></td>
+                        <td id="android_last_pie" class="pie_chart"></td>
+                        <td class="more"><a id="android_more" href="#">More ></a></td>
+                    </tr>
+                    <tr id="ios">
+                        <td valign="middle" class="icon"><div></div></td>
+                        <td class="last_commit">
+                            <p id="ios_commit_date" class="date"></p>
+                            <a id="ios_last_commit" href="#" target="_blank" class="commit"></a>
+                        </td>
+                        <td id="ios_last_percentage" class="percentage"></td>
+                        <td id="ios_last_pie" class="pie_chart"></td>
+                        <td class="more"><a href="#">More ></a></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-36811541-1']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);})();</script>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
         <script type="text/javascript" src="/js/highcharts.src.js"></script>
+        <script type="text/javascript" src="/js/moment.min.js"></script>
         <script type="text/javascript" src="/js/index.js"></script>
     </body>
 </html>

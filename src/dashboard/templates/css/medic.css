@@ -1,0 +1,81 @@
+* {
+    margin: 0;
+    padding: 0;
+    -webkit-text-size-adjust: none;
+}
+body {
+    background:url(/img/grid.png) #eeeeee 50% 0%;
+}
+body,a {
+    color: #3b4854;
+}
+
+/* Dashboard table on homepage */
+table#dashboard {
+    margin:0 auto;
+}
+table#dashboard td {
+    padding:5px;
+}
+#android_icon {
+    background-position:-50px 0;
+}
+td.icon div {
+    width:46px;
+    height:54px;
+    background: url('/img/platforms.svg') 0 0 no-repeat;
+}
+td.pie_chart {
+    height:180px;
+    width:300px;
+}
+/*---------------------------------------------------
+    Font
+    ---------------------------------------------------*/
+    body,
+    h1,
+    h2,
+    h3,
+    h4,
+    input,
+    button {
+          font-size: 17px;
+            font-family: 'HelveticaNeue-Light', Helvetica, Arial, sans-serif;
+              font-weight: 300;
+    }
+    h1,
+    h2,
+    h3,
+    h4 {
+          letter-spacing: 0.05em;
+          margin-left:15px;
+    }
+    h1 {
+          font-size: 34px;
+    }
+    h2 {
+          font-size: 34px;
+            padding: 48px 0;
+    }
+    b,
+    strong {
+          font-family: 'HelveticaNeue-Bold', Helvetica, Arial, sans-serif;
+            font-weight: 900;
+    }
+    label {
+          font-family: 'HelveticaNeue', Helvetica, Arial, sans-serif;
+            font-weight: 400;
+              font-size: 12px;
+    }
+    .platforms-list li,
+    .list-header.mini,
+    .quick-links-header li {
+          font-family: 'HelveticaNeue-Medium', 'HelveticaNeue', Helvetica, Arial, sans-serif;
+            font-weight: 500;
+    }
+    /*---------------------------------------------------
+        Generic
+        ---------------------------------------------------*/
+        a:hover {
+              color: #4cc2e4;
+        }

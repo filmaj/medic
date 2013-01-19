@@ -252,6 +252,103 @@ function createDetail(masterChart, platform, shas, results) {
     });
 }
 function go() {
+    XHR("/api/commits/recent", function(err, commits) {
+        if (err) {
+            // if api isnt ready just reload in 5 seconds :P
+            setTimeout(function() {
+                window.location.reload();
+            }, 5000);
+        } else {
+            var recent_commits = {};
+            for (var lib in commits) if (commits.hasOwnProperty(lib)) {
+                var platform = lib.substr('cordova-'.length);
+                var most_recent_sha = commits[lib].shas[0];
+                recent_commits[platform] = most_recent_sha;
+                var most_recent_date = moment(parseInt(commits[lib].dates[0])*1000).fromNow();
+                $(platform + '_commit_date').innerText = most_recent_date;
+                var date_anchor = $(platform + '_last_commit');
+                date_anchor.innerText = most_recent_sha.substr(0,7);
+                date_anchor.setAttribute('href', 'https://git-wip-us.apache.org/repos/asf?p=' + lib + '.git;a=commit;h=' + most_recent_sha);
+            }
+            XHR("api/results", function(err, results) {
+                if (err) {
+                    setTimeout(function() { window.location.reload(); }, 5000);
+                } else {
+                    for (var lib in commits) if (commits.hasOwnProperty(lib)) {
+                        var colors = Highcharts.getOptions().colors;
+                        var platform = lib.substr('cordova-'.length);
+                        var rs = results[platform][recent_commits[platform]];
+                        var versionData = [];
+                        var modelData = [];
+                        var total_devices = 0;
+                        var version_info = {};
+                        var v_counter = 0;
+                        for (var version in rs) if (rs.hasOwnProperty(version)) {
+                            var models = rs[version];
+                            var version_devices = 0;
+                            var model_info = {};
+                            for (var model in models) if (models.hasOwnProperty(model)) {
+                                var numbers = models[model];
+                                total_devices++;
+                                version_devices++;
+                                model_info[model] = numbers;
+                            }
+                            version_info[version] = {
+                                num:version_devices,
+                                details:model_info,
+                                color:colors[v_counter]
+                            };
+                            v_counter++;
+                        }
+                        for (var v in version_info) if (version_info.hasOwnProperty(v)) {
+                            var y = (version_info[v].num / total_devices)*100;
+                            versionData.push({
+                                name:v,
+                                y:y,
+                                color:version_info[v].color
+                            });
+                            var details = version_info[v].details;
+                            var model_counter = 0;
+                            for (var m in details) if (details.hasOwnProperty(m)) {
+                                var y = (1/total_devices)*100;
+                                var brightness = 0.2 - ((model_counter / total_devices) / 5);
+                                modelData.push({
+                                    name:m,
+                                    y:y,
+                                    color:(Highcharts.Color(version_info[v].color).brighten(brightness).get())
+                                });
+                                model_counter++;
+                            }
+                        }
+                        var pie = new Highcharts.Chart({
+                            chart:{
+                                renderTo:platform + '_last_pie',
+                                type:'pie'
+                            },
+                            title:{text:null},
+                            tooltip:{valueSuffix:'%'},
+                            plotOptions:{pie:{shadow:false}},
+                            series:[{
+                                name:'Versions',
+                                data:versionData,
+                                size:'60%',
+                                dataLabels:{
+                                    color:'white',
+                                    distance:-30
+                                }
+                            },{
+                                name:'Models',
+                                data:modelData,
+                                innerSize:'60%'
+                            }]
+                        });
+                    }
+                }
+            });
+        }
+    });
+}
+function make_master_details() {
     XHR("/api/commits/tested", function(err, commits) {
        XHR("/api/results", function(err, results) {
            $('load').style.display = 'none';
