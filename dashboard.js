@@ -11,22 +11,53 @@ var http                   = require('http'),
 var boot_start = new Date().getTime();
 
 // Different way of doing routes :P
+function not_found(res, msg) {
+    res.writeHead(404, {
+        "Content-Type":"application/json"
+    });
+    var json = {
+        error:true,
+        message:msg
+    };
+    res.write(JSON.stringify(json), 'utf-8');
+    res.end();
+}
 function routeApi(resource) {
     return function(req, res) {
-        console.log('[HTTP] API request for ' + resource + '.');
-        var queries = url.parse(req.url, true).query;
-        res.writeHead(200, {
-            "Content-Type":"application/json"
-        });
-        var json = api[resource];
-        if (queries.platform) {
-            json = json[queries.platform];
+        try {
+            console.log('[HTTP] API request for ' + resource + '.');
+            var queries = url.parse(req.url, true).query;
+            var json = api[resource];
+            if (queries.platform) {
+                json = json[queries.platform];
+                if (!json) {
+                    not_found(res, 'platform "' + queries.platform + '" not found.');
+                    return;
+                }
+            }
+            if (queries.sha) {
+                json = json[queries.sha];
+                if (!json) {
+                    not_found(res, 'sha "' + queries.sha + '" on platform "' + queries.platform + '" not found.');
+                    return;
+                }
+            }
+            res.writeHead(200, {
+                "Content-Type":"application/json"
+            });
+            res.write(JSON.stringify(json), 'utf-8');
+            res.end();
+        } catch(e) {
+            res.writeHead(500, {
+                "Content-Type":"application/json"
+            });
+            var json = {
+                error:true,
+                message:e.message
+            };
+            res.write(JSON.stringify(json), 'utf-8');
+            res.end();
         }
-        if (queries.sha) {
-            json = json[queries.sha];
-        }
-        res.write(JSON.stringify(json), 'utf-8');
-        res.end();
     };
 }
 

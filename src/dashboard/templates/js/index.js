@@ -141,15 +141,17 @@ function renderDashboardRow(platform, date, lastSha, lastResults, secondSha, sec
                         (this.point.events && this.point.events.click ? '<br/><i style="font-size:9px;">Hint: click to see failures</i>' : ''); 
             }
         },
-        plotOptions:{pie:{shadow:false}},
+        plotOptions:{pie:{
+            shadow:false
+        }},
         series:[{
             name:'Versions',
             data:versionData,
             size:'60%',
             dataLabels:{
-                color:'white',
-                distance:-30
-            }
+                enabled:false
+            },
+            showInLegend:true
         },{
             name:'Models',
             data:modelData,
