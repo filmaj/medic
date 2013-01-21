@@ -15,6 +15,25 @@ function XHR(url, cb) {
     };
     xhr.send(null);
 }
+function popup_close() {
+    $('popup').style.display = 'none';
+}
+function popup_show(title, html) {
+    $('popup_html').innerHTML = html;
+    $('popup_title').innerText = title;
+    $('popup').style.display = '';
+}
+function getFailures(results) {
+    var fs = [];
+    if (results.fails && results.fails.length) {
+        fs = fs.concat(results.fails);
+    } else {
+        for (var sub in results) if (results.hasOwnProperty(sub)) {
+            fs = fs.concat(getFailures(results[sub]));
+        }
+    }
+    return fs;
+}
 function getPercentage(results) {
     if (results.tests) {
         var total = results.tests;
@@ -69,7 +88,7 @@ function renderDashboardRow(platform, date, lastSha, lastResults, secondSha, sec
         };
         v_counter++;
     }
-    for (var v in version_info) if (version_info.hasOwnProperty(v)) {
+    for (var vee in version_info) if (version_info.hasOwnProperty(vee)) (function(v) {
         var y = (version_info[v].num / total_devices)*100;
         versionData.push({
             name:v,
@@ -80,7 +99,7 @@ function renderDashboardRow(platform, date, lastSha, lastResults, secondSha, sec
         });
         var details = version_info[v].details;
         var model_counter = 0;
-        for (var m in details) if (details.hasOwnProperty(m)) {
+        for (var em in details) if (details.hasOwnProperty(em)) (function(m) {
             var y = (1/total_devices)*100;
             var brightness = 0.2 - ((model_counter/total_devices) / 5);
             modelData.push({
@@ -88,11 +107,27 @@ function renderDashboardRow(platform, date, lastSha, lastResults, secondSha, sec
                 y:y,
                 color:(Highcharts.Color(version_info[v].color).brighten(brightness).get()),
                 sha:lastSha,
-                mobilespecpercentage:getPercentage(lastResults[v][m])
+                mobilespecpercentage:getPercentage(lastResults[v][m]),
+                events:{
+                    click:function() {
+                        var fails = getFailures(lastResults[v][m]);
+                        var html = '';
+                        fails.forEach(function(fail) {
+                            html += '<p class="spec">' + fail.spec + '</p>';
+                            fail.assertions.forEach(function(assertion) {
+                                html += '<code class="exception">' + assertion.exception + '</code>';
+                                if (assertion.trace) {
+                                    html += '<pre><code>' + assertion.trace + '</code></pre>';
+                                }
+                            });
+                        });
+                        popup_show('Failed Assertions for ' + m + ', ' + v, html);
+                    }
+                }
             });
             model_counter++;
-        }
-    }
+        })(em)
+    })(vee);
     var pie = new Highcharts.Chart({
         chart:{
             renderTo:platform + '_last_pie',
@@ -101,7 +136,9 @@ function renderDashboardRow(platform, date, lastSha, lastResults, secondSha, sec
         title:{text:null},
         tooltip:{
             formatter:function() {
-                return this.point.name + '<br/>' + this.point.mobilespecpercentage.toFixed(2) + '%'
+                return this.point.name + '<br/>' + 
+                        this.point.mobilespecpercentage.toFixed(2) + '%' + 
+                        (this.point.events && this.point.events.click ? '<br/><i style="font-size:9px;">Hint: click to see failures</i>' : ''); 
             }
         },
         plotOptions:{pie:{shadow:false}},

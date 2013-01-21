@@ -32,6 +32,48 @@ td.pie_chart {
 td.percentage img {
     margin-top:5px;
 }
+/* POPUP */
+#popup {
+    position:fixed;
+    top:15%;
+    bottom:15%;
+    left:15%;
+    right:15%;
+    padding:5px;
+    overflow-y:scroll;
+    border-radius:5px;
+    border:1px black solid;
+    background-color: rgba(255,255,255,0.8);
+}
+#popup_title {
+    text-align:center;
+    padding:5px 0;
+}
+#popup_close {
+    position:fixed;
+    right: 17%;
+    top: 17%;
+    width:16px;
+    height:16px;
+    background:url('/img/no.png') 0 0 no-repeat;
+    cursor:pointer;
+}
+#popup .spec {
+    margin: 5px 10px;
+    font-weight:bold;
+    font-size:20px;
+}
+#popup .exception {
+    margin:0 20px;
+    font-size:15px;
+}
+#popup pre {
+    font-size:12px;
+    margin:0 25px;
+}
+#popup code {
+}
+
 /*---------------------------------------------------
     Font
     ---------------------------------------------------*/
