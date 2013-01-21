@@ -86,4 +86,4 @@ setTimeout(function() {
             console.log('[BOOT] Finished in ' + diff + ' seconds. READY TO ROCK!');
         });
     });
-}, 1000);
+}, 3000);
