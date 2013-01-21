@@ -50,6 +50,8 @@ module.exports = function(commits, callback) {
                                 console.log('[COUCH] Cordova commits for ' + lib + ' updated.');
                             }
                         });
+                    } else {
+                        console.log('[COUCH] ' + lib + ' already has most recent commits.');
                     }
                 }
             });

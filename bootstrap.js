@@ -29,7 +29,7 @@ function go(q, cb) {
             if (code > 0) {
                 console.error('Error running previous command! Output to follow.');
                 console.error(output);
-            }
+            } 
             go(q, cb);
         });
     } else {
