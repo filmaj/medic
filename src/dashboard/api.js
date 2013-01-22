@@ -63,30 +63,13 @@ module.exports = {
             for (var lib in libraries.first_tested_commit) if (libraries.first_tested_commit.hasOwnProperty(lib)) {
                 var platform = lib.substr('cordova-'.length);
                 module.exports.tested_shas[lib] = commit_list.since(lib, libraries.first_tested_commit[lib]);
+                module.exports.commits[lib] = commit_list.recent(lib, 20);
                 // query each sha for data
                 console.log('[COUCH] Querying ' + platform + ' for ' + module.exports.tested_shas[lib].shas.length + ' SHAs...'); 
                 query_for_results(platform, module.exports.tested_shas[lib].shas, end);
                 query_for_errors(platform, module.exports.tested_shas[lib].shas, end);
             }
         });
-
-        // TODO: is this necessary?
-        // get recent commits from couch for each repo
-        for (var repo in libraries.paths) if (libraries.paths.hasOwnProperty(repo)) (function(lib) {
-            if (lib.indexOf('mobile-spec') > -1) return;
-            couch.cordova_commits.get(lib, function(err, doc) {
-                if (err) {
-                    console.error('WTF CANT TALK TO COUCH?!');
-                    throw new Error(err);
-                } else {
-                    // save the commit SHAs + dates
-                    module.exports.commits[lib] = {
-                        "shas":doc.shas,
-                        "dates":doc.dates
-                    };
-                }
-            });
-        })(repo);
 
         // subscribe to couch changes for commits
         couch.cordova_commits.follow(function(err, change) {
