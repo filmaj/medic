@@ -120,6 +120,7 @@
                         // HTTP 201 Created
                         // we added the doc, hooray
                         console.log('>>> DONE <<<');
+                        if (blackberry && blackberry.app && blackberry.app.exit) blackberry.app.exit();
                     } else if (xhr.status == 409) {
                         console.log('conflict on couch');
                         // HTTP 409 Conflict
@@ -142,6 +143,7 @@
                                                     if (x_h_r.readyState==4) {
                                                         if (x_h_r.status==201) {
                                                             console.log('>>> DONE <<<');
+                                                            if (blackberry && blackberry.app && blackberry.app.exit) blackberry.app.exit();
                                                         } else {
                                                             console.log('the round trip delete+create failed. i give up. status was: ' + x_h_r.status);
                                                             console.log(x_h_r.responseText);
@@ -165,6 +167,7 @@
                         console.log('some crazy shit happened. couch returned some balltastic info. status code: ' + xhr.status);
                         console.log(xhr.responseText);
                         console.log('>>> DONE <<<');
+                        if (blackberry && blackberry.app && blackberry.app.exit) blackberry.app.exit();
                     }
                 }
             };

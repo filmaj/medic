@@ -1,8 +1,9 @@
-var config = require('../../../../config'),
-    path = require('path'),
+var config       = require('../../../../config'),
+    path         = require('path'),
     error_writer = require('../error_writer'),
-    shell = require('shelljs'),
-    fs = require('fs');
+    n            = require('ncallbacks'),
+    shell        = require('shelljs'),
+    fs           = require('fs');
 
 var sdk = config.blackberry.bb10.sdk;
 var device_password = config.blackberry.devices.password;
@@ -22,6 +23,8 @@ var bbwp_cmd = bbwp + ' ' + zip + ' -o ' + build_dir + ' -d';
 var project_properties = path.join(app, 'project.properties');
 
 module.exports = function bbten_builder(tens, sha, callback) {
+    var num_tens = 0;
+    for (var i in tens) if (tens.hasOwnProperty(i)) num_tens++;
     function log(msg) {
         console.log('[BLACKBERRY] [BUILDER:OS 10] ' + msg + ' (' + sha.substr(0,7) + ')');
     }
@@ -49,18 +52,34 @@ module.exports = function bbten_builder(tens, sha, callback) {
                             callback();
                         } else {
                             // deploy and launch to bb10s 
+                            var end = n(num_tens, callback); // final callback for all devices deployed to.
                             if (tens) for (var i in tens) if (tens.hasOwnProperty(i)) (function(ip) {
                                 var ten = tens[ip];
                                 log('Installing and running on ' + ten.model + ' (' + ip + ').');
                                 shell.exec(deploy + ' -installApp -launchApp -device ' + ip + ' -password ' + device_password + ' ' + binary, {silent:true,async:true}, function(kode, ootput) {
                                     if (kode > 0) {
                                         error_writer('blackberry', sha, ten.version, ten.model, 'Deployment error.', ootput);
+                                        end();
                                     } else {
                                         log('Mobile-spec successfully launched on ' + ten.model + ' (' + ip + ').');
+
+                                        var timer = setTimeout(function() {
+                                            log('Mobile-spec timed out on ' + ten.model + ' (' + ip + ').');
+                                            error_writer('blackberry', sha, ten.version, ten.model, 'mobile-spec timed out', 'mobile-spec timed out after 5 minutes');
+                                            end();
+                                        }, 1000 * 60 * 5);
+
+                                        when_app_finishes(ip, device_password, 'cordovaExample', function(err, message) {
+                                            clearTimeout(timer);
+                                            if (err) {
+                                                // TODO: post an error?
+                                            } else {
+                                                end();
+                                            }
+                                        });
                                     }
                                 });
                             }(i));
-                            callback();
                         }
                     });
                 }
@@ -68,3 +87,44 @@ module.exports = function bbten_builder(tens, sha, callback) {
         });
     });
 };
+
+function when_app_finishes(device_ip, device_password, package_name, callback) {
+    shell.exec(deploy + ' -listInstalledApps -device ' + device_ip + ' -password ' + device_password, {silent:true, async:true}, function(code, output) {
+        if (code > 0) {
+            console.log('omfg list installed apps failed on ' + device_ip);
+            callback(true, 'listInstalledAps failed: ' + output);
+        } else {
+            var package_id = output.split('\n').filter(function(l) {return l.indexOf(package_name) === 0})[0];
+            package_id = package_id.substr(package_id.indexOf('.') + 1, 27);
+            is_app_running(device_ip, device_password, package_name + '.' + package_id, function(err, msg) {
+                if (err) {
+                    callback(true, 'isAppRunning failed: ' + msg);
+                } else {
+                    callback(false);
+                }
+            });
+        }
+    });
+}
+function is_app_running(device_ip, device_password, package_fullname, callback) {
+    console.log('checking if app ' + package_fullname + ' is running');
+    shell.exec(deploy + ' -isAppRunning -device ' + device_ip + ' -password ' + device_password + ' -package-fullname ' + package_fullname, {silent:true, async:true}, function(code, output) {
+        if (code > 0) {
+            console.log('omfg isapprunning failed wtf');
+            callback(true, output);
+        } else {
+            var result = (output.split('\n').filter(function(l) { return l.indexOf('result') === 0})[0].split('::')[1] == 'true');
+            if (result) {
+                // If app is still running, test again in 5 seconds
+                console.log(package_fullname + ' is still running, delaying by 5 seconds');
+                setTimeout(function() {
+                    is_app_running(device_ip, device_password, package_fullname, callback);
+                }, 1000 * 5);
+            } else {
+                // Not running anymore!
+                console.log(package_fullname + ' is DONE');
+                callback(false);
+            }
+        }
+    });
+}

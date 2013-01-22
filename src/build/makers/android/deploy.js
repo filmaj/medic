@@ -46,6 +46,8 @@ module.exports = function deploy(sha, devices, path, id, callback) {
                                     var timer = setTimeout(function() {
                                         logcat.kill();
                                         log('Mobile-spec timed out on ' + d + ', continuing.');
+                                        // TODO: write out an error if it times out
+                                        //error_writer('android', sha, 
                                         end();
                                     }, 1000 * 60 * 5);
 

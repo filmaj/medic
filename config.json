@@ -7,11 +7,11 @@
     },
     "blackberry":{
         "devices":{
-            "ips":["10.0.1.13-10.0.1.15", "10.0.1.184"],
+            "ips":["10.0.1.26"],
             "password":"password"
         },
         "bb10":{
-            "sdk":"/Users/fil/SDKs/BB10-WebWorks-1.0.2",
+            "sdk":"/Users/fil/SDKs/BB10-WebWorks-1.0.4.7",
             "signingPassword":""
         },
         "tablet":{
@@ -20,7 +20,7 @@
         }
     },
     "ios":{
-        "keychainPassword":"europe",
+        "keychainPassword":"",
         "keychainLocation":"/Users/fil/Library/Keychains/login.keychain"
     }
 }

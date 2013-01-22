@@ -40,6 +40,7 @@ function run_through(sha, devices, bundlePath, bundleId, callback) {
             var timer = setTimeout(function() {
                 fruit.kill();
                 log('Mobile-spec timed out on ' + d + ', continuing.');
+                // TODO: write out an error if it times out
                 run_through(sha, devices, bundlePath, bundleId, callback);
             }, 1000 * 60 * 5);
 
