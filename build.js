@@ -48,7 +48,7 @@ bootstrap.go(function() {
             "sha":sha
         };
         queue.push(job);
-    });
+    }));
     console.log('[MEDIC] Now listening to Apache git commits from ' + apache_url);
 
     // If used with --force parameter, queue that single build.
