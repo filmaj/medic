@@ -26,8 +26,8 @@ td.icon div {
     background: url('/img/platforms.svg') 0 0 no-repeat;
 }
 td.pie_chart {
-    height:275px;
-    width:420px;
+    height:300px;
+    width:430px;
 }
 td.percentage img {
     margin-top:5px;
