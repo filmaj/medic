@@ -42,10 +42,17 @@ bootstrap.go(function() {
     // on new commits, queue builds for relevant projects.
     var apache_url = "http://urd.zones.apache.org:2069/json";
     var gitpubsub = request.get(apache_url);
-
-    gitpubsub.pipe(apache_parser);
+    gitpubsub.pipe(new apache_parser(function(project, sha) {
+        var job = {};
+        job[project] = {
+            "sha":sha
+        };
+        queue.push(job);
+    });
     console.log('[MEDIC] Now listening to Apache git commits from ' + apache_url);
 
+    // If used with --force parameter, queue that single build.
+    // Otherwise, compare connected devices to stored results and queue any missing results as new jobs
     if (argv.force && platform && sha) {
         console.log('[QUEUE] Forcing build of cordova-' + platform + '@' + sha);
         var job = {};

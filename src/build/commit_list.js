@@ -49,5 +49,14 @@ module.exports = {
             shas:shaList,
             dates:dateList
         };
+    },
+    date_for:function date_for(lib, sha) {
+        var libPath = path.join(libDir, lib);
+        var res = shell.exec('cd ' + libPath + ' && git show -s --format="%at" ' + sha, {silent:true});
+        if (res.code > 0) {
+            return null;
+        } else {
+            return res.output.split('\n').join('');
+        }
     }
 };
