@@ -24,7 +24,7 @@ Only tested on Mac OS 10.7.5.
 
 There are three components in this system: a build process, a web server acting as dashboard, and a couchdb.
 
-- a couchdb full of medic result docs, with currently three databases: `mobilespec_results`, `cordova_commits` and `build_errors`
+- a couchdb full of medic result docs, with currently two databases: `mobilespec_results` and `build_errors`
 - **dashboard.js**: small node web server that aggregates data from the above couch
 - **build.js**: a node process that pings the git apache servers for updates to the [Apache Cordova](http://cordova.io) project repositories.
   - when it detects a new commit, it will run through and wrap up the Cordova test suite, [mobile-spec](http://github.com/apache/cordova-mobile-spec), in each platform implementation currently supported

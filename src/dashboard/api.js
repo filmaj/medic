@@ -63,14 +63,14 @@ module.exports = {
         // update all libs, then get list of all sha's we've tested
         // query each sha for data
         updater(libraries.first_tested_commit, function() {
-            for (var lib in libraries.first_tested_commit) if (libraries.first_tested_commit.hasOwnProperty(lib)) {
+            for (var repo in libraries.first_tested_commit) if (libraries.first_tested_commit.hasOwnProperty(repo)) (function(lib) {
                 var platform = lib.substr('cordova-'.length);
                 module.exports.tested_shas[lib] = commits.since(lib, libraries.first_tested_commit[lib]);
                 module.exports.commits[lib] = commits.recent(lib, 20);
                 console.log('[COUCH] Querying ' + platform + ' for ' + module.exports.tested_shas[lib].shas.length + ' SHAs...'); 
                 query_for_results(platform, module.exports.tested_shas[lib].shas, end);
                 query_for_errors(platform, module.exports.tested_shas[lib].shas, end);
-            }
+            })(repo);
         });
 
         // on new commits, update commit lists with sha and date.

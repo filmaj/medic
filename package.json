@@ -1,6 +1,6 @@
 {
   "name": "medic",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "continuous integration setup for Apache Cordova",
   "author": "Fil Maj <maj.fil@gmail.com> (http://filmaj.ca)",
   "main": "dashboard.js",
@@ -13,7 +13,7 @@
     "follow": "0.8.0",
     "ncallbacks": "1.0.0",
     "mime": "1.2.9",
-    "optimist":"0.3.5"
+    "optimist": "0.3.5"
   },
   "devDependencies": {
     "elementtree": "0.1.4",

@@ -109,6 +109,5 @@ db.prototype = {
 
 module.exports = {
     build_errors:new db('build_errors'),
-    mobilespec_results:new db('mobilespec_results'),
-    cordova_commits:new db('cordova_commits')
+    mobilespec_results:new db('mobilespec_results')
 };

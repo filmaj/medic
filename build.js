@@ -7,6 +7,7 @@ var path          = require('path'),
     n             = require('ncallbacks'),
     bootstrap     = require('./bootstrap'),
     argv          = require('optimist').argv,
+    commit_list   = require('./src/build/commit_list'),
     queue         = require('./src/build/queue');
 
 // Clean out temp directory, where we keep our generated apps
@@ -67,74 +68,72 @@ bootstrap.go(function() {
         var ms = 'cordova-mobile-spec';
         for (var lib in libraries.paths) if (libraries.paths.hasOwnProperty(lib) && lib != ms) (function(repo) {
             var platform = repo.substr(repo.indexOf('-')+1);
-            couch.cordova_commits.get(repo, function(err, commits_doc) {
-                var commits = commits_doc.shas;
-                if (repo == 'cordova-ios') {
-                    // look at latest commits and see which ones have no results
-                    commits.forEach(function(commit) {
-                        couch.mobilespec_results.query_view('results', 'ios?key="' + commit + '"', function(error, result) {
-                            if (error) {
-                                console.error('[COUCH] Failed to retrieve iOS results for sha ' + commit.substr(0,7) + ', continuing.');
-                            } else {
-                                if (result.rows.length === 0) {
-                                    // no results, queue the job!
-                                    var job = {
-                                        'cordova-ios':{
-                                            'sha':commit
-                                        }
-                                    };
-                                    queue.push(job);
-                                }
-                            }
-                        });
-                    });
-                } else {
-                    // scan for devices for said platform
-                    var platform_scanner = require('./src/build/makers/' + platform + '/devices');
-                    var platform_builder = require('./src/build/makers/' + platform);
-                    platform_scanner(function(err, devices) {
-                        if (err) console.log('[BUILD] Error scanning for ' + platform + ' devices: ' + devices);
-                        else {
-                            var numDs = 0;
-                            for (var d in devices) if (devices.hasOwnProperty(d)) numDs++;
-                            if (numDs > 0) {
-                                commits.forEach(function(commit) {
-                                    var job = {};
-                                    var targets = 0;
-                                    job[repo] = {
-                                        sha:commit,
-                                        numDevices:0,
-                                        devices:{}
-                                    };
-                                    var end = n(numDs, function() {
-                                        if (targets > 0) {
-                                            job[repo].numDevices = targets;
-                                            queue.push(job);
-                                        }
-                                    });
-                                    for (var d in devices) if (devices.hasOwnProperty(d)) (function(id) {
-                                        var device = devices[id];
-                                        var version = device.version;
-                                        var model = device.model;
-                                        var couch_id = platform + '__' + commit + '__' + version + '__' + model;
-                                        couch.mobilespec_results.get(couch_id, function(err, res_doc) {
-                                            if (err && res_doc == 404) {
-                                                // Don't have results for this device!
-                                                targets++;
-                                                job[repo].devices[id] = {
-                                                    version:version,
-                                                    model:model
-                                                }; 
-                                            }
-                                            end();
-                                        });
-                                    }(d));
-                                });
+            var commits = commit_list.recent(repo, 20).shas;
+            if (repo == 'cordova-ios') {
+                // look at latest commits and see which ones have no results
+                commits.forEach(function(commit) {
+                    couch.mobilespec_results.query_view('results', 'ios?key="' + commit + '"', function(error, result) {
+                        if (error) {
+                            console.error('[COUCH] Failed to retrieve iOS results for sha ' + commit.substr(0,7) + ', continuing.');
+                        } else {
+                            if (result.rows.length === 0) {
+                                // no results, queue the job!
+                                var job = {
+                                    'cordova-ios':{
+                                        'sha':commit
+                                    }
+                                };
+                                queue.push(job);
                             }
                         }
                     });
-                }
-            });
+                });
+            } else {
+                // scan for devices for said platform
+                var platform_scanner = require('./src/build/makers/' + platform + '/devices');
+                var platform_builder = require('./src/build/makers/' + platform);
+                platform_scanner(function(err, devices) {
+                    if (err) console.log('[BUILD] Error scanning for ' + platform + ' devices: ' + devices);
+                    else {
+                        var numDs = 0;
+                        for (var d in devices) if (devices.hasOwnProperty(d)) numDs++;
+                        if (numDs > 0) {
+                            commits.forEach(function(commit) {
+                                var job = {};
+                                var targets = 0;
+                                job[repo] = {
+                                    sha:commit,
+                                    numDevices:0,
+                                    devices:{}
+                                };
+                                var end = n(numDs, function() {
+                                    if (targets > 0) {
+                                        job[repo].numDevices = targets;
+                                        queue.push(job);
+                                    }
+                                });
+                                for (var d in devices) if (devices.hasOwnProperty(d)) (function(id) {
+                                    var device = devices[id];
+                                    var version = device.version;
+                                    var model = device.model;
+                                    var couch_id = platform + '__' + commit + '__' + version + '__' + model;
+                                    couch.mobilespec_results.get(couch_id, function(err, res_doc) {
+                                        if (err && res_doc == 404) {
+                                            // Don't have results for this device!
+                                            targets++;
+                                            job[repo].devices[id] = {
+                                                version:version,
+                                                model:model
+                                            }; 
+                                        }
+                                        end();
+                                    });
+                                }(d));
+                            });
+                        }
+                    }
+                });
+            }
         })(lib);
     }
 });
