@@ -80,6 +80,7 @@ module.exports = {
             var lib = {};
             lib[project] = sha;
             updater(lib, function() {
+                if (project.indexOf('mobile-spec') > -1) return;
                 var date = commits.date_for(project, sha);
                 if (date) {
                     console.log('[MEDIC] New commit (' + project + '@' + sha.substr(0,7) + '), updating commit lists.');
