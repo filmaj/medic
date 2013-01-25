@@ -1,21 +1,14 @@
-var shell = require('shelljs'),
-    path  = require('path'),
-    et    = require('elementtree'),
-    config= require('../../../config'),
-    semver= require('semver'),
-    scan  = require('./blackberry/devices'),
-    playbook_builder = require('./blackberry/playbook_builder'),
-    bbten_builder = require('./blackberry/bbten_builder'),
-    n     = require('ncallbacks'),
-    error_writer=require('./error_writer'),
-    fs    = require('fs');
+var shell        = require('shelljs'),
+    path         = require('path'),
+    et           = require('elementtree'),
+    scan         = require('./blackberry/devices'),
+    deploy       = require('./blackberry/deploy'),
+    error_writer = require('./error_writer'),
+    fs           = require('fs');
 
 var blackberry_lib = path.join(__dirname, '..', '..', '..', 'lib', 'cordova-blackberry');
 var mobile_spec = path.join(__dirname, '..', '..', '..', 'temp', 'mobspec');
 var create = path.join(blackberry_lib, 'bin', 'create');
-
-var bb10_sdk = config.blackberry.bb10.sdk;
-var tablet_sdk = config.blackberry.tablet.sdk;
 
 module.exports = function(output, sha, devices, callback) {
     function log(msg) {
@@ -71,39 +64,21 @@ module.exports = function(output, sha, devices, callback) {
                         return;
                     }
 
-                    // scan for devices, figure out which of each kind we have.
-                    log('Scanning for BlackBerry devices.');
-                    scan(function(err, devices) {
-                        if (devices) {
-                            // determine how many of each device we have
-                            var tablets = {}, bbtens = {};
-                            var num_ts = 0, num_bs = 0;
-                            for (var ip in devices) if (devices.hasOwnProperty(ip)) {
-                                var device = devices[ip];
-                                var version = device.version;
-                                if (semver.satisfies(version.substring(0,version.lastIndexOf('.')), '>=2.0.0 && < 3.0.0')) {
-                                    num_ts++;
-                                    tablets[ip] = device;
-                                } else {
-                                    num_bs++;
-                                    bbtens[ip] = device;
-                                }
+                    if (devices) {
+                        deploy(sha, devices, callback);
+                    } else {
+                        log('Scanning for BlackBerry devices.');
+                        scan(function(err, devices) {
+                            if (err) {
+                                // Could not obtain device list...
+                                var error_message = devices;
+                                log(error_message);
+                                callback(true);
+                            } else {
+                                deploy(sha, devices, callback);
                             }
-                            log(num_ts + ' Tablets and ' + num_bs + ' BB-10s detected.');
-                            var counter = (num_bs && bb10_sdk.length > 0 ? 1 : 0) + (num_ts && tablet_sdk.length > 0 ? 1 : 0);
-                            var end = n(counter, callback);
-                            // compile as needed, one for bb10, one for tablet
-                            if (num_bs && bb10_sdk.length > 0) {
-                                bbten_builder(bbtens, sha, end);
-                            }
-                            if (num_ts && tablet_sdk.length > 0) {
-                                playbook_builder(tablets, sha, end);
-                            }
-                        } else {
-                            log('No BlackBerry devices discovered. Aborting.');
-                            callback();
-                        }
-                    });
+                        });
+                    }
                 }
             });
         }

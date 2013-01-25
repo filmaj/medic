@@ -62,17 +62,20 @@ module.exports = function bbten_builder(tens, sha, callback) {
                                         end();
                                     } else {
                                         log('Mobile-spec successfully launched on ' + ten.model + ' (' + ip + ').');
-
+                                        var inner_timer = {};
                                         var timer = setTimeout(function() {
                                             log('Mobile-spec timed out on ' + ten.model + ' (' + ip + ').');
-                                            error_writer('blackberry', sha, ten.version, ten.model, 'mobile-spec timed out', 'mobile-spec timed out after 5 minutes');
+                                            clearTimeout(inner_timer.timer);
+                                            inner_timer.timer = false;
+                                            //error_writer('blackberry', sha, ten.version, ten.model, 'mobile-spec timed out', 'mobile-spec timed out after 5 minutes');
                                             end();
                                         }, 1000 * 60 * 5);
 
-                                        when_app_finishes(ip, device_password, 'cordovaExample', function(err, message) {
+                                        inner_timer = when_app_finishes(ip, device_password, 'cordovaExample', function(err, message) {
                                             clearTimeout(timer);
                                             if (err) {
                                                 // TODO: post an error?
+                                                // probalby not.. deployment errors generally the cause here.
                                             } else {
                                                 end();
                                             }
@@ -89,9 +92,10 @@ module.exports = function bbten_builder(tens, sha, callback) {
 };
 
 function when_app_finishes(device_ip, device_password, package_name, callback) {
+    var to = {timer:null};
     shell.exec(deploy + ' -listInstalledApps -device ' + device_ip + ' -password ' + device_password, {silent:true, async:true}, function(code, output) {
         if (code > 0) {
-            console.log('omfg list installed apps failed on ' + device_ip);
+            console.log('[BLACKBERRY] [BUILDER:OS 10] omfg list installed apps failed on ' + device_ip);
             callback(true, 'listInstalledAps failed: ' + output);
         } else {
             var package_id = output.split('\n').filter(function(l) {return l.indexOf(package_name) === 0})[0];
@@ -102,27 +106,29 @@ function when_app_finishes(device_ip, device_password, package_name, callback) {
                 } else {
                     callback(false);
                 }
-            });
+            }, to);
         }
     });
+    return to;
 }
-function is_app_running(device_ip, device_password, package_fullname, callback) {
-    console.log('checking if app ' + package_fullname + ' is running');
+function is_app_running(device_ip, device_password, package_fullname, callback, timer_object) {
+    timer_object.timer = true;
     shell.exec(deploy + ' -isAppRunning -device ' + device_ip + ' -password ' + device_password + ' -package-fullname ' + package_fullname, {silent:true, async:true}, function(code, output) {
         if (code > 0) {
-            console.log('omfg isapprunning failed wtf');
+            console.log('[BLACKBERRY] [BUILDER:OS 10] omfg isapprunning failed wtf');
             callback(true, output);
         } else {
             var result = (output.split('\n').filter(function(l) { return l.indexOf('result') === 0})[0].split('::')[1] == 'true');
             if (result) {
                 // If app is still running, test again in 5 seconds
-                console.log(package_fullname + ' is still running, delaying by 5 seconds');
-                setTimeout(function() {
-                    is_app_running(device_ip, device_password, package_fullname, callback);
-                }, 1000 * 5);
+                if (timer_object.timer) {
+                    timer_object.timer = setTimeout(function() {
+                        is_app_running(device_ip, device_password, package_fullname, callback, timer_object);
+                    }, 1000 * 5);
+                } else {
+                }
             } else {
                 // Not running anymore!
-                console.log(package_fullname + ' is DONE');
                 callback(false);
             }
         }
