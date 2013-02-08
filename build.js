@@ -45,6 +45,8 @@ bootstrap.go(function() {
     var apache_url = "http://urd.zones.apache.org:2069/json";
     var gitpubsub = request.get(apache_url);
     gitpubsub.pipe(new apache_parser(function(project, sha) {
+        // ignore if its mobile spec
+        if (project.indexOf('mobile-spec') > -1) return;
         // handle commit bunches
         // number of most recent commits including newest one to check for queueing results.
         // since you can commit multiple times locally and push multiple commits up to repo, this ensures we have decent continuity of results
