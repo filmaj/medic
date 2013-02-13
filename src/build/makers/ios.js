@@ -64,7 +64,7 @@ module.exports = function(output, sha, devices, callback) {
 
                             // modify configuration to Release mode, i386 to armv7 and sdk to iphoneos6.0 so we can use it with fruitstrap
                             var debugScript = path.join(output, 'cordova', 'build');
-                            fs.writeFileSync(debugScript, fs.readFileSync(debugScript, 'utf-8').replace(/configuration Debug/, 'configuration Release').replace(/i386/g,'armv7').replace(/SDK=`.*`/, 'SDK="iphoneos6.0"'), 'utf-8');
+                            fs.writeFileSync(debugScript, fs.readFileSync(debugScript, 'utf-8').replace(/configuration Debug/, 'configuration Release').replace(/i386/g,'armv7').replace(/SDK=`.*`/, 'SDK="iphoneos6.1"'), 'utf-8');
 
                             // look at which cordova-<v>.js current lib uses
                             var version = fs.readFileSync(path.join(ios_lib, 'CordovaLib', 'VERSION'), 'utf-8').replace(/\r?\n/,'');

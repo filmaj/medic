@@ -82,7 +82,6 @@ var queue = new q(app_builder);
 // bootstrap makes sure we have the libraries cloned down locally and can query them for commit SHAs and dates
 new bootstrap(app_git, app_builder).go(function() {
     // build the test app asap
-    
     require('./' + app_builder)(libraries.output.test, 'HEAD', null, function(err) {
         if (err) {
             throw new Error('Could not build Test App! Aborting!');
