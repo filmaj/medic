@@ -6,7 +6,7 @@ var shell     = require('shelljs'),
 
 var jasmineReporter = path.join(__dirname, 'mobile_spec', 'jasmine-jsreporter.js');
 
-module.exports = function(output_location, sha, devices, callback) {
+module.exports = function(output_location, sha, devices, entry_point, callback) {
     shell.rm('-Rf', output_location);
     shell.mkdir('-p', output_location);
     var tempAll = path.join(output_location, 'autotest', 'pages', 'all.html');

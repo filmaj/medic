@@ -11,7 +11,7 @@ var blackberry_lib = libraries.paths['cordova-blackberry'];
 var mobile_spec = libraries.output.test;
 var create = path.join(blackberry_lib, 'bin', 'create');
 
-module.exports = function(output, sha, devices, callback) {
+module.exports = function(output, sha, devices, entry_point, callback) {
     function log(msg) {
         console.log('[BLACKBERRY] ' + msg + ' (sha: ' + sha.substr(0,7) + ')');
     }
@@ -45,7 +45,7 @@ module.exports = function(output, sha, devices, callback) {
                         // modify start page
                         var config_path = path.join(output, 'www', 'config.xml');
                         var doc = new et.ElementTree(et.XML(fs.readFileSync(config_path, 'utf-8')));
-                        doc.getroot().find('content').attrib.src = 'autotest/pages/all.html';
+                        doc.getroot().find('content').attrib.src = entry_point;
                         fs.writeFileSync(config_path, doc.write({indent:4}), 'utf-8');
 
                         // two copies of the project

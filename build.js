@@ -49,6 +49,9 @@ if (!static) {
     log('Static applications not supported yet!');
 }
 
+// --entry, -e: entry point into the app. index.html as default.
+var app_entry_point = argv.e || argv.entry || config.app.entry || 'index.html';
+
 // --builder, -b: path to node.js module that will handle app prep
 var app_builder = argv.b || argv.builder || config.app.builder;
 if (!app_builder) {
@@ -77,7 +80,7 @@ var frozen_platforms = platforms.filter(function(p) {
 });
 
 // Set up build queue based on config
-var queue = new q(app_builder);
+var queue = new q(app_builder, app_entry_point);
 
 // bootstrap makes sure we have the libraries cloned down locally and can query them for commit SHAs and dates
 new bootstrap(app_git, app_builder).go(function() {
