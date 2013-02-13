@@ -63,7 +63,7 @@ This module should be defined as a function that takes five parameters:
     module.exports = function(output_location, sha, devices, entry_point, callback) {
     }
 
-The paramters:
+The parameters:
 
 - `output_location`: A full path string to the location of where the test application should be built. It should compose a directory full of HTML, CSS and JavaScript assets that make up your test application.
 - `sha`: The SHA or tag that should be built. For dynamic test app generation, this string is useful for identifying and keeping track of results.
@@ -71,6 +71,7 @@ The paramters:
 - `entry_point`: the entry point into the app as defined by configuration. not applicable to authors of dynamic test application builders, really. Dun worry 'bout it.
 - `callback`: This one you should worry about! Fire this callback off once you are done building the app. Optionally, pass a truthy value as first parameter to let medic know some bad shit happened.
 
+For a real-world example, check out the mobile-spec builder (right here: `src/build/makers/mobile_spec.js`).
 
 ##### Dynamic Test Application Commit Hook
 
