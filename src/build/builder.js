@@ -1,20 +1,14 @@
-var path = require('path'),
-    fs = require('fs'),
-    libraries = require('../../libraries'),
+var path             = require('path'),
+    fs               = require('fs'),
+    libraries        = require('../../libraries'),
     android_build    = require('./makers/android'),
-    mobspec_build    = require('./makers/mobile_spec'),
     ios_build        = require('./makers/ios'),
     blackberry_build = require('./makers/blackberry');
 
-// im lazy
-var ms = 'cordova-mobile-spec';
-
-// builder mapping
 var builders = {
     'cordova-android':android_build,
     'cordova-ios':ios_build,
-    'cordova-blackberry':blackberry_build,
-    'cordova-mobile-spec':mobspec_build
+    'cordova-blackberry':blackberry_build
 };
 
 function build_the_queue(q, callback) {
@@ -27,37 +21,37 @@ function build_the_queue(q, callback) {
     } else callback();
 }
 
-module.exports = function builder(commits, callback) {
-    // build mobile-spec first if its in the commits
-    // if a medic-flavoured mobile spec isnt built, build it
-    if (ms in commits || !fs.existsSync(libraries.output[ms])) mobspec_build();
+module.exports = function(app_builder) {
+    builders['test'] = app_builder;
 
-    // commits format:
-    // { cordova-android:'sha'}
-    // OR
-    // { cordova-android:{
-    //     sha:'sha',
-    //     devices:[]
-    //   }
-    // }
-    var miniq = [];
-    for (var lib in commits) if (commits.hasOwnProperty(lib) && lib != ms) {
-        if (builders.hasOwnProperty(lib)) {
-            var job = {
-                library:lib,
-                builder:builders[lib],
-                output_location:libraries.output[lib]
-            };
+    return function builder(commits, callback) {
+        // commits format:
+        // { cordova-android:'sha'}
+        // OR
+        // { cordova-android:{
+        //     sha:'sha',
+        //     devices:[]
+        //   }
+        // }
+        var miniq = [];
+        for (var lib in commits) if (commits.hasOwnProperty(lib)) {
+            if (builders.hasOwnProperty(lib)) {
+                var job = {
+                    library:lib,
+                    builder:builders[lib],
+                    output_location:libraries.output[lib]
+                };
 
-            // Some jobs might be for all devices, or specific devices
-            if (typeof commits[lib] == 'string') {
-                job.sha = commits[lib];
-            } else {
-                job.sha = commits[lib].sha;
-                job.devices = commits[lib].devices;
+                // Some jobs might be for all devices, or specific devices
+                if (typeof commits[lib] == 'string') {
+                    job.sha = commits[lib];
+                } else {
+                    job.sha = commits[lib].sha;
+                    job.devices = commits[lib].devices;
+                }
+                miniq.push(job);
             }
-            miniq.push(job);
         }
+        build_the_queue(miniq, callback);
     }
-    build_the_queue(miniq, callback);
 };

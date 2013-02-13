@@ -2,12 +2,13 @@ var shell        = require('shelljs'),
     path         = require('path'),
     error_writer = require('./error_writer'),
     n            = require('ncallbacks'),
+    libraries    = require('../../../libraries'),
     scan         = require('./android/devices'),
     deploy       = require('./android/deploy'),
     fs           = require('fs');
 
-var android_lib = path.join(__dirname, '..', '..', '..', 'lib', 'cordova-android');
-var mobile_spec = path.join(__dirname, '..', '..', '..', 'temp', 'mobspec');
+var android_lib = libraries.paths['cordova-android'];
+var mobile_spec = libraries.output.test;
 var create = path.join(android_lib, 'bin', 'create');
 
 module.exports = function(output, sha, devices, callback) {

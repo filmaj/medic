@@ -4,10 +4,11 @@ var shell        = require('shelljs'),
     scan         = require('./blackberry/devices'),
     deploy       = require('./blackberry/deploy'),
     error_writer = require('./error_writer'),
+    libraries    = require('../../../libraries'),
     fs           = require('fs');
 
-var blackberry_lib = path.join(__dirname, '..', '..', '..', 'lib', 'cordova-blackberry');
-var mobile_spec = path.join(__dirname, '..', '..', '..', 'temp', 'mobspec');
+var blackberry_lib = libraries.paths['cordova-blackberry'];
+var mobile_spec = libraries.output.test;
 var create = path.join(blackberry_lib, 'bin', 'create');
 
 module.exports = function(output, sha, devices, callback) {

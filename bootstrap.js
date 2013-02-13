@@ -5,12 +5,13 @@ var shell = require('shelljs'),
 
 var libDir = path.join(__dirname, 'lib');
 shell.mkdir('-p', libDir);
+shell.rm('-rf', path.join(libDir, 'test'));
 
 var contents = fs.readdirSync(libDir);
 
 var command_queue = [];
 
-for (var repo in libs.paths) if (libs.paths.hasOwnProperty(repo)) (function(lib) {
+for (var repo in libs.paths) if (libs.paths.hasOwnProperty(repo) && repo != 'test') (function(lib) {
     if (contents.indexOf(lib) == -1) {
         // Don't have the lib, get it.
         var cmd = 'git clone https://git-wip-us.apache.org/repos/asf/' + lib + '.git ' + path.join(libDir, lib);
@@ -21,7 +22,7 @@ for (var repo in libs.paths) if (libs.paths.hasOwnProperty(repo)) (function(lib)
     command_queue.push(cmd);
 })(repo);
 
-function go(q, cb) {
+function go(q, builder, cb) {
     var cmd = q.shift();
     if (cmd) {
         console.log('[BOOTSTRAP] Executing "' + cmd + '"');
@@ -30,16 +31,37 @@ function go(q, cb) {
                 console.error('Error running previous command! Output to follow.');
                 console.error(output);
             } 
-            go(q, cb);
+            go(q, builder, cb);
         });
     } else {
+        // TODO: use the builder.
         console.log('[BOOTSTRAP] Complete.');
-        cb();
+        if (cb) cb();
     }
 }
 
-module.exports = {
-    go:function(callback) {
-        go(command_queue, callback);
+function bootstrap(url, builder) {
+    this.test_builder = builder;
+    if (url) {
+        var test_path = path.join(libDir, 'test');
+        var cmd;
+        if (fs.existsSync(test_path)) {
+            cmd = 'cd ' + test_path + ' && git checkout -- . && git pull origin master';
+        } else {
+            cmd = 'git clone ' + url + ' ' + test_path;
+        }
+        command_queue.push(cmd);
     }
 };
+
+bootstrap.prototype = {
+    go:function(callback) {
+        go(command_queue, this.test_builder, callback);
+    }
+};
+
+module.exports = bootstrap;
+
+if(require.main === module) {
+    new bootstrap().go();
+}

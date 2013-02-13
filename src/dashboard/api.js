@@ -57,7 +57,7 @@ module.exports = {
     tested_shas:{},
     boot:function(callback) {
         // final callback setup
-        var counter = (libraries.count * 2); 
+        var counter = (libraries.list.count * 2); 
         var end = n(counter, callback);
 
         // update all libs, then get list of all sha's we've tested

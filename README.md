@@ -1,12 +1,18 @@
 # medic
 
-Continuous integration setup for [Apache Cordova](http://cordova.io)
+> Continuous integration setup for [Apache Cordova](http://cordova.io)
+
+medic will deploy to real iOS, Android and BlackBerry 10 devices and run JavaScript test suites in a hybrid application container (Apache Cordova).
+medic aggregates test run data, categorizing by device characters, into a single document store, powered by [Apache CouchDB](http://couchdb.apache.org), and comes with a dashboard so you can see these results.
+medic will scan your machine for all connected mobile devices and queue builds for any device that is missing from your Couch.
+medic supports automating most JavaScript test suites. By default it runs the Apache Cordova test suite ([mobile-spec](http://git-wip-us.apache.org/repos/asf/cordova-mobile-spec.git)), but allows for customizing the test suite application.
+
 
 ## Giv'er 
 
-1. **VERY IMPORTANT**: Customize the parameters laid out in the `./config.json` file, especially the couch endpoint. If you're keen on getting to the data, contact me (@filmaj).
+1. **VERY IMPORTANT**: Customize the parameters laid out in the `./config.json` file.
 2. `sudo npm install`
-3. `node build.js` to run the builds and listen for Cordova commits
+3. `node build.js` to run builds of the cordova test suite (mobile-spec), listening to latest commits for all supported cordova platforms. Lots of customization availab le. For custimzation, see usage section below.
 4. `node dashboard.js` to run the dashboard server summarizing test results
 
 ## Requirements
@@ -34,8 +40,19 @@ There are three components in this system: a build process, a web server acting 
 
 ### build.js
 
-- Run `node build.js` without parameters to listen to new commits coming into the Apache Cordova project and build tests for these new commits. Will also scan your machine for all connected and supported mobile devices and compare with the couch datastore, and queue any builds for any device+library commit combination that is missing from the datastore.
-- Run `node build.js --force=<platform>@<sha>`, where `<platform>` equals one of `android` or `ios`, and `<sha>` is a valid commit SHA, tag or branch for that platform's git repository.
+Run `node build.js` without parameters to listen to new commits coming into the Apache Cordova project and build tests for these new commits. 
+You can customize various parameters by either providing them as parameters to the CLI, or by filling out the corresponding sections in `config.json`.
+
+#### Customizing
+
+- `--app, -a <path>`: Relative path from root of this project to a compatible app bundle (see below). `config.json` parameter: `app.path`. Defaults to `src/build/makers/mobile_spec`.
+- `--entry, -e <path>`: The entry page for the test application, relative to app bundle root. Most applications use `index.html`, but Cordova test suite has a page for all tests located at `autotest/pages/all.html`. `config.json` parameter: `app.entry`.
+- `--hook, -h <path>`: Relative path from root of this project to a compatible module capable of notifying medic when commits for your custom test suite get pushed. See below for more information.
+- `--platforms, -p [platform(s)]`: A comma-separated list of supported platforms. A supported platform string can be followed by an `@` and then either a tag or SHA. If a tag or SHA is provided, versions of the app will only be built against that tag or SHA for the specified platform. If not specified, medic will listen for new commits to Cordova for the provided platforms and queue builds of the app for platforms as new commits come in.
+
+##### Application Bundle
+
+To work with medic, the path to your test app must follow a particular structure.
 
 ## Supported Platforms
 

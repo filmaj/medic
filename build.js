@@ -1,78 +1,158 @@
+#!/usr/bin/env node
 var path          = require('path'),
     shell         = require('shelljs'),
     apache_parser = require('./src/apache-gitpubsub-parser'),
     request       = require('request'),
     couch         = require('./src/couchdb/interface'),
     libraries     = require('./libraries'),
+    config        = require('./config'),
     n             = require('ncallbacks'),
     bootstrap     = require('./bootstrap'),
     argv          = require('optimist').argv,
     commit_list   = require('./src/build/commit_list'),
-    queue         = require('./src/build/queue');
+    q             = require('./src/build/queue');
 
 // Clean out temp directory, where we keep our generated apps
 var temp = path.join(__dirname, 'temp');
 shell.rm('-rf', temp);
 shell.mkdir(temp);
 
-// Sanitize/check parameters if we are forcing a build.
-if (argv.force) {
-    if (argv.force.indexOf('@') == -1) {
-        console.error(['--force takes a parameter of the form <platform>@<sha>, where:',
-                       '  <platform> - one of android, blackberry or ios',
-                       '  <sha> - a string representing a particular commit SHA for the specified platform'].join('\n'));
+function log(err) {
+    if (err) {
+        console.error(err);
         process.exit(1);
     } else {
-        var params = argv.force.split('@');
-        var platform = params[0];
-        var sha = params[1];
-        if (!(('cordova-' + platform) in libraries.paths)) {
-            console.error('--force parameter platform "' + platform + '" not recognized.');
-            process.exit(1);
-        } else {
-            var res = shell.exec('cd ' + libraries.paths['cordova-' + platform] + ' && git branch --contains ' + sha, {silent:true});
-            if (res.code > 0) {
-                console.error('--force parameter SHA "' + sha + '" not found in cordova-' + platform);
-                process.exit(1);
-            }
-        }
+        console.log('Usage:');
+        process.exit(0);
     }
 }
 
-// bootstrap makes sure we have the libraries cloned down locally and can query them for commit SHAs and dates
-bootstrap.go(function() {
-    // on new commits, queue builds for relevant projects.
-    var apache_url = "http://urd.zones.apache.org:2069/json";
-    var gitpubsub = request.get(apache_url);
-    gitpubsub.pipe(new apache_parser(function(project, sha) {
-        // ignore if its mobile spec
-        if (project.indexOf('mobile-spec') > -1) return;
-        // handle commit bunches
-        // number of most recent commits including newest one to check for queueing results.
-        // since you can commit multiple times locally and push multiple commits up to repo, this ensures we have decent continuity of results
-        var num_commits_back_to_check = 5;
-        var commits = commit_list.recent(project, num_commits_back_to_check).shas;
-        check_n_queue(project, commits); 
-    }));
-    console.log('[MEDIC] Now listening to Apache git commits from ' + apache_url);
+// should we even bother building certain platforms
+var should_build = {
+    'cordova-blackberry':(config.blackberry.devices.ips && config.blackberry.devices.ips.length > 0),
+    'cordova-ios':(config.ios.keychainLocation && config.ios.keychainLocation.length > 0),
+    'cordova-android':true
+};
 
-    // If used with --force parameter, queue that single build.
-    // Otherwise, compare connected devices to stored results and queue any missing results as new jobs
-    if (argv.force && platform && sha) {
-        console.log('[QUEUE] Forcing build of cordova-' + platform + '@' + sha);
-        var job = {};
-        job['cordova-' + platform] = {
-            'sha':sha
-        };
-        queue.push(job);
-    } else {
-        console.log('[MEDIC] Querying local devices and queueing builds (if applicable)...');
-        // Look at results for specific devices of recent commits. Compare to connected devices. See which are missing from server. Queue those builds.
-        var ms = 'cordova-mobile-spec';
-        for (var lib in libraries.paths) if (libraries.paths.hasOwnProperty(lib) && lib != ms) (function(repo) {
-            var commits = commit_list.recent(repo, 20).shas;
-            check_n_queue(repo, commits);
-        })(lib);
+// Sanitize/check parameters.
+// --app, -a: relative location to static app 
+var static = argv.a || argv.app || config.app.static.path;
+if (!static) {
+    // must be dynamic app
+    var app_commit_hook = argv.h || argv.hook || config.app.dynamic.commit_hook;
+    var app_git = argv.g || argv.git || config.app.dynamic.git;
+    if (!app_git) {
+        log('No test application git URL provided!');
+    }
+} else {
+    // TODO: implement static app support
+    log('Static applications not supported yet!');
+}
+
+// --builder, -b: path to node.js module that will handle app prep
+var app_builder = argv.b || argv.builder || config.app.builder;
+if (!app_builder) {
+    log('No application builder module specified!');
+}
+
+// --platforms, -p: specify which platforms to build for. android, ios, blackberry, all, or a comma-separated list
+// can also specify a specific sha or tag of cordova to build the app with using <platform>@<sha>
+// if none specified, builds for all platforms by default, using the latest cordova. this means it will also listen to changes to the cordova project
+var platforms = argv.p || argv.platforms || config.app.platforms;
+if (!platforms) {
+    platforms = libraries.list;
+}
+if (typeof platforms == 'string') {
+    platforms = platforms.split(',').filter(function(p) { 
+        return libraries.list.indexOf(p.split('@')[0]) > -1;
+    });
+}
+// determine which platforms we listen to apache cordova commits to
+var head_platforms = platforms.filter(function(p) {
+    return p.indexOf('@') == -1;
+}).map(function(p) { return 'cordova-' + p; });
+// determine which platforms are frozen to a tag
+var frozen_platforms = platforms.filter(function(p) {
+    return p.indexOf('@') > -1;
+});
+
+// Set up build queue based on config
+var queue = new q(app_builder);
+
+// bootstrap makes sure we have the libraries cloned down locally and can query them for commit SHAs and dates
+new bootstrap(app_git, app_builder).go(function() {
+    // build the test app asap
+    
+    require('./' + app_builder)(libraries.output.test, 'HEAD', null, function(err) {
+        if (err) {
+            throw new Error('Could not build Test App! Aborting!');
+        }
+        console.log('[MEDIC] Test app built + ready.');
+    });
+    // on new commits to cordova libs, queue builds for relevant projects.
+    if (head_platforms.length > 0) { 
+        var apache_url = "http://urd.zones.apache.org:2069/json";
+        var gitpubsub = request.get(apache_url);
+        gitpubsub.pipe(new apache_parser(function(project, sha) {
+            // only queue for platforms that we want to build with latest libs
+            if (head_platforms.indexOf(project) > -1) {
+                // handle commit bunches
+                // number of most recent commits including newest one to check for queueing results.
+                // since you can commit multiple times locally and push multiple commits up to repo, this ensures we have decent continuity of results
+                var num_commits_back_to_check = 5;
+                var commits = commit_list.recent(project, num_commits_back_to_check).shas;
+                check_n_queue(project, commits); 
+            }
+        }));
+        console.log('[MEDIC] Now listening to Apache git commits from ' + apache_url);
+
+        // queue up builds for any missing recent results for HEAD platforms too
+        head_platforms.forEach(function(platform) {
+            if (should_build[platform]) {
+                console.log('[MEDIC] Checking recent commits for ' + platform + ' and possibly queueing...');
+                var commits = commit_list.recent(platform, 10).shas;
+                check_n_queue(platform, commits);
+            }
+        });
+    }
+    if (frozen_platforms.length > 0) {
+        console.log('[MEDIC] Queuing up frozen builds.');
+        frozen_platforms.forEach(function(p) {
+            var tokens = p.split('@');
+            var platform = p[0];
+            var sha = p[1];
+            var job = {};
+            job['cordova-' + platform] = {
+                "sha":sha
+            }
+            queue.push(job);
+        });
+        console.log('[MEDIC] Frozen build queued.');
+    }
+    // if app commit_hook exists, wire it up here
+    if (app_commit_hook) {
+        if (app_commit_hook.lastIndexOf('.js') == (app_commit_hook.length - 3)) {
+            app_commit_hook = app_commit_hook.substr(0, app_commit_hook.length -3);
+        }
+        var hook;
+        try {
+            hook = require('./' + app_commit_hook);
+        } catch(e) {
+            console.error('[MEDIC] [ERROR] ..requiring app hook. Probably path issue: ./' + app_commit_hook);
+            console.error(e.message);
+        }
+        if (hook) {
+            hook(function(sha) {
+                // On new commits to test project, make sure we build it.
+                // TODO: once test project is created, we should also queue it for relevant platforms
+                queue.push({
+                    'test':sha
+                });
+            });
+            console.log('[MEDIC] Now listening for test app updates.');
+        } else {
+            console.log('[MEDIC] [WARNING] Not listening for app commits. Fix the require issue first!');
+        }
     }
 });
 

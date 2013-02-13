@@ -1,6 +1,6 @@
 var events    = require('events'),
     updater   = require('./updater'),
-    builder   = require('./builder'),
+    builder,
     libraries = require('../../libraries');
 
 var q = function(name) {
@@ -60,8 +60,13 @@ var platform_queue = {};
 for (var lib in libraries.paths) if (libraries.paths.hasOwnProperty(lib)) {
     platform_queue[lib] = new q(lib);
 }
+platform_queue['test'] = new q('Test App');
 
-module.exports = {
+function queue(app_builder) {
+    builder = require('./builder')(app_builder);
+}
+
+queue.prototype = {
     push:function(job) {
         var lib = null;
         for (var p in job) if (job.hasOwnProperty(p)) lib = p;
@@ -70,3 +75,5 @@ module.exports = {
         }
     }
 };
+
+module.exports = queue;

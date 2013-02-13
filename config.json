@@ -5,9 +5,20 @@
     "dashboard":{
         "port":8088
     },
+    "app":{
+        "static":{
+            "path":null
+        },
+        "dynamic":{
+            "commit_hook":"src/build/makers/mobile_spec/commit_hook.js",
+            "git":"https://git-wip-us.apache.org/repos/asf/cordova-mobile-spec.git"
+        },
+        "builder":"src/build/makers/mobile_spec",
+        "platforms":null
+    },
     "blackberry":{
         "devices":{
-            "ips":["10.0.1.26"],
+            "ips":[],
             "password":"password"
         },
         "bb10":{
@@ -21,6 +32,6 @@
     },
     "ios":{
         "keychainPassword":"",
-        "keychainLocation":"/Users/fil/Library/Keychains/login.keychain"
+        "keychainLocation":""
     }
 }
