@@ -2,17 +2,22 @@
 
 > Continuous integration setup for [Apache Cordova](http://cordova.io)
 
-medic will deploy to real iOS, Android and BlackBerry 10 devices and run JavaScript test suites in a hybrid application container (Apache Cordova).
-medic aggregates test run data, categorizing by device characters, into a single document store, powered by [Apache CouchDB](http://couchdb.apache.org), and comes with a dashboard so you can see these results.
-medic will scan your machine for all connected mobile devices and queue builds for any device that is missing from your Couch.
-medic supports automating most JavaScript test suites. By default it runs the Apache Cordova test suite ([mobile-spec](http://git-wip-us.apache.org/repos/asf/cordova-mobile-spec.git)), but allows for customizing the test suite application.
+- medic will deploy to real iOS, Android and BlackBerry 10 devices and run JavaScript test suites in a hybrid application container (Apache Cordova).
+- medic aggregates test run data, categorizing by device characters, into a single document store, powered by [Apache CouchDB](http://couchdb.apache.org), and comes with a dashboard so you can see these results.
+- medic will scan your machine for all connected mobile devices and queue builds for any device that is missing from your Couch.
+- medic supports automating most JavaScript test suites. By default it runs the Apache Cordova test suite ([mobile-spec](http://git-wip-us.apache.org/repos/asf/cordova-mobile-spec.git)), but allows for customizing the test suite application.
 
+## Supported Platforms
+
+- Android
+- iOS
+- BlackBerry (Playbook and BlackBerry 10)
 
 ## Giv'er 
 
 1. **VERY IMPORTANT**: Customize the parameters laid out in the `./config.json` file.
-2. `sudo npm install`
-3. `node build.js` to run builds of the cordova test suite (mobile-spec), listening to latest commits for all supported cordova platforms. Lots of customization availab le. For custimzation, see usage section below.
+2. `(sudo) npm install` to get the dependencies sorted.
+3. `node build.js` to run builds of the cordova test suite (mobile-spec), listening to latest commits for all supported cordova platforms. Lots of customization available. For custimzation, see usage section below.
 4. `node dashboard.js` to run the dashboard server summarizing test results
 
 ## Requirements
@@ -23,7 +28,7 @@ Only tested on Mac OS 10.7.5.
 - node + npm
 - Necessary SDKs for the platforms you are building
 - Any provisioning profiles or certificates for the various platforms you want to test on
-  - iOS stuff both installed locally for Xcode and Keychain, as well as the profiles deployed to the test devices. Fill out your keychain location (login.keychain) and your keychain password too!
+  - iOS stuff both installed locally for Xcode and Keychain, as well as the profiles deployed to the test devices. Fill out your keychain location (login.keychain) and your keychain password too! Tested with Xcode 4.5.2 and 4.6.
   - Debug tokens installed to each BlackBerry Playbook or BB10 device (sorry, no OS 7 and earlier support)
 
 ## How This Works
@@ -45,20 +50,42 @@ You can customize various parameters by either providing them as parameters to t
 
 #### Customizing
 
-- `--app, -a <path>`: Relative path from root of this project to a compatible app bundle (see below). `config.json` parameter: `app.path`. Defaults to `src/build/makers/mobile_spec`.
+- `--app, -a <path>`: Relative path from root of this project to a static application you want to deploy to devices. `config.json` parameter: `app.static.path`. Defaults to `null` as Cordova uses a dynamic application for testing.
 - `--entry, -e <path>`: The entry page for the test application, relative to app bundle root. Most applications use `index.html`, but Cordova test suite has a page for all tests located at `autotest/pages/all.html`. `config.json` parameter: `app.entry`.
-- `--hook, -h <path>`: Relative path from root of this project to a compatible module capable of notifying medic when commits for your custom test suite get pushed. See below for more information.
+- `--builder, -b <path>`: Relative path from root of this project to a compatible module capable of building the test application. See below for more information, or `src/build/makers/mobile_spec.js` for an example.
+- `--hook, -h <path>`: Relative path from root of this project to a compatible module capable of notifying medic when commits for your custom test suite get pushed. See below for more information. Only applies to dynamic testing applications.
 - `--platforms, -p [platform(s)]`: A comma-separated list of supported platforms. A supported platform string can be followed by an `@` and then either a tag or SHA. If a tag or SHA is provided, versions of the app will only be built against that tag or SHA for the specified platform. If not specified, medic will listen for new commits to Cordova for the provided platforms and queue builds of the app for platforms as new commits come in.
 
-##### Application Bundle
+##### Dynamic Test Application Builder
 
-To work with medic, the path to your test app must follow a particular structure.
+This module should be defined as a function that takes five parameters:
 
-## Supported Platforms
+    module.exports = function(output_location, sha, devices, entry_point, callback) {
+    }
 
-- Android
-- iOS
-- BlackBerry (Playbook and BlackBerry 10)
+The paramters:
+
+- `output_location`: A full path string to the location of where the test application should be built. It should compose a directory full of HTML, CSS and JavaScript assets that make up your test application.
+- `sha`: The SHA or tag that should be built. For dynamic test app generation, this string is useful for identifying and keeping track of results.
+- `devices`: not applicable
+- `entry_point`: the entry point into the app as defined by configuration. not applicable to authors of dynamic test application builders, really. Dun worry 'bout it.
+- `callback`: This one you should worry about! Fire this callback off once you are done building the app. Optionally, pass a truthy value as first parameter to let medic know some bad shit happened.
+
+
+##### Dynamic Test Application Commit Hook
+
+This module should be defined as a function that takes a single callback. The callback should be fired whenever your test application receives a new commit. How this is done is up to. 
+
+A short example:
+
+    module.exports = function(callback) {
+        setTimeout(callback, 2000);
+    };
+
+The above will fire the callback after 2 seconds - it is trivial for example purposes.
+
+For a real-world example of how Cordova implements its commit hook for medic, look at `src/build/makers/mobile_spec/commit_hook.js`.
+
 
 # License
 
