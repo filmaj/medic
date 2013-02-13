@@ -38,11 +38,12 @@ var should_build = {
 
 // --entry, -e: entry point into the app. index.html as default.
 var app_entry_point = argv.e || argv.entry || config.app.entry || 'index.html';
+var remote_app = app_entry_point.indexOf('http') === 0;
 
 // Sanitize/check parameters.
 // --app, -a: relative location to static app 
 var static = argv.a || argv.app || config.app.static.path;
-if (!static) {
+if (!static && !remote_app) {
     // must be dynamic app
     var app_commit_hook = argv.h || argv.hook || config.app.dynamic.commit_hook;
     var app_git = argv.g || argv.git || config.app.dynamic.git;
@@ -58,7 +59,7 @@ if (!static) {
     queue = new q(app_builder, app_entry_point, false);
 } else {
     // static app support
-    queue = new q('./src/build/makers/static', app_entry_point, static);
+    queue = new q('./src/build/makers/static', app_entry_point, (remote_app ? app_entry_point : static));
 }
 
 // --platforms, -p: specify which platforms to build for. android, ios, blackberry, all, or a comma-separated list
@@ -100,7 +101,7 @@ new bootstrap(app_git, app_builder).go(function() {
         });
         console.log('[MEDIC] Frozen build queued.');
     }
-    if (static) {
+    if (static || remote_app) {
         // just build the head of platforms
         console.log('[MEDIC] Building test app for latest version of platforms.');
         head_platforms.forEach(function(platform) {

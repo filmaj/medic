@@ -6,6 +6,7 @@
 - medic aggregates test run data, categorizing by device characters, into a single document store, powered by [Apache CouchDB](http://couchdb.apache.org), and comes with a dashboard so you can see these results.
 - medic will scan your machine for all connected mobile devices and queue builds for any device that is missing from your Couch.
 - medic supports automating most JavaScript test suites. By default it runs the Apache Cordova test suite ([mobile-spec](http://git-wip-us.apache.org/repos/asf/cordova-mobile-spec.git)), but allows for customizing the test suite application.
+- medic, by default, runs the Apache Cordova test suite, but can be configured to run any JavaScript test page.
 
 ## Supported Platforms
 
@@ -87,6 +88,23 @@ The above will fire the callback after 2 seconds - it is trivial for example pur
 
 For a real-world example of how Cordova implements its commit hook for medic, look at `src/build/makers/mobile_spec/commit_hook.js`.
 
+### Examples of Use
+
+#### Build latest Apache Cordova test suite, listening to commits, queuing builds of recent commits to libraries
+
+    $ node build.js
+
+#### Build a Static Application with Local Assets
+
+In this example I am using [Pivotal's Jasmine BDD JavaScript test framework](https://github.com/pivotal/jasmine)'s [test suite](https://github.com/pivotal/jasmine/blob/master/spec/runner.html), cloned locally under `../jasmine`, telling medic to launch the page located at `../jasmine/spec/runner.html` on application run.
+
+    $ node build.js -a ../jasmine -e spec/runner.html
+
+#### Build a Static Application with a Remote URL
+
+In this example, I tell medic to use a test suite located online ([Backbone](http://backbonejs.org)'s [test suite](http://backbonejs.org/test)) and deploy it to devices.
+
+    $ node build.js -e http://backbonejs.org/test/index.html
 
 # License
 

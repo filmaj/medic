@@ -10,8 +10,11 @@ module.exports = function(output_location, static_path, sha, devices, entry_poin
     shell.rm('-rf', output_location);
     shell.mkdir('-p', output_location);
 
-    // copy project over
-    shell.cp('-rf', path.join(static_path, '*'), output_location);
+    if (entry_point.indexOf('http') === 0) {
+    } else {
+        // copy project over
+        shell.cp('-rf', path.join(static_path, '*'), output_location);
+    }
 
     /*
     // copy jasmine reporter into output_location location
