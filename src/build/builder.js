@@ -39,7 +39,7 @@ module.exports = function(app_builder, app_entry_point) {
                 var job = {
                     library:lib,
                     builder:builders[lib],
-                    output_location:libraries.output[lib]
+                    output_location:libraries.output[lib],
                     entry:app_entry_point
                 };
 
