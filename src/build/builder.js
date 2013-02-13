@@ -21,8 +21,23 @@ function build_the_queue(q, callback) {
     } else callback();
 }
 
-module.exports = function(app_builder, app_entry_point) {
-    builders['test'] = app_builder;
+module.exports = function(app_builder, app_entry_point, static) {
+    builders['test'] = require(path.join('..','..',app_builder));
+    if (static) {
+        builders['test'](libraries.output.test, static, null, null, app_entry_point, function(err) {
+            if (err) {
+                throw new Error('Could not copy test app over!');
+            }
+            console.log('[MEDIC] Test app built + ready.');
+        });
+    } else {
+        builders['test'](libraries.output.test, 'HEAD', null, app_entry_point, function(err) {
+            if (err) {
+                throw new Error('Could not build Test App! Aborting!');
+            }
+            console.log('[MEDIC] Test app built + ready.');
+        });
+    }
 
     return function builder(commits, callback) {
         // commits format:

@@ -27,12 +27,17 @@ function log(err) {
     }
 }
 
+var queue;
+
 // should we even bother building certain platforms
 var should_build = {
     'cordova-blackberry':(config.blackberry.devices.ips && config.blackberry.devices.ips.length > 0),
     'cordova-ios':(config.ios.keychainLocation && config.ios.keychainLocation.length > 0),
     'cordova-android':true
 };
+
+// --entry, -e: entry point into the app. index.html as default.
+var app_entry_point = argv.e || argv.entry || config.app.entry || 'index.html';
 
 // Sanitize/check parameters.
 // --app, -a: relative location to static app 
@@ -44,18 +49,16 @@ if (!static) {
     if (!app_git) {
         log('No test application git URL provided!');
     }
+    // --builder, -b: path to node.js module that will handle app prep
+    var app_builder = argv.b || argv.builder || config.app.builder;
+    if (!app_builder) {
+        log('No application builder module specified!');
+    }
+    // Set up build queue based on config
+    queue = new q(app_builder, app_entry_point, false);
 } else {
-    // TODO: implement static app support
-    log('Static applications not supported yet!');
-}
-
-// --entry, -e: entry point into the app. index.html as default.
-var app_entry_point = argv.e || argv.entry || config.app.entry || 'index.html';
-
-// --builder, -b: path to node.js module that will handle app prep
-var app_builder = argv.b || argv.builder || config.app.builder;
-if (!app_builder) {
-    log('No application builder module specified!');
+    // static app support
+    queue = new q('./src/build/makers/static', app_entry_point, static);
 }
 
 // --platforms, -p: specify which platforms to build for. android, ios, blackberry, all, or a comma-separated list
@@ -79,44 +82,10 @@ var frozen_platforms = platforms.filter(function(p) {
     return p.indexOf('@') > -1;
 });
 
-// Set up build queue based on config
-var queue = new q(app_builder, app_entry_point);
 
 // bootstrap makes sure we have the libraries cloned down locally and can query them for commit SHAs and dates
 new bootstrap(app_git, app_builder).go(function() {
-    // build the test app asap
-    require('./' + app_builder)(libraries.output.test, 'HEAD', null, null, function(err) {
-        if (err) {
-            throw new Error('Could not build Test App! Aborting!');
-        }
-        console.log('[MEDIC] Test app built + ready.');
-    });
-    // on new commits to cordova libs, queue builds for relevant projects.
-    if (head_platforms.length > 0) { 
-        var apache_url = "http://urd.zones.apache.org:2069/json";
-        var gitpubsub = request.get(apache_url);
-        gitpubsub.pipe(new apache_parser(function(project, sha) {
-            // only queue for platforms that we want to build with latest libs
-            if (head_platforms.indexOf(project) > -1) {
-                // handle commit bunches
-                // number of most recent commits including newest one to check for queueing results.
-                // since you can commit multiple times locally and push multiple commits up to repo, this ensures we have decent continuity of results
-                var num_commits_back_to_check = 5;
-                var commits = commit_list.recent(project, num_commits_back_to_check).shas;
-                check_n_queue(project, commits); 
-            }
-        }));
-        console.log('[MEDIC] Now listening to Apache git commits from ' + apache_url);
-
-        // queue up builds for any missing recent results for HEAD platforms too
-        head_platforms.forEach(function(platform) {
-            if (should_build[platform]) {
-                console.log('[MEDIC] Checking recent commits for ' + platform + ' and possibly queueing...');
-                var commits = commit_list.recent(platform, 10).shas;
-                check_n_queue(platform, commits);
-            }
-        });
-    }
+    // If there are builds specified for specific commits of libraries, queue them up
     if (frozen_platforms.length > 0) {
         console.log('[MEDIC] Queuing up frozen builds.');
         frozen_platforms.forEach(function(p) {
@@ -131,29 +100,69 @@ new bootstrap(app_git, app_builder).go(function() {
         });
         console.log('[MEDIC] Frozen build queued.');
     }
-    // if app commit_hook exists, wire it up here
-    if (app_commit_hook) {
-        if (app_commit_hook.lastIndexOf('.js') == (app_commit_hook.length - 3)) {
-            app_commit_hook = app_commit_hook.substr(0, app_commit_hook.length -3);
-        }
-        var hook;
-        try {
-            hook = require('./' + app_commit_hook);
-        } catch(e) {
-            console.error('[MEDIC] [ERROR] ..requiring app hook. Probably path issue: ./' + app_commit_hook);
-            console.error(e.message);
-        }
-        if (hook) {
-            hook(function(sha) {
-                // On new commits to test project, make sure we build it.
-                // TODO: once test project is created, we should also queue it for relevant platforms
-                queue.push({
-                    'test':sha
-                });
+    if (static) {
+        // just build the head of platforms
+        console.log('[MEDIC] Building test app for latest version of platforms.');
+        head_platforms.forEach(function(platform) {
+            if (should_build[platform]) {
+                var job = {};
+                job[platform] = {
+                    "sha":"HEAD"
+                }
+                queue.push(job);
+            }
+        });
+    } else {
+        // on new commits to cordova libs, queue builds for relevant projects.
+        if (head_platforms.length > 0) { 
+            var apache_url = "http://urd.zones.apache.org:2069/json";
+            var gitpubsub = request.get(apache_url);
+            gitpubsub.pipe(new apache_parser(function(project, sha) {
+                // only queue for platforms that we want to build with latest libs
+                if (head_platforms.indexOf(project) > -1) {
+                    // handle commit bunches
+                    // number of most recent commits including newest one to check for queueing results.
+                    // since you can commit multiple times locally and push multiple commits up to repo, this ensures we have decent continuity of results
+                    var num_commits_back_to_check = 5;
+                    var commits = commit_list.recent(project, num_commits_back_to_check).shas;
+                    check_n_queue(project, commits); 
+                }
+            }));
+            console.log('[MEDIC] Now listening to Apache git commits from ' + apache_url);
+
+            // queue up builds for any missing recent results for HEAD platforms too
+            head_platforms.forEach(function(platform) {
+                if (should_build[platform]) {
+                    console.log('[MEDIC] Checking recent commits for ' + platform + ' and possibly queueing...');
+                    var commits = commit_list.recent(platform, 10).shas;
+                    check_n_queue(platform, commits);
+                }
             });
-            console.log('[MEDIC] Now listening for test app updates.');
-        } else {
-            console.log('[MEDIC] [WARNING] Not listening for app commits. Fix the require issue first!');
+        }
+        // if app commit_hook exists, wire it up here
+        if (app_commit_hook) {
+            if (app_commit_hook.lastIndexOf('.js') == (app_commit_hook.length - 3)) {
+                app_commit_hook = app_commit_hook.substr(0, app_commit_hook.length -3);
+            }
+            var hook;
+            try {
+                hook = require('./' + app_commit_hook);
+            } catch(e) {
+                console.error('[MEDIC] [ERROR] ..requiring app hook. Probably path issue: ./' + app_commit_hook);
+                console.error(e.message);
+            }
+            if (hook) {
+                hook(function(sha) {
+                    // On new commits to test project, make sure we build it.
+                    // TODO: once test project is created, we should also queue it for relevant platforms
+                    queue.push({
+                        'test':sha
+                    });
+                });
+                console.log('[MEDIC] Now listening for test app updates.');
+            } else {
+                console.log('[MEDIC] [WARNING] Not listening for app commits. Fix the require issue first!');
+            }
         }
     }
 });

@@ -62,8 +62,8 @@ for (var lib in libraries.paths) if (libraries.paths.hasOwnProperty(lib)) {
 }
 platform_queue['test'] = new q('Test App');
 
-function queue(app_builder, app_entry_point) {
-    builder = require('./builder')(app_builder, app_entry_point);
+function queue(app_builder, app_entry_point, static) {
+    builder = require('./builder')(app_builder, app_entry_point, static);
 }
 
 queue.prototype = {

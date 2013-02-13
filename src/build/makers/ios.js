@@ -11,7 +11,6 @@ var keychain_location = config.ios.keychainLocation;
 var keychain_password = config.ios.keychainPassword;
 
 var ios_lib = libraries.paths['cordova-ios'];
-var mobile_spec = libraries.output.test;
 var create = path.join(ios_lib, 'bin', 'create');
 
 module.exports = function(output, sha, devices, entry_point, callback) {
@@ -47,12 +46,15 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                         try {
                             var projectWww = path.join(output, 'www');
                             
-                            // copy over mobile spec modified html assets
-                            shell.cp('-Rf', path.join(mobile_spec, '*'), projectWww);
+                            // copy over html assets
+                            shell.cp('-Rf', path.join(libraries.output.test, '*'), projectWww);
 
                             // drop the iOS library SHA into the junit reporter
+                            // only applies to projects that use it
                             var tempJasmine = path.join(projectWww, 'jasmine-jsreporter.js');
-                            fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
+                            if (fs.existsSync(tempJasmine)) {
+                                fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
+                            }
 
                             // modify start page
                             // 1. old way: modify appdelegate
@@ -62,15 +64,17 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                             var configFile = path.join(output, 'cordovaExample', 'config.xml');
                             fs.writeFileSync(configFile, fs.readFileSync(configFile, 'utf-8').replace(/<content\s*src=".*"/gi, '<content src="'+entry_point+'"'), 'utf-8');
 
-
                             // modify configuration to Release mode, i386 to armv7 and sdk to iphoneos6.0 so we can use it with fruitstrap
+                            // TODO: expose which target sdk to build for
                             var debugScript = path.join(output, 'cordova', 'build');
                             fs.writeFileSync(debugScript, fs.readFileSync(debugScript, 'utf-8').replace(/configuration Debug/, 'configuration Release').replace(/i386/g,'armv7').replace(/SDK=`.*`/, 'SDK="iphoneos6.1"'), 'utf-8');
 
                             // look at which cordova-<v>.js current lib uses
-                            var version = fs.readFileSync(path.join(ios_lib, 'CordovaLib', 'VERSION'), 'utf-8').replace(/\r?\n/,'');
                             var cordovajs = path.join(projectWww, 'cordova.js');
-                            fs.writeFileSync(cordovajs, fs.readFileSync(cordovajs, 'utf-8').replace(/var VERSION='.*';/, "var VERSION='" + version + "';"), 'utf-8');
+                            if (fs.existsSync(cordovajs)) {
+                                var version = fs.readFileSync(path.join(ios_lib, 'CordovaLib', 'VERSION'), 'utf-8').replace(/\r?\n/,'');
+                                fs.writeFileSync(cordovajs, fs.readFileSync(cordovajs, 'utf-8').replace(/var VERSION='.*';/, "var VERSION='" + version + "';"), 'utf-8');
+                            }
                         } catch(e) {
                             error_writer('ios', sha, 'Exception thrown modifying mobile spec application for iOS.', e.message);
                             callback(true);
