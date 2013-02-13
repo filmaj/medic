@@ -51,15 +51,10 @@ if (!static && !remote_app) {
         log('No test application git URL provided!');
     }
     // --builder, -b: path to node.js module that will handle app prep
-    var app_builder = argv.b || argv.builder || config.app.builder;
+    var app_builder = argv.b || argv.builder || config.app.dynamic.builder;
     if (!app_builder) {
         log('No application builder module specified!');
     }
-    // Set up build queue based on config
-    queue = new q(app_builder, app_entry_point, false);
-} else {
-    // static app support
-    queue = new q('./src/build/makers/static', app_entry_point, (remote_app ? app_entry_point : static));
 }
 
 // --platforms, -p: specify which platforms to build for. android, ios, blackberry, all, or a comma-separated list
@@ -86,6 +81,14 @@ var frozen_platforms = platforms.filter(function(p) {
 
 // bootstrap makes sure we have the libraries cloned down locally and can query them for commit SHAs and dates
 new bootstrap(app_git, app_builder).go(function() {
+    if (!static && !remote_app) { 
+        // Set up build queue based on config
+        queue = new q(app_builder, app_entry_point, false);
+    } else {
+        // static app support
+        queue = new q('./src/build/makers/static', app_entry_point, (remote_app ? app_entry_point : static));
+    }
+
     // If there are builds specified for specific commits of libraries, queue them up
     if (frozen_platforms.length > 0) {
         console.log('[MEDIC] Queuing up frozen builds.');
