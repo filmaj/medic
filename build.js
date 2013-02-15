@@ -10,6 +10,7 @@ var path          = require('path'),
     bootstrap     = require('./bootstrap'),
     argv          = require('optimist').argv,
     commit_list   = require('./src/build/commit_list'),
+    updater       = require('./src/build/updater'),
     q             = require('./src/build/queue');
 
 // Clean out temp directory, where we keep our generated apps
@@ -123,12 +124,17 @@ new bootstrap(app_git, app_builder).go(function() {
             gitpubsub.pipe(new apache_parser(function(project, sha) {
                 // only queue for platforms that we want to build with latest libs
                 if (head_platforms.indexOf(project) > -1) {
-                    // handle commit bunches
-                    // number of most recent commits including newest one to check for queueing results.
-                    // since you can commit multiple times locally and push multiple commits up to repo, this ensures we have decent continuity of results
-                    var num_commits_back_to_check = 5;
-                    var commits = commit_list.recent(project, num_commits_back_to_check).shas;
-                    check_n_queue(project, commits); 
+                    // update the local repo
+                    var job = {};
+                    job[project] = sha;
+                    updater(job, function() {
+                        // handle commit bunches
+                        // number of most recent commits including newest one to check for queueing results.
+                        // since you can commit multiple times locally and push multiple commits up to repo, this ensures we have decent continuity of results
+                        var num_commits_back_to_check = 5;
+                        var commits = commit_list.recent(project, num_commits_back_to_check).shas;
+                        check_n_queue(project, commits); 
+                    });
                 }
             }));
             console.log('[MEDIC] Now listening to Apache git commits from ' + apache_url);
@@ -136,7 +142,6 @@ new bootstrap(app_git, app_builder).go(function() {
             // queue up builds for any missing recent results for HEAD platforms too
             head_platforms.forEach(function(platform) {
                 if (should_build[platform]) {
-                    console.log('[MEDIC] Checking recent commits for ' + platform + ' and possibly queueing...');
                     var commits = commit_list.recent(platform, 10).shas;
                     check_n_queue(platform, commits);
                 }
