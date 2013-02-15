@@ -78,7 +78,6 @@ var frozen_platforms = platforms.filter(function(p) {
     return p.indexOf('@') > -1;
 });
 
-
 // bootstrap makes sure we have the libraries cloned down locally and can query them for commit SHAs and dates
 new bootstrap(app_git, app_builder).go(function() {
     if (!static && !remote_app) { 
@@ -173,6 +172,7 @@ new bootstrap(app_git, app_builder).go(function() {
 
 // Given a repository and array of commits for that repository, 
 function check_n_queue(repo, commits) {
+    console.log('[MEDIC] Checking ' + repo + '\'s ' + commits.length + ' most recent commit(s) for results on your couch...');
     var platform = repo.substr(repo.indexOf('-')+1);
     // TODO: figure out ios device scanning. issue: determine what model and version connected ios devices are running. until then, we can't queue ios builds on devices that we are missing results for, so we look at ios commits with no results and queue those up.
     if (repo == 'cordova-ios') {

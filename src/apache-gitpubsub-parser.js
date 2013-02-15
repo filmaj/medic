@@ -18,7 +18,7 @@ module.exports = function apache_gitpubsub_parser(callback) {
                 }
             }
         } catch(e) {
-            console.error('[GITPUBSUB] [ERROR]: ' + e.message);
+            console.error('[GITPUBSUB] [ERROR]: ' + new Date() + ' ' + e.message);
             console.error('[GITPUBSUB] [ERROR] Attempted to parse: ' + json);
         }
         return true;
