@@ -1,4 +1,5 @@
 var libraries = ['cordova-android','cordova-ios'];
+var tested_commits, results;
 
 function $(id) { return document.getElementById(id); }
 function XHR(url, cb) {
@@ -15,13 +16,16 @@ function XHR(url, cb) {
     };
     xhr.send(null);
 }
-function popup_close() {
-    $('popup').style.display = 'none';
+function popup_close(el) {
+    el.parentNode.style.display = 'none';
 }
 function popup_show(title, html) {
     $('popup_html').innerHTML = html;
     $('popup_title').innerText = title;
     $('popup').style.display = '';
+}
+function show(id) {
+    $(id).style.display = '';
 }
 function getFailures(results) {
     var fs = [];
@@ -179,5 +183,13 @@ function go() {
                 });
             }(repo));
         }
+    });
+    XHR("/api/commits/tested", function(err, commits) {
+        tested_commits = commits;
+        XHR("/api/results", function(err, res) {
+            results = res;
+            render('cordova-ios');
+            render('cordova-android');
+        });
     });
 }

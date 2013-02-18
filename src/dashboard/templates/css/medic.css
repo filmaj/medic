@@ -33,7 +33,7 @@ td.percentage img {
     margin-top:5px;
 }
 /* POPUP */
-#popup {
+.popup {
     position:fixed;
     top:15%;
     bottom:15%;
@@ -45,11 +45,11 @@ td.percentage img {
     border:1px black solid;
     background-color: rgba(255,255,255,0.8);
 }
-#popup_title {
+.popup_title {
     text-align:center;
     padding:5px 0;
 }
-#popup_close {
+.popup_close {
     position:fixed;
     right: 17%;
     top: 17%;
@@ -58,20 +58,20 @@ td.percentage img {
     background:url('/img/no.png') 0 0 no-repeat;
     cursor:pointer;
 }
-#popup .spec {
+.popup .spec {
     margin: 5px 10px;
     font-weight:bold;
     font-size:20px;
 }
-#popup .exception {
+.popup .exception {
     margin:0 20px;
     font-size:15px;
 }
-#popup pre {
+.popup pre {
     font-size:12px;
     margin:0 25px;
 }
-#popup code {
+.popup code {
 }
 
 /*---------------------------------------------------

@@ -6,9 +6,7 @@ libraries.forEach(function(lib) {
     };
 });
 function createMaster(platform, data, shas, results) {
-    var container = document.createElement('div');
-    container.setAttribute('id', 'container-' + platform);
-    container.setAttribute('style', 'height:555px;position:relative;');
+    var container = $(platform + '_popup_html');
     var master_container = document.createElement('div');
     master_container.setAttribute('id', 'master-' + platform);
     master_container.setAttribute('style',"width: 1000px;height:175px;position:absolute;top:300px;");
@@ -17,7 +15,6 @@ function createMaster(platform, data, shas, results) {
     detail_container.setAttribute('style', "width:1000px;;height:400px;");
     container.appendChild(detail_container);
     container.appendChild(master_container);
-    $('container').appendChild(container);
 
     charts['cordova-'+platform].master = new Highcharts.Chart({
         chart:{
@@ -234,30 +231,23 @@ function createDetail(masterChart, platform, shas, results) {
         exporting:{enabled:false}
     });
 }
-function make_master_details() {
-    XHR("/api/commits/tested", function(err, commits) {
-       XHR("/api/results", function(err, results) {
-           $('load').style.display = 'none';
-           libraries.forEach(function(lib) {
-               var platform = lib.substr(8);
-               var data = [];
-               var shas = {};
-               for (var i = commits[lib].shas.length-1; i >= 0; i--) {
-                   var sha = commits[lib].shas[i];
-                   var stamp = parseInt(commits[lib].dates[i],10) * 1000;
-                   shas[stamp] = sha;
-                   var rs = results[platform][sha];
-                   var num_devices = 0;
-                   for (var version in rs) if (rs.hasOwnProperty(version)) {
-                       var models = rs[version];
-                       for (var model in models) if (models.hasOwnProperty(model)) {
-                           num_devices++;
-                       }
-                   }
-                   data.push([stamp,num_devices]);
-               }
-               createMaster(platform, data, shas, results[platform]);
-           });
-       });
-    });
+function render(lib) {
+    var platform = lib.substr(8);
+    var data = [];
+    var shas = {};
+    for (var i = tested_commits[lib].shas.length-1; i >= 0; i--) {
+       var sha = tested_commits[lib].shas[i];
+       var stamp = parseInt(tested_commits[lib].dates[i],10) * 1000;
+       shas[stamp] = sha;
+       var rs = results[platform][sha];
+       var num_devices = 0;
+       for (var version in rs) if (rs.hasOwnProperty(version)) {
+           var models = rs[version];
+           for (var model in models) if (models.hasOwnProperty(model)) {
+               num_devices++;
+           }
+       }
+       data.push([stamp,num_devices]);
+    }
+    createMaster(platform, data, shas, results[platform]);
 }

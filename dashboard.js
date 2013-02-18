@@ -109,7 +109,7 @@ http.createServer(function (req, res) {
 
 setTimeout(function() {
     console.log('[BOOT] Cloning necessary git repos (bootstrap).');
-    bootstrap.go(function() {
+    new bootstrap().go(function() {
         console.log('[BOOT] Retrieving results from couch...');
         api.boot(function() {
             var boot_end = new Date().getTime();
