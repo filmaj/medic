@@ -9,10 +9,10 @@ function createMaster(platform, data, shas, results) {
     var container = $(platform + '_popup_html');
     var master_container = document.createElement('div');
     master_container.setAttribute('id', 'master-' + platform);
-    master_container.setAttribute('style',"width: 1000px;height:175px;position:absolute;top:300px;");
+    master_container.setAttribute('style',"width: 1000px;height:175px;margin:0 auto;");
     var detail_container = document.createElement('div');
     detail_container.setAttribute('id', 'detail-' + platform);
-    detail_container.setAttribute('style', "width:1000px;;height:400px;");
+    detail_container.setAttribute('style', "width:1000px;;height:300px;margin:0 auto;");
     container.appendChild(detail_container);
     container.appendChild(master_container);
 
@@ -190,7 +190,7 @@ function createDetail(masterChart, platform, shas, results) {
         xAxis:{type:'datetime'},
         yAxis:{
             title:{text:null},
-            min:90,
+            min:80,
             max:100
         },
         tooltip:{
