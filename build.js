@@ -121,9 +121,10 @@ new bootstrap(app_git, app_builder).go(function() {
         if (head_platforms.length > 0) { 
             var apache_url = "http://urd.zones.apache.org:2069/json";
             var gitpubsub = request.get(apache_url);
-            gitpubsub.pipe(new apache_parser(function(project, sha) {
+            gitpubsub.pipe(new apache_parser(function(project, sha, ref) {
                 // only queue for platforms that we want to build with latest libs
-                if (head_platforms.indexOf(project) > -1) {
+                // and only queue for commits to master branch
+                if (head_platforms.indexOf(project) > -1 && ref == 'refs/heads/master') {
                     // update the local repo
                     var job = {};
                     job[project] = sha;

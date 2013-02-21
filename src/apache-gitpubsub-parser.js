@@ -14,7 +14,7 @@ module.exports = function apache_gitpubsub_parser(callback) {
             if (json.commit) {
                 // make sure this is a commit for a library we track
                 if (json.commit.project in libraries.paths) {
-                    callback(json.commit.project, json.commit.sha);
+                    callback(json.commit.project, json.commit.sha, json.commit.ref);
                 }
             }
         } catch(e) {
