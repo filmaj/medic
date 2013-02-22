@@ -94,8 +94,8 @@ new bootstrap(app_git, app_builder).go(function() {
         console.log('[MEDIC] Queuing up frozen builds.');
         frozen_platforms.forEach(function(p) {
             var tokens = p.split('@');
-            var platform = p[0];
-            var sha = p[1];
+            var platform = tokens[0];
+            var sha = tokens[1];
             var job = {};
             job['cordova-' + platform] = {
                 "sha":sha
