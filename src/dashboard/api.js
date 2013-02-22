@@ -24,7 +24,9 @@ function query_for_results(platform, shas, callback) {
             query_for_results(platform, commits, callback);
         });
     } else {
-        if (callback) callback();
+        if (callback) {
+            callback();
+        }
     }
 }
 function query_for_errors(platform, shas, callback) {
@@ -46,9 +48,19 @@ function query_for_errors(platform, shas, callback) {
             query_for_errors(platform, commits, callback);
         });
     } else {
-        if (callback) callback();
+        if (callback) {
+            callback();
+        }
     }
 }
+
+function setup_tested_commits(lib) {
+    console.log('[MEDIC] [API] Re-setting commits API for ' + lib + '.');
+    module.exports.tested_shas[lib] = commits.since(lib, libraries.first_tested_commit[lib]);
+    module.exports.commits[lib] = {};
+    module.exports.commits[lib].shas = module.exports.tested_shas[lib].shas.slice(0,20);
+    module.exports.commits[lib].dates = module.exports.tested_shas[lib].dates.slice(0,20);
+};
 
 module.exports = {
     commits:{},
@@ -58,18 +70,15 @@ module.exports = {
     boot:function(callback) {
         // final callback setup
         // TODO: once BB works get rid of the -1 below.
-        var counter = ((libraries.list.count-1) * 2); 
+        var counter = ((libraries.list.length-1) * 2); 
         var end = n(counter, callback);
 
         // update all libs, then get list of all sha's we've tested
         // query each sha for data
         updater(libraries.first_tested_commit, function() {
             for (var repo in libraries.first_tested_commit) if (libraries.first_tested_commit.hasOwnProperty(repo)) (function(lib) {
+                setup_tested_commits(lib);
                 var platform = lib.substr('cordova-'.length);
-                module.exports.tested_shas[lib] = commits.since(lib, libraries.first_tested_commit[lib]);
-                module.exports.commits[lib] = {};
-                module.exports.commits[lib].shas = module.exports.tested_shas[lib].shas.slice(0,20);
-                module.exports.commits[lib].dates = module.exports.tested_shas[lib].dates.slice(0,20);
                 console.log('[COUCH] Querying ' + platform + ' for ' + module.exports.tested_shas[lib].shas.length + ' SHAs...'); 
                 query_for_results(platform, module.exports.tested_shas[lib].shas, end);
                 query_for_errors(platform, module.exports.tested_shas[lib].shas, end);
@@ -80,19 +89,12 @@ module.exports = {
         var apache_url = "http://urd.zones.apache.org:2069/json";
         var gitpubsub = request.get(apache_url);
         gitpubsub.pipe(new apache_parser(function(project, sha, ref) {
-            if (ref == 'refs/heads/master') {
+            if (ref == 'refs/heads/master' && project in libraries.first_tested_commit) {
+                console.log('[MEDIC] New commits for ' + project + '.');
                 var lib = {};
                 lib[project] = sha;
                 updater(lib, function() {
-                    if (project.indexOf('mobile-spec') > -1) return;
-                    var date = commits.date_for(project, sha);
-                    if (date) {
-                        console.log('[MEDIC] New commit (' + project + '@' + sha.substr(0,7) + '), updating commit lists.');
-                        module.exports.tested_shas[project].shas.unshift(sha);
-                        module.exports.tested_shas[project].dates.unshift(date);
-                        module.exports.commits[project].shas.unshift(sha);
-                        module.exports.commits[project].dates.unshift(date);
-                    }
+                    setup_tested_commits(lib);
                 });
             }
         }));
