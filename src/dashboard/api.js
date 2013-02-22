@@ -79,20 +79,22 @@ module.exports = {
         // on new commits, update commit lists with sha and date.
         var apache_url = "http://urd.zones.apache.org:2069/json";
         var gitpubsub = request.get(apache_url);
-        gitpubsub.pipe(new apache_parser(function(project, sha) {
-            var lib = {};
-            lib[project] = sha;
-            updater(lib, function() {
-                if (project.indexOf('mobile-spec') > -1) return;
-                var date = commits.date_for(project, sha);
-                if (date) {
-                    console.log('[MEDIC] New commit (' + project + '@' + sha.substr(0,7) + '), updating commit lists.');
-                    module.exports.tested_shas[project].shas.unshift(sha);
-                    module.exports.tested_shas[project].dates.unshift(date);
-                    module.exports.commits[project].shas.unshift(sha);
-                    module.exports.commits[project].dates.unshift(date);
-                }
-            });
+        gitpubsub.pipe(new apache_parser(function(project, sha, ref) {
+            if (ref == 'refs/heads/master') {
+                var lib = {};
+                lib[project] = sha;
+                updater(lib, function() {
+                    if (project.indexOf('mobile-spec') > -1) return;
+                    var date = commits.date_for(project, sha);
+                    if (date) {
+                        console.log('[MEDIC] New commit (' + project + '@' + sha.substr(0,7) + '), updating commit lists.');
+                        module.exports.tested_shas[project].shas.unshift(sha);
+                        module.exports.tested_shas[project].dates.unshift(date);
+                        module.exports.commits[project].shas.unshift(sha);
+                        module.exports.commits[project].dates.unshift(date);
+                    }
+                });
+            }
         }));
         console.log('[MEDIC] Now listening to Apache git commits from ' + apache_url);
 
