@@ -8,6 +8,8 @@
 - medic supports automating most JavaScript test suites. By default it runs the Apache Cordova test suite ([mobile-spec](http://git-wip-us.apache.org/repos/asf/cordova-mobile-spec.git)), but allows for customizing the test suite application.
 - medic, by default, runs the Apache Cordova test suite, but can be configured to run any JavaScript test page.
 
+Apache 2.0 License!
+
 ## Supported Platforms
 
 - Android
@@ -105,7 +107,3 @@ In this example I am using [Pivotal's Jasmine BDD JavaScript test framework](htt
 In this example, I tell medic to use a test suite located online ([Backbone](http://backbonejs.org)'s [test suite](http://backbonejs.org/test)) and deploy it to devices.
 
     $ node build.js -e http://backbonejs.org/test/index.html
-
-# License
-
-MIT LICENSE
