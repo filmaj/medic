@@ -46,6 +46,35 @@ There are three components in this system: a build process, a web server acting 
 
 ## Usage
 
+## setup couchdb
+
+## Install couch db
+edit the local.ini to accept request from external host.
+bind_address = 0.0.0.0
+
+### create 2 databases:
+* bulid_errors
+* mobilespec_results
+
+create a document in mobilespec_results
+
+```javascript
+{
+   "_id": "_design/results",
+   "views": {
+       "android": {
+           "map": "function(doc){if (doc.platform == 'android' && doc.mobilespec) {emit(doc.sha, {\"total\":doc.mobilespec.total,\"passed\":(doc.mobilespec.total - doc.mobilespec.failed),\"version\":doc.version,\"model\":doc.model,\"fails\":doc.mobilespec.failures});}}"
+       },
+       "blackberry": {
+           "map": "function(doc){if (doc.platform == 'blackberry' && doc.mobilespec) {emit(doc.sha, {\"total\":doc.mobilespec.total,\"passed\":(doc.mobilespec.total - doc.mobilespec.failed),\"version\":doc.version,\"model\":doc.model,\"fails\":doc.mobilespec.failures});}}"
+       },
+       "ios": {
+           "map": "function(doc){if (doc.platform == 'ios' && doc.mobilespec) {emit(doc.sha, {\"total\":doc.mobilespec.total,\"passed\":(doc.mobilespec.total - doc.mobilespec.failed),\"version\":doc.version,\"model\":doc.model,\"fails\":doc.mobilespec.failures});}}"
+       }
+   }
+}
+```
+
 ### build.js
 
 Run `node build.js` without parameters to listen to new commits coming into the Apache Cordova project and build tests for these new commits. 
