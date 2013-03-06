@@ -46,17 +46,22 @@ There are three components in this system: a build process, a web server acting 
 
 ## Usage
 
-## setup couchdb
+### Setup couchdb
 
-## Install couch db
-edit the local.ini to accept request from external host.
+* Install couch db
+* Edit the local.ini to accept request from external host.
+
+```javascript
 bind_address = 0.0.0.0
+```
 
-### create 2 databases:
+#### Setup database:
+
+##### Create two databases
 * bulid_errors
 * mobilespec_results
 
-create a document in mobilespec_results
+##### Create a document in mobilespec_results
 
 ```javascript
 {
