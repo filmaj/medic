@@ -226,13 +226,14 @@ function check_n_queue(repo, commits) {
                 for (var d in devices) if (devices.hasOwnProperty(d)) numDs++;
                 if (numDs > 0) {
                     commits.forEach(function(commit) {
+                        console.log('commit to check: ' + commit);
                         var job = {};
                         var targets = 0;
                         job[repo] = {
                             sha:commit,
                             numDevices:0,
                             devices:{}
-                        };
+                        };                        
                         var end = n(numDs, function() {
                             if (targets > 0) {
                                 job[repo].numDevices = targets;
@@ -247,16 +248,21 @@ function check_n_queue(repo, commits) {
                             couch.mobilespec_results.get(couch_id, function(err, res_doc) {
                                 if (err && res_doc == 404) {
                                     // Don't have results for this device!
+                                    console.log('Dont have results for device: ' + device.model + ' with commit: ' + commit + ' -> add to job');
                                     targets++;
                                     job[repo].devices[id] = {
                                         version:version,
                                         model:model
-                                    }; 
+                                    };
+                                }else{
+                                    console.log('Already have results for device: ' + device.model + ' with commit: ' + commit + ' -> skip');
                                 }
                                 end();
                             });
                         }(d));
                     });
+                }else{
+                    console.log('[BUILD] Error no device connected for ' + platform + ' devices: ' + devices);
                 }
             }
         });

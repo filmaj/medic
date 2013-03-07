@@ -27,12 +27,16 @@ var contents = fs.readdirSync(libDir);
 
 var command_queue = [];
 
+console.log('lib folder contents:' + JSON.stringify(contents));
 for (var repo in libs.paths) if (libs.paths.hasOwnProperty(repo) && repo != 'test') (function(lib) {
+    console.log('checking lib:' + lib);
     if (contents.indexOf(lib) == -1) {
         // Don't have the lib, get it.
+        console.log("Don't have the lib, get it.");
         var cmd = 'git clone https://git-wip-us.apache.org/repos/asf/' + lib + '.git ' + path.join(libDir, lib);
     } else {
         // Have the lib, update it.
+        console.log("Have the lib, update it.");
         var cmd = 'cd ' + path.join(libDir, lib) + ' && git checkout -- . && git pull origin master';
     }
     command_queue.push(cmd);
