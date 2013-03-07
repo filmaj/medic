@@ -30,7 +30,8 @@ function query_for_results(platform, shas, callback) {
         var view = platform + '?key="' + sha + '"';
         couch.mobilespec_results.query_view('results', view, function(error, result) {
             if (error) {
-                console.error('query failed for mobile spec results', error); throw 'Query failed';
+                console.error('query failed for mobile spec results', result);
+                throw 'Query failed';
             }
             if (result.rows.length) {
                 result.rows.forEach(function(row) {
@@ -54,7 +55,8 @@ function query_for_errors(platform, shas, callback) {
         // get build errors from couch for each repo
         couch.build_errors.query_view('errors', view, function(error, result) {
             if (error) {
-                console.error('query failed for build errors', error); throw 'Query failed';
+                console.error('query failed for build errors', result);
+                throw 'Query failed';
             }
             if (result.rows.length) {
                 result.rows.forEach(function(row) {
