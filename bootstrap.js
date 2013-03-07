@@ -33,7 +33,7 @@ for (var repo in libs.paths) if (libs.paths.hasOwnProperty(repo) && repo != 'tes
         var cmd = 'git clone https://git-wip-us.apache.org/repos/asf/' + lib + '.git ' + path.join(libDir, lib);
     } else {
         // Have the lib, update it.
-        var cmd = 'cd ' + path.join(libDir, lib) + ' && git checkout -- . && git pull origin master';
+        var cmd = 'cd ' + path.join(libDir, lib) + ' && git checkout -- . && git pull --tags origin master';
     }
     command_queue.push(cmd);
 })(repo);
