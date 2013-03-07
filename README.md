@@ -84,7 +84,6 @@ bind_address = 0.0.0.0
 ```javascript
 {
    "_id": "_design/errors",
-   "_rev": "1-e221cf96d13efbb24ac827132b19d192",
    "views": {
        "android": {
            "map": "function(doc){if (doc.platform == 'android' && doc.failure) {emit(doc.sha, {\"timestamp\":doc.timestamp,\"failure\":doc.failure,\"details\":doc.details,\"version\":doc.version,\"model\":doc.model});}}"
