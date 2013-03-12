@@ -49,7 +49,7 @@ var queue;
 var should_build = {
     'cordova-blackberry':(config.blackberry.devices.ips && config.blackberry.devices.ips.length > 0),
     'cordova-ios':(config.ios.keychainLocation && config.ios.keychainLocation.length > 0),
-    'cordova-android': true,
+    'cordova-android': false,
     'forte_android_framework': false
 };
 
@@ -212,7 +212,7 @@ function check_n_queue(repo, commits) {
     if (repo == 'cordova-ios') {
         // look at latest commits and see which ones have no results
         commits.forEach(function(commit) {
-            couch.mobilespec_results.query_view('results', 'ios?key="' + commit + '"', function(error, result) {
+            couch.mobilespec_results.query_view('results', 'cordova-ios?key="' + commit + '"', function(error, result) {
                 if (error) {
                     console.error('[COUCH] Failed to retrieve iOS results for sha ' + commit.substr(0,7) + ', continuing.');
                 } else {
