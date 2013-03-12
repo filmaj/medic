@@ -88,7 +88,7 @@ module.exports = {
     boot:function(callback) {
         // final callback setup
         // TODO: once BB works get rid of the -1 below.
-        var counter = ((libraries.list.length-1) * 2); 
+        var counter = ((libraries.platforms.length-1) * 2);
         var end = n(counter, callback);
 
         // update all libs, then get list of all sha's we've tested
@@ -96,8 +96,11 @@ module.exports = {
         updater(libraries.first_tested_commit, function() {
             for (var repo in libraries.first_tested_commit) if (libraries.first_tested_commit.hasOwnProperty(repo)) (function(lib) {
                 setup_tested_commits(lib);
-                var platform = lib.substr('cordova-'.length);
-                console.log('[COUCH] Querying ' + platform + ' for ' + module.exports.tested_shas[lib].shas.length + ' SHAs...'); 
+                var platform = lib;
+                if(lib.indexOf('cordova-') === 0){
+                    platform = lib.substr('cordova-'.length);
+                }
+                console.log('[COUCH] Querying ' + platform + ' for ' + module.exports.tested_shas[lib].shas.length + ' SHAs...');
                 query_for_results(platform, module.exports.tested_shas[lib].shas, end);
                 query_for_errors(platform, module.exports.tested_shas[lib].shas, end);
             })(repo);

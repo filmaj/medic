@@ -26,7 +26,7 @@ var shell        = require('shelljs'),
 var keychain_location = config.ios.keychainLocation;
 var keychain_password = config.ios.keychainPassword;
 
-var ios_lib = libraries.paths['cordova-ios'];
+var ios_lib = libraries['cordova-ios'].path;
 var create = path.join(ios_lib, 'bin', 'create');
 
 module.exports = function(output, sha, devices, entry_point, callback) {
@@ -63,7 +63,7 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                             var projectWww = path.join(output, 'www');
                             
                             // copy over html assets
-                            shell.cp('-Rf', path.join(libraries.output.test, '*'), projectWww);
+                            shell.cp('-Rf', path.join(libraries['test'].output, '*'), projectWww);
 
                             // drop the iOS library SHA into the junit reporter
                             // only applies to projects that use it

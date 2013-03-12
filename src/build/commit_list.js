@@ -43,6 +43,7 @@ module.exports = {
     },
     since:function since(lib, sha) {
         var libPath = path.join(libDir, lib);
+        console.log('[COMIMT_LIST] libPath ' + libPath);
         var commitList = shell.exec('cd ' + libPath + ' && git rev-list --timestamp ' + sha + '^..HEAD', {silent:true});
         if (commitList.code > 0) throw ('Failed to get commit list for ' + lib + ' library.');
         var commitArr = commitList.output.split('\n');
@@ -61,6 +62,10 @@ module.exports = {
             var date = timeRegExp.exec(c);
             if (date) return date[1];
         });
+
+        console.log('[COMIT_LIST] check ' + lib + ' sinc ' + sha);
+        console.log('[COMIT_LIST] result: ' + shaList);
+
         return {
             shas:shaList,
             dates:dateList

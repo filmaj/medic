@@ -1,4 +1,4 @@
-var libraries = ['cordova-android','cordova-ios'];
+var libraries = ['forte_android_framework', 'cordova-android','cordova-ios'];
 var tested_commits, results;
 
 function $(id) { return document.getElementById(id); }
@@ -67,7 +67,7 @@ function renderDashboardRow(platform, date, lastSha, lastResults, secondSha, sec
     var arrow = document.createElement('img');
     var updown = current_percent >= last_percent ? 'up' : 'down';
     arrow.src='/img/' + updown + '.png';
-    arrow.alt='Current commit ' + updown + ' from previous (' + last_percent.toFixed(2) + '%)'; 
+    arrow.alt='Current commit ' + updown + ' from previous (' + last_percent.toFixed(2) + '%)';
     p.appendChild(arrow);
     // pie chart goodness
     var versionData = [];
@@ -172,7 +172,10 @@ function go() {
             }, 5000);
         } else {
             for (var repo in commits) if (commits.hasOwnProperty(repo)) (function(lib) {
-                var platform = lib.substr('cordova-'.length);
+                var platform = lib;
+                if(lib.indexOf('cordova-') === 0){
+                    platform = lib.substr('cordova-'.length);
+                }
                 var most_recent_sha = commits[lib].shas[0];
                 var second_recent_sha = commits[lib].shas[1];
                 var most_recent_date = moment(parseInt(commits[lib].dates[0])*1000).fromNow();
@@ -188,8 +191,9 @@ function go() {
         tested_commits = commits;
         XHR("/api/results", function(err, res) {
             results = res;
-            render('cordova-ios');
+            // render('cordova-ios');
             render('cordova-android');
+            render('forte_android_framework');
         });
     });
 }

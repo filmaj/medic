@@ -27,20 +27,27 @@ var contents = fs.readdirSync(libDir);
 
 var command_queue = [];
 
-console.log('lib folder contents:' + JSON.stringify(contents));
-for (var repo in libs.paths) if (libs.paths.hasOwnProperty(repo) && repo != 'test') (function(lib) {
-    console.log('checking lib:' + lib);
-    if (contents.indexOf(lib) == -1) {
+for (var i=0; i<libs.platforms.length; i++){
+    platform = libs.platforms[i];
+    console.log('[BOOTSTRAP] checking platform:' + platform);
+    if (contents.indexOf(platform) == -1) {
         // Don't have the lib, get it.
-        console.log("Don't have the lib, get it.");
-        var cmd = 'git clone https://git-wip-us.apache.org/repos/asf/' + lib + '.git ' + path.join(libDir, lib);
+        var cmd = 'git clone ' + libs[platform].git + ' ' + libs[platform].path;
+        command_queue.push(cmd);
+
+        cmd = 'cd ' + libs[platform].path + ' && git submodule init && git submodule update';
+        command_queue.push(cmd);
     } else {
         // Have the lib, update it.
-        console.log("Have the lib, update it.");
-        var cmd = 'cd ' + path.join(libDir, lib) + ' && git checkout -- . && git pull origin master';
+        // TODO: What branch?
+        var cmd = 'cd ' + libs[platform].path + ' && git checkout -- . && git pull origin master';
+        command_queue.push(cmd);
+
+        cmd = 'cd ' + libs[platform].path + ' && git submodule init && git submodule update';
+        command_queue.push(cmd);
     }
-    command_queue.push(cmd);
-})(repo);
+}
+
 
 function go(q, builder, cb) {
     var cmd = q.shift();
@@ -72,7 +79,7 @@ function bootstrap(url, builder) {
         }
         command_queue.push(cmd);
     }
-};
+}
 
 bootstrap.prototype = {
     go:function(callback) {

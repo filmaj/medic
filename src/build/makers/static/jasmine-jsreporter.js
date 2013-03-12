@@ -110,6 +110,7 @@ limitations under the License.
         },
 
         reportRunnerResults: function (runner) {
+            console.warn('reportRunnerREsults() device.model: ' + device.model);
             var p = device.platform.toLowerCase();
 
             this.postTests({

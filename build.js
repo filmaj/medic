@@ -49,7 +49,8 @@ var queue;
 var should_build = {
     'cordova-blackberry':(config.blackberry.devices.ips && config.blackberry.devices.ips.length > 0),
     'cordova-ios':(config.ios.keychainLocation && config.ios.keychainLocation.length > 0),
-    'cordova-android':true
+    'cordova-android': false,
+    'forte_android_framework': true
 };
 
 // --entry, -e: entry point into the app. index.html as default.
@@ -78,26 +79,30 @@ if (!static && !remote_app) {
 // if none specified, builds for all platforms by default, using the latest cordova. this means it will also listen to changes to the cordova project
 var platforms = argv.p || argv.platforms || config.app.platforms;
 if (!platforms) {
-    platforms = libraries.list;
+    platforms = libraries.platforms;
 }
+console.log('platforms:' + platforms);
+
 if (typeof platforms == 'string') {
-    platforms = platforms.split(',').filter(function(p) { 
-        return libraries.list.indexOf(p.split('@')[0]) > -1;
+    console.log('type of platform is string');
+    platforms = platforms.split(',').filter(function(p) {
+        return libraries.platforms.indexOf(p.split('@')[0]) > -1;
     });
 }
-// determine which platforms we listen to apache cordova commits to
-var head_platforms = platforms.filter(function(p) {
-    return p.indexOf('@') == -1;
-}).map(function(p) { return 'cordova-' + p; });
+
 // determine which platforms are frozen to a tag
 var frozen_platforms = platforms.filter(function(p) {
     return p.indexOf('@') > -1;
 });
 
+console.log('Platforms: ' + JSON.stringify(platforms));
+console.log('Frozen Platforms: ' + JSON.stringify(frozen_platforms));
+
 // bootstrap makes sure we have the libraries cloned down locally and can query them for commit SHAs and dates
 new bootstrap(app_git, app_builder).go(function() {
     if (!static && !remote_app) { 
         // Set up build queue based on config
+        console.log('making new queue object with app_builder:' + app_builder);
         queue = new q(app_builder, app_entry_point, false);
     } else {
         // static app support
@@ -122,8 +127,9 @@ new bootstrap(app_git, app_builder).go(function() {
     if (static || remote_app) {
         // just build the head of platforms
         console.log('[MEDIC] Building test app for latest version of platforms.');
-        head_platforms.forEach(function(platform) {
-            if (should_build[platform]) {
+        platforms.forEach(function(platform) {
+            log('should build for platform: ' + platform);
+            if (should_build[platform]) {                
                 var job = {};
                 job[platform] = {
                     "sha":"HEAD"
@@ -133,13 +139,15 @@ new bootstrap(app_git, app_builder).go(function() {
         });
     } else {
         // on new commits to cordova libs, queue builds for relevant projects.
-        if (head_platforms.length > 0) { 
+        if (platforms.length > 0) { 
+            console.log('listening for new commits of cordova libs project');
             var apache_url = "http://urd.zones.apache.org:2069/json";
             var gitpubsub = request.get(apache_url);
             gitpubsub.pipe(new apache_parser(function(project, sha, ref) {
+                log('git pubsub result project:' + project );
                 // only queue for platforms that we want to build with latest libs
                 // and only queue for commits to master branch
-                if (head_platforms.indexOf(project) > -1 && ref == 'refs/heads/master') {
+                if (platforms.indexOf(project) > -1 && ref == 'refs/heads/master') {
                     // update the local repo
                     var job = {};
                     job[project] = sha;
@@ -156,9 +164,14 @@ new bootstrap(app_git, app_builder).go(function() {
             console.log('[MEDIC] Now listening to Apache git commits from ' + apache_url);
 
             // queue up builds for any missing recent results for HEAD platforms too
-            head_platforms.forEach(function(platform) {
+            platforms.forEach(function(platform) {
+                console.log('should build for platform:' + platform);
                 if (should_build[platform]) {
-                    var commits = commit_list.recent(platform, 10).shas;
+                    console.log('should build YES');
+                    // TODO:
+                    // var commits = commit_list.recent(platform, 10).shas;
+                    var commits = commit_list.recent(platform, 2).shas;
+                    console.log('2 most recent commits: ' + commits);
                     check_n_queue(platform, commits);
                 }
             });
@@ -216,7 +229,7 @@ function check_n_queue(repo, commits) {
             });
         });
     } else {
-        // scan for devices for said platform
+        // scan for devices for said platform        
         var platform_scanner = require('./src/build/makers/' + platform + '/devices');
         var platform_builder = require('./src/build/makers/' + platform);
         platform_scanner(function(err, devices) {
@@ -233,10 +246,11 @@ function check_n_queue(repo, commits) {
                             sha:commit,
                             numDevices:0,
                             devices:{}
-                        };                        
+                        };
                         var end = n(numDs, function() {
                             if (targets > 0) {
                                 job[repo].numDevices = targets;
+                                // console.log('Adding job: ' + JSON.stringify(job[repo]));
                                 queue.push(job);
                             }
                         });
@@ -248,14 +262,14 @@ function check_n_queue(repo, commits) {
                             couch.mobilespec_results.get(couch_id, function(err, res_doc) {
                                 if (err && res_doc == 404) {
                                     // Don't have results for this device!
-                                    console.log('Dont have results for device: ' + device.model + ' with commit: ' + commit + ' -> add to job');
+                                    // console.log('Dont have results for device: ' + device.model + ' with commit: ' + commit + ' -> add to job');
                                     targets++;
                                     job[repo].devices[id] = {
                                         version:version,
                                         model:model
                                     };
                                 }else{
-                                    console.log('Already have results for device: ' + device.model + ' with commit: ' + commit + ' -> skip');
+                                    // console.log('Already have results for device: ' + device.model + ' with commit: ' + commit + ' -> skip');
                                 }
                                 end();
                             });

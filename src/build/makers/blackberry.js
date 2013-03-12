@@ -23,7 +23,7 @@ var shell        = require('shelljs'),
     libraries    = require('../../../libraries'),
     fs           = require('fs');
 
-var blackberry_lib = libraries.paths['cordova-blackberry'];
+var blackberry_lib = libraries['cordova-blackberry'].path;
 var create = path.join(blackberry_lib, 'bin', 'create');
 
 module.exports = function(output, sha, devices, entry_point, callback) {
@@ -49,7 +49,7 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                     try {
                         // copy over mobile spec modified html assets
                         log('Modifying Cordova application.');
-                        shell.cp('-Rf', path.join(libraries.output.test, '*'), path.join(output, 'www'));
+                        shell.cp('-Rf', path.join(libraries['test'].output, '*'), path.join(output, 'www'));
 
                         // drop the BlackBerry library SHA into the junit reporter
                         var tempJasmine = path.join(output, 'www', 'jasmine-jsreporter.js');

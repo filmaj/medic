@@ -23,7 +23,7 @@ var shell        = require('shelljs'),
     deploy       = require('./android/deploy'),
     fs           = require('fs');
 
-var android_lib = libraries.paths['cordova-android'];
+var android_lib = libraries['cordova-android'].path;
 var create = path.join(android_lib, 'bin', 'create');
 
 module.exports = function(output, sha, devices, entry_point, callback) {
@@ -31,11 +31,9 @@ module.exports = function(output, sha, devices, entry_point, callback) {
         console.log('[ANDROID] ' + msg + ' (sha: ' + sha.substr(0,7) + ')');
     }
 
-    console.log('removing output folder:', output);
     shell.rm('-rf', output);
 
     // checkout appropriate tag
-    console.log('cd to: ' + android_lib);
     shell.exec('cd ' + android_lib + ' && git checkout ' + sha, {silent:true, async:true}, function(code, checkout_output) {
         if (code > 0) {
             error_writer('android', sha, 'error git-checking out sha ' + sha, checkout_output);
@@ -56,8 +54,8 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                         if (!fs.existsSync(output)) {
                             throw new Error('./bin/create must have failed as output path does not exist.');
                         }
-                        console.log('copy modifed mobile spec html assets from: ' + libraries.output.test + ' to assets/www/');
-                        shell.cp('-Rf', path.join(libraries.output.test, '*'), path.join(output, 'assets', 'www'));
+
+                        shell.cp('-Rf', path.join(libraries['test'].output, '*'), path.join(output, 'assets', 'www'));
                         
                         // add the sha to the junit reporter
                         var tempJasmine = path.join(output, 'assets', 'www', 'jasmine-jsreporter.js');

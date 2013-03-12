@@ -16,7 +16,12 @@ function createMaster(platform, data, shas, results) {
     container.appendChild(detail_container);
     container.appendChild(master_container);
 
-    charts['cordova-'+platform].master = new Highcharts.Chart({
+    var chartPlatform = 'cordova-' + platform;
+    if(platform === 'forte_android_framework'){
+        chartPlatform = platform;
+    }
+
+    charts[chartPlatform].master = new Highcharts.Chart({
         chart:{
             renderTo:'master-' + platform,
             reflow:false,
@@ -76,7 +81,7 @@ function createMaster(platform, data, shas, results) {
                         color:'rgba(0,0,0,0.2)'
                     });
 
-                    charts['cordova-' + platform].detail.series[0].setData(detailData);
+                    charts[chartPlatform].detail.series[0].setData(detailData);
 
                     return false;
                 }
@@ -174,7 +179,11 @@ function createDetail(masterChart, platform, shas, results) {
         }
     });
 
-    charts['cordova-' + platform].detail = new Highcharts.Chart({
+    var chartPlatform = 'cordova-' + platform;
+    if(platform === 'forte_android_framework'){
+        chartPlatform = platform;
+    }
+    charts[chartPlatform].detail = new Highcharts.Chart({
         chart:{
             type:'spline',
             marginBottom:120,
@@ -232,7 +241,10 @@ function createDetail(masterChart, platform, shas, results) {
     });
 }
 function render(lib) {
-    var platform = lib.substr(8);
+    var platform = lib;
+    if(lib.indexOf('cordova-') === 0){
+        platform = lib.substr(8);
+    }
     var data = [];
     var shas = {};
     for (var i = tested_commits[lib].shas.length-1; i >= 0; i--) {

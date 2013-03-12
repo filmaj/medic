@@ -2,12 +2,12 @@
 <html>
     <head>
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
-        <title>Monaca Cordova Test Results</title>
+        <title>Monaca Test Results</title>
         <link rel="stylesheet" type="text/css" href="/css/medic.css">
     </head>
     <body onload="go();">
         <div id="content">
-            <h1>Monaca Cordova Test Dashboard</h1>
+            <h1>Monaca Test Dashboard</h1>
             <table id="dashboard">
                 <thead>
                     <tr>
@@ -27,6 +27,17 @@
                         <td id="android_last_percentage" class="percentage"></td>
                         <td id="android_last_pie" class="pie_chart"></td>
                         <td class="more"><a href="#" onclick="show('android_popup');return false;">More ></a></td>
+                    </tr>
+                    <tr id="forte_android_framework">
+                        <td valign="middle" class="icon">                            
+                            <img id='monaca_icon' src='img/monaca_android.png'/></td>
+                        <td class="last_commit">
+                            <p id="forte_android_framework_commit_date" class="date"></p>
+                            <a id="forte_android_framework_last_commit" href="#" target="_blank" class="commit"></a>
+                        </td>
+                        <td id="forte_android_framework_last_percentage" class="percentage"></td>
+                        <td id="forte_android_framework_last_pie" class="pie_chart"></td>
+                        <td class="more"><a href="#" onclick="show('forte_android_framework_popup');return false;">More ></a></td>
                     </tr>
                     <tr id="ios">
                         <td valign="middle" class="icon"><div></div></td>
@@ -51,6 +62,12 @@
             <h2 class="popup_title">Android Commit and Test Data</h2>
             <div class="popup_close" onclick="popup_close(this)"></div>
             <div id="android_popup_html" class="popup_html">
+            </div>
+        </div>
+        <div id="forte_android_framework_popup" class="popup" style="display:none;">
+            <h2 class="popup_title">Monaca Framework Android Commit and Test Data</h2>
+            <div class="popup_close" onclick="popup_close(this)"></div>
+            <div id="forte_android_framework_popup_html" class="popup_html">
             </div>
         </div>
         <div id="ios_popup" class="popup" style="display:none;">
