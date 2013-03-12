@@ -61,6 +61,7 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                         var tempJasmine = path.join(output, 'assets', 'www', 'jasmine-jsreporter.js');
                         if (fs.existsSync(tempJasmine)) {
                             fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
+                            fs.writeFileSync(tempJasmine, fs.readFileSync(tempJasmine, 'utf-8').replace('(platformMap.hasOwnProperty(p) ? platformMap[p] : p)', "'cordova-android'"));
                         }
 
                         // modify start page

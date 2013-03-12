@@ -78,7 +78,7 @@ function setup_tested_commits(lib) {
     module.exports.commits[lib] = {};
     module.exports.commits[lib].shas = module.exports.tested_shas[lib].shas.slice(0,20);
     module.exports.commits[lib].dates = module.exports.tested_shas[lib].dates.slice(0,20);
-};
+}
 
 module.exports = {
     commits:{},
@@ -97,9 +97,6 @@ module.exports = {
             for (var repo in libraries.first_tested_commit) if (libraries.first_tested_commit.hasOwnProperty(repo)) (function(lib) {
                 setup_tested_commits(lib);
                 var platform = lib;
-                if(lib.indexOf('cordova-') === 0){
-                    platform = lib.substr('cordova-'.length);
-                }
                 console.log('[COUCH] Querying ' + platform + ' for ' + module.exports.tested_shas[lib].shas.length + ' SHAs...');
                 query_for_results(platform, module.exports.tested_shas[lib].shas, end);
                 query_for_errors(platform, module.exports.tested_shas[lib].shas, end);

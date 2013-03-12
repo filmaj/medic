@@ -64,7 +64,7 @@ module.exports = {
         });
 
         console.log('[COMIT_LIST] check ' + lib + ' sinc ' + sha);
-        console.log('[COMIT_LIST] result: ' + shaList);
+        // console.log('[COMIT_LIST] result: ' + shaList);
 
         return {
             shas:shaList,

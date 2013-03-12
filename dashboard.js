@@ -44,6 +44,8 @@ function routeApi(resource) {
             console.log('[HTTP] API request for ' + resource + '.');
             var queries = url.parse(req.url, true).query;
             var json = api[resource];
+
+            console.log('[HTTP] platform ' + queries.platform);
             if (queries.platform) {
                 json = json[queries.platform];
                 if (!json) {

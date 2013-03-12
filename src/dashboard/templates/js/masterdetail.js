@@ -6,6 +6,7 @@ libraries.forEach(function(lib) {
     };
 });
 function createMaster(platform, data, shas, results) {
+    console.log('crateMaster platform:' + platform);
     var container = $(platform + '_popup_html');
     var master_container = document.createElement('div');
     master_container.setAttribute('id', 'master-' + platform);
@@ -16,12 +17,7 @@ function createMaster(platform, data, shas, results) {
     container.appendChild(detail_container);
     container.appendChild(master_container);
 
-    var chartPlatform = 'cordova-' + platform;
-    if(platform === 'forte_android_framework'){
-        chartPlatform = platform;
-    }
-
-    charts[chartPlatform].master = new Highcharts.Chart({
+    charts[platform].master = new Highcharts.Chart({
         chart:{
             renderTo:'master-' + platform,
             reflow:false,
@@ -81,7 +77,7 @@ function createMaster(platform, data, shas, results) {
                         color:'rgba(0,0,0,0.2)'
                     });
 
-                    charts[chartPlatform].detail.series[0].setData(detailData);
+                    charts[platform].detail.series[0].setData(detailData);
 
                     return false;
                 }
@@ -179,11 +175,7 @@ function createDetail(masterChart, platform, shas, results) {
         }
     });
 
-    var chartPlatform = 'cordova-' + platform;
-    if(platform === 'forte_android_framework'){
-        chartPlatform = platform;
-    }
-    charts[chartPlatform].detail = new Highcharts.Chart({
+    charts[platform].detail = new Highcharts.Chart({
         chart:{
             type:'spline',
             marginBottom:120,
@@ -242,9 +234,6 @@ function createDetail(masterChart, platform, shas, results) {
 }
 function render(lib) {
     var platform = lib;
-    if(lib.indexOf('cordova-') === 0){
-        platform = lib.substr(8);
-    }
     var data = [];
     var shas = {};
     for (var i = tested_commits[lib].shas.length-1; i >= 0; i--) {

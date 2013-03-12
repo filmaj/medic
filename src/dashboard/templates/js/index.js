@@ -53,7 +53,7 @@ function getPercentage(results) {
 }
 function renderDashboardRow(platform, date, lastSha, lastResults, secondSha, secondResults) {
     var colors = Highcharts.getOptions().colors;
-    var lib = 'cordova-' + platform;
+    var lib = platform;
     // date column
     $(platform + '_commit_date').innerText = date;
     var date_anchor = $(platform + '_last_commit');
@@ -173,9 +173,6 @@ function go() {
         } else {
             for (var repo in commits) if (commits.hasOwnProperty(repo)) (function(lib) {
                 var platform = lib;
-                if(lib.indexOf('cordova-') === 0){
-                    platform = lib.substr('cordova-'.length);
-                }
                 var most_recent_sha = commits[lib].shas[0];
                 var second_recent_sha = commits[lib].shas[1];
                 var most_recent_date = moment(parseInt(commits[lib].dates[0])*1000).fromNow();

@@ -49,8 +49,8 @@ var queue;
 var should_build = {
     'cordova-blackberry':(config.blackberry.devices.ips && config.blackberry.devices.ips.length > 0),
     'cordova-ios':(config.ios.keychainLocation && config.ios.keychainLocation.length > 0),
-    'cordova-android': false,
-    'forte_android_framework': true
+    'cordova-android': true,
+    'forte_android_framework': false
 };
 
 // --entry, -e: entry point into the app. index.html as default.
