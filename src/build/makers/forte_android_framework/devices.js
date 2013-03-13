@@ -1,1 +1,1 @@
-../android/devices.js
+../cordova-android/devices.js
