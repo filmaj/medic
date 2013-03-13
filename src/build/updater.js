@@ -53,7 +53,7 @@ module.exports = function(commits, callback) {
         
         // shell out to git
         var libPath = path.join(libDir, lib);
-        shell.exec('cd ' + libPath + ' && git checkout -- . && git pull origin master', {silent:true, async:true}, function(res) {
+        shell.exec('cd ' + libPath + ' && git checkout -- . && git pull --tags origin master', {silent:true, async:true}, function(res) {
             if (res.code > 0) throw new Error('Failed git-pull\'ing ' + libPath + '!\n' + res.output); 
             else end();
         });
