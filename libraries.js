@@ -43,7 +43,7 @@ module.exports = {
         'output': path.join(__dirname, 'temp', 'test')
     },
     first_tested_commit:{
-        'forte_android_framework': '1f977fbc4b3f6748909e234cdbca4177abbafd9f',
+        'forte_android_framework': 'bdc36e7f4214bf59db2b18683a8ef4bbd979d372',
         'cordova-android':'538e90f23aaeebe4cc08ad87d17d0ab2dde6185d',
         'cordova-ios':'6e60c222f8194bb43de6b52c5ea9ff84cc92e040'
     }

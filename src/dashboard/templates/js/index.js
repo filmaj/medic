@@ -20,11 +20,13 @@ function popup_close(el) {
     el.parentNode.style.display = 'none';
 }
 function popup_show(title, html) {
+    console.log('popup_show title: ',title, html);
     $('popup_html').innerHTML = html;
     $('popup_title').innerText = title;
     $('popup').style.display = '';
 }
 function show(id) {
+    console.log('show ' + id);
     $(id).style.display = '';
 }
 function getFailures(results) {
@@ -171,6 +173,7 @@ function go() {
                 window.location.reload();
             }, 5000);
         } else {
+            console.log('recent commits:', commits);
             for (var repo in commits) if (commits.hasOwnProperty(repo)) (function(lib) {
                 var platform = lib;
                 var most_recent_sha = commits[lib].shas[0];
@@ -186,7 +189,9 @@ function go() {
     });
     XHR("/api/commits/tested", function(err, commits) {
         tested_commits = commits;
+        console.log('tested_commits:', tested_commits);
         XHR("/api/results", function(err, res) {
+            console.log('tested_results:', res);
             results = res;
             // render('cordova-ios');
             render('cordova-android');

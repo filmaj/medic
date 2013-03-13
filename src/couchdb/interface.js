@@ -37,6 +37,7 @@ db.prototype = {
 
         var db = this;
         var url = this.db_url + '/' + id;
+        console.log('[COUCH] get ' + url);
         request.get(url, function(error, response, body) {
             if (error) callback(error);
             else {

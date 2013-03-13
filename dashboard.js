@@ -61,6 +61,7 @@ function routeApi(resource) {
             res.writeHead(200, {
                 "Content-Type":"application/json"
             });
+            // console.log('[HTTP] request ' + resource + ", result: " + JSON.stringify(json));
             res.write(JSON.stringify(json), 'utf-8');
             res.end();
         } catch(e) {

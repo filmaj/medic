@@ -50,7 +50,7 @@ var should_build = {
     'cordova-blackberry':(config.blackberry.devices.ips && config.blackberry.devices.ips.length > 0),
     'cordova-ios':(config.ios.keychainLocation && config.ios.keychainLocation.length > 0),
     'cordova-android': false,
-    'forte_android_framework': false
+    'forte_android_framework': true
 };
 
 // --entry, -e: entry point into the app. index.html as default.
@@ -258,7 +258,7 @@ function check_n_queue(repo, commits) {
                             var device = devices[id];
                             var version = device.version;
                             var model = device.model;
-                            var couch_id = platform + '__' + commit + '__' + version + '__' + model;
+                            var couch_id = platform + '__' + commit + '__' + version + '__' + model;                            
                             couch.mobilespec_results.get(couch_id, function(err, res_doc) {
                                 if (err && res_doc == 404) {
                                     // Don't have results for this device!
@@ -269,7 +269,7 @@ function check_n_queue(repo, commits) {
                                         model:model
                                     };
                                 }else{
-                                    // console.log('Already have results for device: ' + device.model + ' with commit: ' + commit + ' -> skip');
+                                    console.log('Already have results for device: ' + device.model + ' with commit: ' + commit + ' -> skip');
                                 }
                                 end();
                             });

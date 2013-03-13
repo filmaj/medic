@@ -57,14 +57,14 @@ module.exports = function(output, sha, devices, entry_point, callback) {
             var dest = libraries['test'].output;
             shell.cp('-Rf', cordova_android_js, dest);
 
-            console.log('copy modifed mobile spec html assets from: ' + libraries['test'].output + ' to assets/www/');
+            log('copy modifed mobile spec html assets from: ' + libraries['test'].output + ' to assets/www/');
             var wwwPath = path.join(monaca_framework_project, 'assets', 'www');
             shell.mkdir('-p', wwwPath);
             shell.cp('-Rf', path.join(libraries['test'].output, '*'), wwwPath);            
 
 
             // add the sha to the junit reporter
-            console.log('add the sha to the junit reporter');
+            log('add the sha to the junit reporter');
             var tempJasmine = path.join(monaca_framework_project, 'assets', 'www', 'jasmine-jsreporter.js');
             if (fs.existsSync(tempJasmine)) {
                 fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
@@ -75,7 +75,7 @@ module.exports = function(output, sha, devices, entry_point, callback) {
 
             // modify start page
             // 1. old cordova-android: modify the .java file
-            console.log('modify start page');
+            log('modify start page');
             var javaFile = path.join(monaca_framework_project, 'src', 'mobi', 'monaca', 'framework', 'MonacaPageActivity.java');
             fs.writeFileSync(javaFile, fs.readFileSync(javaFile, 'utf-8').replace(': "file:///android_asset/www/index.html"', ': "file:///android_asset/www/' + entry_point + '"'), 'utf-8');
 
@@ -121,81 +121,6 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                     });
                 }
             });
-
-
-
-            // shell.exec(create + ' ' + output, {silent:true,async:true}, function(code, create_out) {
-            //     if (code > 0) {
-            //         error_writer('android', sha, './bin/create error', create_out);
-            //         callback(true);
-            //     } else {
-            //         try {
-            //             // copy over mobile spec modified html assets
-            //             log('Modifying Cordova application.');
-
-            //             // make sure android app got created first.
-            //             if (!fs.existsSync(output)) {
-            //                 throw new Error('./bin/create must have failed as output path does not exist.');
-            //             }
-            //             console.log('copy modifed mobile spec html assets from: ' + libraries.output.test + ' to assets/www/');
-            //             shell.cp('-Rf', path.join(libraries.output.test, '*'), path.join(output, 'assets', 'www'));
-                        
-            //             // add the sha to the junit reporter
-            //             var tempJasmine = path.join(output, 'assets', 'www', 'jasmine-jsreporter.js');
-            //             if (fs.existsSync(tempJasmine)) {
-            //                 fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
-            //             }
-
-            //             // modify start page
-            //             // 1. old cordova-android: modify the .java file
-            //             var javaFile = path.join(output, 'src', 'org', 'apache', 'cordova', 'example', 'cordovaExample.java'); 
-            //             fs.writeFileSync(javaFile, fs.readFileSync(javaFile, 'utf-8').replace(/www\/index\.html/, 'www/' + entry_point), 'utf-8');
-            //             // 2. new cordova-android: modify the config.xml
-            //             var configFile = path.join(output, 'res', 'xml', 'config.xml');
-            //             fs.writeFileSync(configFile, fs.readFileSync(configFile, 'utf-8').replace(/<content\s*src=".*"/gi, '<content src="' +entry_point + '"'), 'utf-8');
-                        
-            //             // look at which cordova-<v>.js current lib uses
-            //             var cordovajs = path.join(output, 'assets', 'www', 'cordova.js');
-            //             if (fs.existsSync(cordovajs)) {
-            //                 var version = fs.readFileSync(path.join(android_lib, 'VERSION'), 'utf-8').replace(/\r?\n/,'');
-            //                 fs.writeFileSync(cordovajs, fs.readFileSync(cordovajs, 'utf-8').replace(/var VERSION='.*';/, "var VERSION='" + version + "';"), 'utf-8');
-            //             }
-            //         } catch (e) {
-            //             error_writer('android', sha, 'Exception thrown modifying Android mobile spec application.', e.message);
-            //             callback(true);
-            //             return;
-            //         }
-
-            //         // compile
-            //         log('Compiling.');
-            //         var ant = 'cd ' + output + ' && ant clean && ant debug';
-            //         shell.exec(ant, {silent:true,async:true},function(code, compile_output) {
-            //             if (code > 0) {
-            //                 error_writer('android', sha, 'Compilation error', compile_output);
-            //                 callback(true);
-            //             } else {
-            //                 var binary_path = path.join(output, 'bin', 'cordovaExample-debug.apk');
-            //                 var package = 'org.apache.cordova.example';
-            //                 if (devices) {
-            //                     // already have a specific set of devices to deploy to
-            //                     deploy(sha, devices, binary_path, package, callback);
-            //                 } else {
-            //                     // get list of connected devices
-            //                     scan(function(err, devices) {
-            //                         if (err) {
-            //                             // Could not obtain device list...
-            //                             var error_message = devices;
-            //                             log(error_message);
-            //                             callback(true);
-            //                         } else {
-            //                             deploy(sha, devices, binary_path, package, callback);
-            //                         }
-            //                     });
-            //                 }
-            //             }
-            //         });
-            //     }
-            // });
         }
     });
 }
