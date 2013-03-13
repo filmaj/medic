@@ -38,12 +38,11 @@ for (var i=0; i<libs.platforms.length; i++){
         command_queue.push(cmd);
     } else {
         // Have the lib, update it.
-        var cmd = 'cd ' + path.join(libDir, lib) + ' && git checkout -- . && git pull --tags origin master';
+        var cmd = 'cd ' + path.join(libDir, platform) + ' && git checkout -- . && git pull --tags origin master';
         command_queue.push(cmd);
 
         cmd = 'cd ' + libs[platform].path + ' && git submodule init && git submodule update';
         command_queue.push(cmd);
-        var cmd = 'cd ' + path.join(libDir, lib) + ' && git checkout -- . && git pull --tags origin master';
     }
 }
 
