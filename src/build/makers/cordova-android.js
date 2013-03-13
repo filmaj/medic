@@ -19,8 +19,8 @@ var shell        = require('shelljs'),
     error_writer = require('./error_writer'),
     n            = require('ncallbacks'),
     libraries    = require('../../../libraries'),
-    scan         = require('./android/devices'),
-    deploy       = require('./android/deploy'),
+    scan         = require('./cordova-android/devices'),
+    deploy       = require('./cordova-android/deploy'),
     fs           = require('fs');
 
 var android_lib = libraries['cordova-android'].path;

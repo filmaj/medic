@@ -16,11 +16,11 @@ limitations under the License.
 */
 var shell        = require('shelljs'),
     path         = require('path'),
-    deploy       = require('./ios/deploy'),
+    deploy       = require('./cordova-ios/deploy'),
     error_writer = require('./error_writer'),
     config       = require('../../../config'),
     libraries    = require('../../../libraries'),
-    scan         = require('./ios/devices'),
+    scan         = require('./cordova-ios/devices'),
     fs           = require('fs');
 
 var keychain_location = config.ios.keychainLocation;

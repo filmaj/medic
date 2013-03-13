@@ -17,14 +17,12 @@ limitations under the License.
 var path             = require('path'),
     fs               = require('fs'),
     libraries        = require('../../libraries'),
-    android_build    = require('./makers/android'),
-    forte_android_framework_build = require('./makers/forte_android_framework'),
-    ios_build        = require('./makers/ios'),
-    blackberry_build = require('./makers/blackberry');
+    android_build    = require('./makers/cordova-android'),
+    ios_build        = require('./makers/cordova-ios'),
+    blackberry_build = require('./makers/cordova-blackberry');
 
 var builders = {
     'cordova-android':android_build,
-    'forte_android_framework': forte_android_framework_build,
     'cordova-ios':ios_build,
     'cordova-blackberry':blackberry_build
 };

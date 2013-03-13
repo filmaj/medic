@@ -17,8 +17,8 @@ limitations under the License.
 var shell        = require('shelljs'),
     path         = require('path'),
     et           = require('elementtree'),
-    scan         = require('./blackberry/devices'),
-    deploy       = require('./blackberry/deploy'),
+    scan         = require('./cordova-blackberry/devices'),
+    deploy       = require('./cordova-blackberry/deploy'),
     error_writer = require('./error_writer'),
     libraries    = require('../../../libraries'),
     fs           = require('fs');

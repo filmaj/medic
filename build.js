@@ -49,8 +49,7 @@ var queue;
 var should_build = {
     'cordova-blackberry':(config.blackberry.devices.ips && config.blackberry.devices.ips.length > 0),
     'cordova-ios':(config.ios.keychainLocation && config.ios.keychainLocation.length > 0),
-    'cordova-android': false,
-    'forte_android_framework': true
+    'cordova-android': true
 };
 
 // --entry, -e: entry point into the app. index.html as default.
@@ -195,7 +194,10 @@ new bootstrap(app_git, app_builder).go(function() {
 // Given a repository and array of commits for that repository, 
 function check_n_queue(repo, commits) {
     console.log('[MEDIC] Checking ' + repo + '\'s ' + commits.length + ' most recent commit(s) for results on your couch...');
-    var platform = repo.substr(repo.indexOf('-')+1);
+    commits.forEach(function(commit){
+        console.log('[MEDIC] ' + commit);
+    });
+    var platform = repo;
     // TODO: figure out ios device scanning. issue: determine what model and version connected ios devices are running. until then, we can't queue ios builds on devices that we are missing results for, so we look at ios commits with no results and queue those up.
     if (repo == 'cordova-ios') {
         // look at latest commits and see which ones have no results
@@ -247,6 +249,7 @@ function check_n_queue(repo, commits) {
                             var model = device.model;
                             var couch_id = platform + '__' + commit + '__' + version + '__' + model;
                             couch.mobilespec_results.get(couch_id, function(err, res_doc) {
+                                console.log('[MEDIC] get ' + couch_id + ', result: ' + res_doc);
                                 if (err && res_doc == 404) {
                                     // Don't have results for this device!
                                     // console.log('Dont have results for device: ' + device.model + ' with commit: ' + commit + ' -> add to job');
@@ -256,7 +259,7 @@ function check_n_queue(repo, commits) {
                                         model:model
                                     };
                                 }else{
-                                    //console.log('Already have results for device: ' + device.model + ' with commit: ' + commit + ' -> skip');
+                                    console.log('Already have results for device: ' + device.model + ' with commit: ' + commit + ' -> skip');
                                 }
                                 end();
                             });
