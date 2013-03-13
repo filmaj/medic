@@ -29,7 +29,6 @@ var command_queue = [];
 
 for (var i=0; i<libs.platforms.length; i++){
     platform = libs.platforms[i];
-    console.log('[BOOTSTRAP] checking platform:' + platform);
     if (contents.indexOf(platform) == -1) {
         // Don't have the lib, get it.
         var cmd = 'git clone ' + libs[platform].git + ' ' + libs[platform].path;
@@ -58,7 +57,6 @@ function go(q, builder, cb) {
                 console.error('Error running previous command! Output to follow.');
                 console.error(output);
             }
-            console.log(output);
             go(q, builder, cb);
         });
     } else {

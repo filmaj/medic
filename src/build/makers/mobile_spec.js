@@ -39,7 +39,6 @@ module.exports = function(output_location, sha, devices, entry_point, callback) 
             shell.cp('-Rf', [path.join(libraries['test'].path, 'autotest'), path.join(libraries['test'].path, 'cordova.js'), path.join(libraries['test'].path, 'master.css'), path.join(libraries['test'].path, 'main.js')], output_location);
 
             // copy jasmine reporter into output_location location
-            console.log('[MOBILE_SPEC] copy ' + jasmineReporter + ' -> ' + output_location);
             shell.cp('-Rf', jasmineReporter, output_location);
             
             // drop sha to the top of the jasmine reporter

@@ -42,7 +42,6 @@ function build_the_queue(q, callback) {
 }
 
 module.exports = function(app_builder, app_entry_point, static) {
-    console.log('exports function of builder.js:' + app_builder);
     builders['test'] = require(path.join('..','..',app_builder));
     if (static) {
         builders['test'](libraries['test'].output, static, null, null, app_entry_point, function(err) {
@@ -70,7 +69,6 @@ module.exports = function(app_builder, app_entry_point, static) {
         //   }
         // }
         var miniq = [];
-        console.log('Builder checking commits:' + commits );
         for (var lib in commits) if (commits.hasOwnProperty(lib)) {
             console.log('[BUILDER] checking commit: ' + lib);
             if (builders.hasOwnProperty(lib)) {

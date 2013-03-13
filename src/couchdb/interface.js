@@ -37,7 +37,6 @@ db.prototype = {
 
         var db = this;
         var url = this.db_url + '/' + id;
-        console.log('[COUCH] get ' + url);
         request.get(url, function(error, response, body) {
             if (error) callback(error);
             else {
@@ -49,10 +48,8 @@ db.prototype = {
     },
     query_view:function(design, view, callback) {
         // Queries a view.
-        
         var db = this;
         var url = this.db_url + '/_design/' + design + '/_view/' + view;
-        console.log('[COUCH] query_view url: ' + url);
         request.get(url, function(error, response, body) {
             if (error) callback(error);
             else {

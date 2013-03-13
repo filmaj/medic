@@ -81,7 +81,6 @@ var platforms = argv.p || argv.platforms || config.app.platforms;
 if (!platforms) {
     platforms = libraries.platforms;
 }
-console.log('platforms:' + platforms);
 
 if (typeof platforms == 'string') {
     console.log('type of platform is string');
@@ -95,14 +94,10 @@ var frozen_platforms = platforms.filter(function(p) {
     return p.indexOf('@') > -1;
 });
 
-console.log('Platforms: ' + JSON.stringify(platforms));
-console.log('Frozen Platforms: ' + JSON.stringify(frozen_platforms));
-
 // bootstrap makes sure we have the libraries cloned down locally and can query them for commit SHAs and dates
 new bootstrap(app_git, app_builder).go(function() {
     if (!static && !remote_app) { 
         // Set up build queue based on config
-        console.log('making new queue object with app_builder:' + app_builder);
         queue = new q(app_builder, app_entry_point, false);
     } else {
         // static app support
@@ -119,28 +114,26 @@ new bootstrap(app_git, app_builder).go(function() {
             var job = {};
             job['cordova-' + platform] = {
                 "sha":sha
-            }
+            };
             queue.push(job);
         });
         console.log('[MEDIC] Frozen build queued.');
     }
     if (static || remote_app) {
         // just build the head of platforms
-        console.log('[MEDIC] Building test app for latest version of platforms.');
         platforms.forEach(function(platform) {
-            log('should build for platform: ' + platform);
-            if (should_build[platform]) {                
+            if (should_build[platform]) {
                 var job = {};
                 job[platform] = {
                     "sha":"HEAD"
-                }
+                };
                 queue.push(job);
             }
         });
     } else {
         // on new commits to cordova libs, queue builds for relevant projects.
-        if (platforms.length > 0) { 
-            console.log('listening for new commits of cordova libs project');
+        if (platforms.length > 0) {
+            
             var apache_url = "http://urd.zones.apache.org:2069/json";
             var gitpubsub = request.get(apache_url);
             gitpubsub.pipe(new apache_parser(function(project, sha, ref) {
@@ -157,7 +150,7 @@ new bootstrap(app_git, app_builder).go(function() {
                         // since you can commit multiple times locally and push multiple commits up to repo, this ensures we have decent continuity of results
                         var num_commits_back_to_check = 5;
                         var commits = commit_list.recent(project, num_commits_back_to_check).shas;
-                        check_n_queue(project, commits); 
+                        check_n_queue(project, commits);
                     });
                 }
             }));
@@ -165,13 +158,8 @@ new bootstrap(app_git, app_builder).go(function() {
 
             // queue up builds for any missing recent results for HEAD platforms too
             platforms.forEach(function(platform) {
-                console.log('should build for platform:' + platform);
                 if (should_build[platform]) {
-                    console.log('should build YES');
-                    // TODO:
-                    // var commits = commit_list.recent(platform, 10).shas;
-                    var commits = commit_list.recent(platform, 2).shas;
-                    console.log('2 most recent commits: ' + commits);
+                    var commits = commit_list.recent(platform, 10).shas;
                     check_n_queue(platform, commits);
                 }
             });
@@ -238,8 +226,7 @@ function check_n_queue(repo, commits) {
                 var numDs = 0;
                 for (var d in devices) if (devices.hasOwnProperty(d)) numDs++;
                 if (numDs > 0) {
-                    commits.forEach(function(commit) {
-                        console.log('commit to check: ' + commit);
+                    commits.forEach(function(commit) {                        
                         var job = {};
                         var targets = 0;
                         job[repo] = {
@@ -258,7 +245,7 @@ function check_n_queue(repo, commits) {
                             var device = devices[id];
                             var version = device.version;
                             var model = device.model;
-                            var couch_id = platform + '__' + commit + '__' + version + '__' + model;                            
+                            var couch_id = platform + '__' + commit + '__' + version + '__' + model;
                             couch.mobilespec_results.get(couch_id, function(err, res_doc) {
                                 if (err && res_doc == 404) {
                                     // Don't have results for this device!
@@ -269,7 +256,7 @@ function check_n_queue(repo, commits) {
                                         model:model
                                     };
                                 }else{
-                                    console.log('Already have results for device: ' + device.model + ' with commit: ' + commit + ' -> skip');
+                                    //console.log('Already have results for device: ' + device.model + ' with commit: ' + commit + ' -> skip');
                                 }
                                 end();
                             });
