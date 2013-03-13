@@ -60,7 +60,7 @@ module.exports = function(output, sha, devices, entry_point, callback) {
             log('copy modifed mobile spec html assets from: ' + libraries['test'].output + ' to assets/www/');
             var wwwPath = path.join(monaca_framework_project, 'assets', 'www');
             shell.mkdir('-p', wwwPath);
-            shell.cp('-Rf', path.join(libraries['test'].output, '*'), wwwPath);            
+            shell.cp('-Rf', path.join(libraries['test'].output, '*'), wwwPath);
 
 
             // add the sha to the junit reporter
