@@ -78,9 +78,6 @@ for (var i=0; i<libraries.platforms.length; i++){
     platform_queue[platform] = new q(platform);
 }
 
-// for (var platform in libraries.platforms) if (libraries.platforms.hasOwnProperty(platform)) {
-//     platform_queue[platform] = new q(platform);
-// }
 platform_queue['test'] = new q('Test App');
 
 function queue(app_builder, app_entry_point, static) {
@@ -89,10 +86,8 @@ function queue(app_builder, app_entry_point, static) {
 
 queue.prototype = {
     push:function(job) {
-        // console.log('[QUEUE] push job: ' + JSON.stringify(job) );
         var lib = null;
         for (var p in job) if (job.hasOwnProperty(p)) lib = p;
-        // console.log('platform queue' + JSON.stringify(platform_queue));
         if (lib && lib in platform_queue) {
             platform_queue[lib].push(job);
         }
