@@ -192,6 +192,19 @@ new bootstrap(app_git, app_builder).go(function() {
     }
 });
 
+// nightly build
+setInterval(function(){
+    var date = new Date();
+    console.log('[NIGHTLY] current hour: ' + date.getHours());
+    if(date.getHours() === 0){
+        console.log('[NIGHTLY] time to build for da night');
+        var num_commits_back_to_check = 5;
+        var commits = commit_list.recent('forte_android_framework', num_commits_back_to_check).shas;
+        check_n_queue('forte_android_framework', commits);
+    }
+}, 1000 * 60 * 5); // check every 5 minutes
+
+
 // Given a repository and array of commits for that repository, 
 function check_n_queue(repo, commits) {
     console.log('[MEDIC] Checking ' + repo + '\'s ' + commits.length + ' most recent commit(s) for results on your couch...');
