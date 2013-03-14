@@ -43,7 +43,7 @@ module.exports = {
     },
     since:function since(lib, sha) {
         var libPath = path.join(libDir, lib);
-        var commitList = shell.exec('cd ' + libPath + ' && git rev-list --timestamp ' + sha + '^..HEAD', {silent:true});
+        var commitList = shell.exec('cd ' + libPath + ' && git rev-list --timestamp --all', {silent:true});
         if (commitList.code > 0) throw ('Failed to get commit list for ' + lib + ' library.');
         var commitArr = commitList.output.split('\n');
         commitArr = commitArr.slice(0, commitArr.length - 1);
