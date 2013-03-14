@@ -51,17 +51,15 @@ module.exports = function(output, sha, devices, entry_point, callback) {
 
             shell.cp('-Rf', android_lib, output);
 
-            // TODO: replace with plugin_loader.js
-            // copy cordova.android.js
-            var cordova_android_js = path.join(libraries['cordova-android'].path, 'framework', 'assets', 'js', 'cordova.android.js');
-            var dest = libraries['test'].output;
-            shell.cp('-Rf', cordova_android_js, dest);
-
             log('copy modifed mobile spec html assets from: ' + libraries['test'].output + ' to assets/www/');
             var wwwPath = path.join(monaca_framework_project, 'assets', 'www');
             shell.mkdir('-p', wwwPath);
             shell.cp('-Rf', path.join(libraries['test'].output, '*'), wwwPath);
 
+            log('Inject plugin_loader.js');
+            // inject plugin_loader.js to autotest/pages/all.html
+            var allHtmlFile = path.join(monaca_framework_project, 'assets', 'www', 'autotest', 'pages', 'all.html');
+            fs.writeFileSync(allHtmlFile, fs.readFileSync(allHtmlFile, 'utf-8').replace('../../cordova.js', 'https://stg-ide.monaca.mobi/test/loader.php?os=android'));
 
             // add the sha to the junit reporter
             log('add the sha to the junit reporter');
