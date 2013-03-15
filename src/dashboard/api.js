@@ -21,7 +21,11 @@ var libraries     = require('../../libraries'),
     updater       = require('../build/updater'),
     request       = require('request'),
     apache_parser = require('../apache-gitpubsub-parser'),
-    couch         = require('../couchdb/interface');
+    couch         = require('../couchdb/interface'),
+    mail          = require('./mail'),
+    fs            = require('fs'),
+    path          = require('path'),
+    ejs           = require('ejs');
 
 function query_for_results(platform, shas, callback) {
     var commits = shas.slice(0);
@@ -80,6 +84,42 @@ function setup_tested_commits(lib) {
     module.exports.commits[lib].dates = module.exports.tested_shas[lib].dates.slice(0,20);
 }
 
+function getHumanReadableTime( milli ){
+    var date = new Date( milli * 1000);
+    var formatted = date.toString();
+    return formatted;
+}
+
+function emailTestResult( testResult ){
+    fs.readFile(path.resolve(__dirname, './templates/email.ejs'), 'utf-8', function(err, data) {
+        if(!err) {
+
+            // make time human readable
+            testResult.doc.human_time = getHumanReadableTime( testResult.doc.timestamp );
+
+            templateString = data;
+            renderedHtml = ejs.render( templateString, testResult);
+
+            var mailOptions = {
+                from: "Medic<kruyvanna@gmail.com>", // sender address
+                to: "kruyvanna@gmail.com", // list of receivers
+                subject: "New Medic Test Result", // Subject line
+                html: renderedHtml
+            };
+
+            mail(mailOptions, function(err, response){
+                if(err){
+                    console.log('WTF Cant send you the test report! Sorry.', err);
+                }else{
+                    console.log(response);
+                }
+            });
+        }else{
+            console.log('Error!', err);
+        }
+    });
+}
+
 module.exports = {
     commits:{},
     results:{},
@@ -133,7 +173,12 @@ module.exports = {
                         version:change.doc.version
                     }
                 };
+
                 module.exports.add_mobile_spec_result(change.doc.platform, change.doc.sha, doc);
+
+                if(change.doc.mobilespec.failed > 0){
+                    emailTestResult( change );
+                }
             }
         });
 
