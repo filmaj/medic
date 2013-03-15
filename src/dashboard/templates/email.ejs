@@ -1,0 +1,63 @@
+<html>
+<head>
+	<title>Monaca Test</title>
+	<style>		
+
+		body{
+			background-color: #EEE;
+		}
+		.spec_item {
+		    margin-left: 10px;
+		    margin-bottom: 20px;		    
+		}
+		.spec_name{	    		   
+			font-size: 15px;
+			padding: 3px;
+			color: white;
+			background-color: #B03911;
+		}
+		.assertion_item {
+			margin: 5px;
+		}
+		.exception {
+		    margin:0 20px;
+		    font-size:15px;
+		}		
+		.trace{
+			margin:0 25px;
+			font-size: 12px;
+			background-color: white;
+			padding: 0px 10px;
+		}
+		
+	</style>
+</head>
+
+<body bgcolor="#EEE" style="background-color: #EEE;">
+<h2>Mobile Spec Test</h2>
+<h3>Failed: <span style="color: red; font-weight: bold;"><%= doc.mobilespec.failed %></span>/<%= doc.mobilespec.total %> tests</h3>
+<p></p>
+<div>Platform: <%= doc.platform %></div>
+<div>Version: <%= doc.version %></div>
+<div>Sha: <%= doc.sha %></div>
+<div>Timestamp: <%= doc.human_time %></div>
+<section><h2>Failures</h2>
+<% for (var i in doc.mobilespec.failures) { var failure = doc.mobilespec.failures[i];%>
+    <div class="spec_item" style="margin-left: 10px; margin-bottom: 20px;">
+    	<div class="spec_name"style="font-size: 15px; color: white; background-color: #B03911; padding: 3px;"><%=failure.spec%></div>
+		<% for (var j in failure.assertions) { var assertion = failure.assertions[j] %>
+			<div class="assertion_item" style="margin: 5px;">
+				<div class="exception" style="font-size: 15px; margin: 0 20px;"><%=assertion.exception %></div>
+				<div class="trace" style="font-size: 12px; background-color: white; margin: 0 25px; padding: 0px 10px;">
+					<pre><code><%=assertion.trace %></code></pre>
+				</div>
+			</div>
+		<% }; %>    		
+    	
+    </div>
+<% }; %>
+
+</section>
+</body>
+</html>
+
