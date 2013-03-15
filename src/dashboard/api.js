@@ -110,8 +110,6 @@ function emailTestResult( testResult ){
             mail(mailOptions, function(err, response){
                 if(err){
                     console.log('WTF Cant send you the test report! Sorry.', err);
-                }else{
-                    console.log(response);
                 }
             });
         }else{
