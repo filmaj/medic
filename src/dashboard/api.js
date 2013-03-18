@@ -109,7 +109,7 @@ function emailTestResult( testResult ){
 
             mail(mailOptions, function(err, response){
                 if(err){
-                    console.log('WTF Cant send you the test report! Sorry.', err);
+                    console.log('WTF Cant email you the test report! Sorry.', err);
                 }
             });
         }else{
@@ -174,7 +174,7 @@ module.exports = {
 
                 module.exports.add_mobile_spec_result(change.doc.platform, change.doc.sha, doc);
 
-                if(change.doc.mobilespec.failed > 0){
+                if(change.doc.mobilespec.failed > 0){                
                     emailTestResult( change );
                 }
             }
