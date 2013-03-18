@@ -204,12 +204,12 @@ function getMillisUntilMidnight() {
 var untilMidnight = getMillisUntilMidnight();
 
 function startMidNightBuildInterval(){
-    setInterval( 1000 * 60 * 60 * 24, function(){
+    setInterval( function(){
         console.log('[NIGHTLY] time to build for da night');
         var num_commits_back_to_check = 5;
         var commits = commit_list.recent('forte_android_framework', num_commits_back_to_check).shas;
         check_n_queue('forte_android_framework', commits);
-    });
+    }, 1000 * 60 * 60 * 24);
 }
 
 setTimeout(startMidNightBuildInterval, untilMidnight);
