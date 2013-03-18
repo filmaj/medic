@@ -1,17 +1,9 @@
 var nodemailer = require("nodemailer");
 
-// create reusable transport method (opens pool of SMTP connections)
-var smtpTransport = nodemailer.createTransport("SMTP",{
-    service: "Gmail",
-    auth: {
-        user: "",
-        pass: ""
-    }
-});
+var transport = nodemailer.createTransport("Sendmail", "/usr/sbin/sendmail");
 
 module.exports = function mail(mailOptions, callback) {
     // send mail with defined transport object
-    smtpTransport.sendMail(mailOptions, callback );
-
+    transport.sendMail(mailOptions, callback );
 };
 
