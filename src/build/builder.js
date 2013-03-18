@@ -51,7 +51,7 @@ module.exports = function(app_builder, app_entry_point, static) {
             console.log('[MEDIC] Test app built + ready.');
         });
     } else {
-        builders['test'](libraries['test'].output, '2.2.0', null, app_entry_point, function(err) {
+        builders['test'](libraries['test'].output, 'monaca_2.2.0', null, app_entry_point, function(err) {
             if (err) {
                 throw new Error('Could not build Test App! Aborting!');
             }
