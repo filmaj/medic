@@ -101,8 +101,8 @@ function emailTestResult( testResult ){
             renderedHtml = ejs.render( templateString, testResult);
 
             var mailOptions = {
-                from: "Medic<kruyvanna@gmail.com>", // sender address
-                to: "kruyvanna@gmail.com", // list of receivers
+                from: "Medic<medic@asial.co.jp>", // sender address
+                to: "spla-dev@asial.co.jp", // list of receivers
                 subject: "New Medic Test Result", // Subject line
                 html: renderedHtml
             };
