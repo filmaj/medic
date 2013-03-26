@@ -76,6 +76,7 @@ if (!static && !remote_app) {
 // --platforms, -p: specify which platforms to build for. android, ios, blackberry, all, or a comma-separated list
 // can also specify a specific sha or tag of cordova to build the app with using <platform>@<sha>
 // if none specified, builds for all platforms by default, using the latest cordova. this means it will also listen to changes to the cordova project
+// TODO: SOON: use the platforms check_reqs script to make sure current machien can build for certain scripts. https://issues.apache.org/jira/browse/CB-2788
 var platforms = argv.p || argv.platforms || config.app.platforms;
 if (!platforms) {
     platforms = libraries.list;
@@ -111,6 +112,9 @@ new bootstrap(app_git, app_builder).go(function() {
             var tokens = p.split('@');
             var platform = tokens[0];
             var sha = tokens[1];
+            if (sha == 'HEAD') {
+                sha = commit_list.recent('cordova-' + platform, 1).shas[0];
+            }
             var job = {};
             job['cordova-' + platform] = {
                 "sha":sha
