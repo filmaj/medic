@@ -206,7 +206,7 @@ console.log('until midnight ', untilMidnight);
 
 function doNightlyBuild(){
     console.log('[NIGHTLY] time to build for da night');
-    var num_commits_back_to_check = 5;
+    var num_commits_back_to_check = 2;
     var commits = commit_list.recent('forte_android_framework', num_commits_back_to_check).shas;
     check_n_queue('forte_android_framework', commits);
 }

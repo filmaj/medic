@@ -38,7 +38,7 @@ for (var i=0; i<libs.platforms.length; i++){
         command_queue.push(cmd);
     } else {
         // Have the lib, update it.
-        var cmd = 'cd ' + path.join(libDir, platform) + ' && git checkout -- . && git checkout master && git fetch --tags';
+        var cmd = 'cd ' + path.join(libDir, platform) + ' && git checkout -- . && git checkout master && git pull && git fetch --tags';
         command_queue.push(cmd);
 
         cmd = 'cd ' + libs[platform].path + ' && git submodule init && git submodule update';
