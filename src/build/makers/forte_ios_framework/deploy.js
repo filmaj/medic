@@ -44,7 +44,7 @@ function run_through(sha, devices, bundlePath, bundleId, callback) {
     var d = devices.shift();
     if (d) {
         log('Uninstalling app on ' + d);
-        var cmd = listdevices + ' uninstall --id=' + d + ' --bundle-id=org.apache.cordova.example';
+        var cmd = listdevices + ' uninstall --id=' + d + ' --bundle-id=jp.co.asial.sandbox';
         shell.exec(cmd, {silent:true,async:true}, function(code, output) {
             if (code > 0) log('Uninstall on ' + d + ' failed, continuing anyways.');
 
