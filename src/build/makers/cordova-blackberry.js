@@ -17,13 +17,13 @@ limitations under the License.
 var shell        = require('shelljs'),
     path         = require('path'),
     et           = require('elementtree'),
-    scan         = require('./blackberry/devices'),
-    deploy       = require('./blackberry/deploy'),
+    scan         = require('./cordova-blackberry/devices'),
+    deploy       = require('./cordova-blackberry/deploy'),
     error_writer = require('./error_writer'),
     libraries    = require('../../../libraries'),
     fs           = require('fs');
 
-var blackberry_lib = libraries.paths['cordova-blackberry'];
+var blackberry_lib = libraries['cordova-blackberry'].path;
 var create = path.join(blackberry_lib, 'bin', 'create');
 
 module.exports = function(output, sha, devices, entry_point, callback) {
@@ -49,12 +49,13 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                     try {
                         // copy over mobile spec modified html assets
                         log('Modifying Cordova application.');
-                        shell.cp('-Rf', path.join(libraries.output.test, '*'), path.join(output, 'www'));
+                        shell.cp('-Rf', path.join(libraries['test'].output, '*'), path.join(output, 'www'));
 
                         // drop the BlackBerry library SHA into the junit reporter
                         var tempJasmine = path.join(output, 'www', 'jasmine-jsreporter.js');
                         if (fs.existsSync(tempJasmine)) {
                             fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
+                            fs.writeFileSync(tempJasmine, fs.readFileSync(tempJasmine, 'utf-8').replace('(platformMap.hasOwnProperty(p) ? platformMap[p] : p)', "'cordova-blackberry'"));
                         }
 
                         // TODO: make sure we are using blackberry lib's version in mobile-spec's cordoa.js

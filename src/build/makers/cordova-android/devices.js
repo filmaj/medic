@@ -40,6 +40,13 @@ module.exports = function(callback) {
                 var end = n(devices.length, function() {
                     callback(false, devObj);
                 });
+
+                if(devices.length === 0){
+                    console.log('[Android] No devices connected!');
+                }else{
+                    console.log('[Android] ' + devices.length + ' devices connected');
+                }
+
                 devices.forEach(function(id) {
                     var device_info = 'adb -s ' + id + ' shell cat system/build.prop';
                     shell.exec(device_info + ' | grep "model"', {silent:true, async:true}, function(kode, ootput) {

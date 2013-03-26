@@ -30,7 +30,8 @@ function query_for_results(platform, shas, callback) {
         var view = platform + '?key="' + sha + '"';
         couch.mobilespec_results.query_view('results', view, function(error, result) {
             if (error) {
-                console.error('query failed for mobile spec results', error); throw 'Query failed';
+                console.error('query failed for mobile spec results', result);
+                throw 'Query failed';
             }
             if (result.rows.length) {
                 result.rows.forEach(function(row) {
@@ -54,7 +55,8 @@ function query_for_errors(platform, shas, callback) {
         // get build errors from couch for each repo
         couch.build_errors.query_view('errors', view, function(error, result) {
             if (error) {
-                console.error('query failed for build errors', error); throw 'Query failed';
+                console.error('query failed for build errors', result);
+                throw 'Query failed';
             }
             if (result.rows.length) {
                 result.rows.forEach(function(row) {
@@ -76,7 +78,7 @@ function setup_tested_commits(lib) {
     module.exports.commits[lib] = {};
     module.exports.commits[lib].shas = module.exports.tested_shas[lib].shas.slice(0,20);
     module.exports.commits[lib].dates = module.exports.tested_shas[lib].dates.slice(0,20);
-};
+}
 
 module.exports = {
     commits:{},
@@ -86,7 +88,7 @@ module.exports = {
     boot:function(callback) {
         // final callback setup
         // TODO: once BB works get rid of the -1 below.
-        var counter = ((libraries.list.length-1) * 2); 
+        var counter = ((libraries.platforms.length-1) * 2);
         var end = n(counter, callback);
 
         // update all libs, then get list of all sha's we've tested
@@ -94,8 +96,8 @@ module.exports = {
         updater(libraries.first_tested_commit, function() {
             for (var repo in libraries.first_tested_commit) if (libraries.first_tested_commit.hasOwnProperty(repo)) (function(lib) {
                 setup_tested_commits(lib);
-                var platform = lib.substr('cordova-'.length);
-                console.log('[COUCH] Querying ' + platform + ' for ' + module.exports.tested_shas[lib].shas.length + ' SHAs...'); 
+                var platform = lib;
+                console.log('[COUCH] Querying ' + platform + ' for ' + module.exports.tested_shas[lib].shas.length + ' SHAs...');
                 query_for_results(platform, module.exports.tested_shas[lib].shas, end);
                 query_for_errors(platform, module.exports.tested_shas[lib].shas, end);
             })(repo);

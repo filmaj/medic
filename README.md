@@ -46,6 +46,58 @@ There are three components in this system: a build process, a web server acting 
 
 ## Usage
 
+### Setup couchdb
+
+* Install couch db
+* Edit the local.ini to accept request from external host.
+
+```javascript
+bind_address = 0.0.0.0
+```
+
+#### Setup database:
+
+##### Create two databases
+* bulid_errors
+* mobilespec_results
+
+##### Create a document in mobilespec_results
+
+```javascript
+{
+   "_id": "_design/results",
+   "views": {
+       "android": {
+           "map": "function(doc){if (doc.platform == 'android' && doc.mobilespec) {emit(doc.sha, {\"total\":doc.mobilespec.total,\"passed\":(doc.mobilespec.total - doc.mobilespec.failed),\"version\":doc.version,\"model\":doc.model,\"fails\":doc.mobilespec.failures});}}"
+       },
+       "blackberry": {
+           "map": "function(doc){if (doc.platform == 'blackberry' && doc.mobilespec) {emit(doc.sha, {\"total\":doc.mobilespec.total,\"passed\":(doc.mobilespec.total - doc.mobilespec.failed),\"version\":doc.version,\"model\":doc.model,\"fails\":doc.mobilespec.failures});}}"
+       },
+       "ios": {
+           "map": "function(doc){if (doc.platform == 'ios' && doc.mobilespec) {emit(doc.sha, {\"total\":doc.mobilespec.total,\"passed\":(doc.mobilespec.total - doc.mobilespec.failed),\"version\":doc.version,\"model\":doc.model,\"fails\":doc.mobilespec.failures});}}"
+       }
+   }
+}
+```
+
+##### Create a document in buid_errors
+```javascript
+{
+   "_id": "_design/errors",
+   "views": {
+       "android": {
+           "map": "function(doc){if (doc.platform == 'android' && doc.failure) {emit(doc.sha, {\"timestamp\":doc.timestamp,\"failure\":doc.failure,\"details\":doc.details,\"version\":doc.version,\"model\":doc.model});}}"
+       },
+       "blackberry": {
+           "map": "function(doc){if (doc.platform == 'blackberry' && doc.failure) {emit(doc.sha, {\"timestamp\":doc.timestamp,\"failure\":doc.failure,\"details\":doc.details,\"version\":doc.version,\"model\":doc.model});}}"
+       },
+       "ios": {
+           "map": "function(doc){if (doc.platform == 'ios' && doc.failure) {emit(doc.sha, {\"timestamp\":doc.timestamp,\"failure\":doc.failure,\"details\":doc.details,\"version\":doc.version,\"model\":doc.model});}}"
+       }
+   }
+}
+```
+
 ### build.js
 
 Run `node build.js` without parameters to listen to new commits coming into the Apache Cordova project and build tests for these new commits. 

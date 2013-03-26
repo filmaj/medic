@@ -60,7 +60,8 @@ module.exports = {
         var dateList = commitArr.map(function(c) {
             var date = timeRegExp.exec(c);
             if (date) return date[1];
-        });
+        });        
+
         return {
             shas:shaList,
             dates:dateList

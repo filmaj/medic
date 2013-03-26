@@ -20,11 +20,13 @@ function popup_close(el) {
     el.parentNode.style.display = 'none';
 }
 function popup_show(title, html) {
+    console.log('popup_show title: ',title, html);
     $('popup_html').innerHTML = html;
     $('popup_title').innerText = title;
     $('popup').style.display = '';
 }
 function show(id) {
+    console.log('show ' + id);
     $(id).style.display = '';
 }
 function getFailures(results) {
@@ -53,7 +55,7 @@ function getPercentage(results) {
 }
 function renderDashboardRow(platform, date, lastSha, lastResults, secondSha, secondResults) {
     var colors = Highcharts.getOptions().colors;
-    var lib = 'cordova-' + platform;
+    var lib = platform;
     // date column
     $(platform + '_commit_date').innerText = date;
     var date_anchor = $(platform + '_last_commit');
@@ -67,7 +69,7 @@ function renderDashboardRow(platform, date, lastSha, lastResults, secondSha, sec
     var arrow = document.createElement('img');
     var updown = current_percent >= last_percent ? 'up' : 'down';
     arrow.src='/img/' + updown + '.png';
-    arrow.alt='Current commit ' + updown + ' from previous (' + last_percent.toFixed(2) + '%)'; 
+    arrow.alt='Current commit ' + updown + ' from previous (' + last_percent.toFixed(2) + '%)';
     p.appendChild(arrow);
     // pie chart goodness
     var versionData = [];
@@ -171,8 +173,9 @@ function go() {
                 window.location.reload();
             }, 5000);
         } else {
+            console.log('recent commits:', commits);
             for (var repo in commits) if (commits.hasOwnProperty(repo)) (function(lib) {
-                var platform = lib.substr('cordova-'.length);
+                var platform = lib;
                 var most_recent_sha = commits[lib].shas[0];
                 var second_recent_sha = commits[lib].shas[1];
                 var most_recent_date = moment(parseInt(commits[lib].dates[0])*1000).fromNow();
@@ -186,7 +189,9 @@ function go() {
     });
     XHR("/api/commits/tested", function(err, commits) {
         tested_commits = commits;
+        console.log('tested_commits:', tested_commits);
         XHR("/api/results", function(err, res) {
+            console.log('tested_results:', res);
             results = res;
             render('cordova-ios');
             render('cordova-android');

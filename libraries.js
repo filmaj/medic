@@ -17,18 +17,25 @@ limitations under the License.
 var path = require('path');
 
 module.exports = {
-    list:['android','blackberry','ios'],
-    paths:{
-        'cordova-android':path.join(__dirname, 'lib', 'cordova-android'),
-        'cordova-ios':path.join(__dirname, 'lib', 'cordova-ios'),
-        'cordova-blackberry':path.join(__dirname, 'lib', 'cordova-blackberry'),
-        'test':path.join(__dirname, 'lib', 'test')
+    platforms:['cordova-android', 'cordova-blackberry','cordova-ios'],
+    'cordova-android':{
+        'git': 'https://git-wip-us.apache.org/repos/asf/cordova-android.git',
+        'path': path.join(__dirname, 'lib', 'cordova-android'),
+        'output': path.join(__dirname, 'temp', 'android')
     },
-    output:{
-        'cordova-android':path.join(__dirname, 'temp', 'android'),
-        'cordova-ios':path.join(__dirname, 'temp', 'ios'),
-        'cordova-blackberry':path.join(__dirname, 'temp', 'blackberry'),
-        'test':path.join(__dirname, 'temp', 'test')
+    'cordova-blackberry':{
+        'git': 'https://git-wip-us.apache.org/repos/asf/cordova-blackberry.git',
+        'path': path.join(__dirname, 'lib', 'cordova-blackberry'),
+        'output': path.join(__dirname, 'temp', 'blackberry')
+    },
+    'cordova-ios':{
+        'git': 'https://git-wip-us.apache.org/repos/asf/cordova-ios.git',
+        'path': path.join(__dirname, 'lib', 'cordova-ios'),
+        'output': path.join(__dirname, 'temp', 'ios')
+    },
+    'test':{
+        'path': path.join(__dirname, 'lib', 'test'),
+        'output': path.join(__dirname, 'temp', 'test')
     },
     first_tested_commit:{
         'cordova-android':'538e90f23aaeebe4cc08ad87d17d0ab2dde6185d',

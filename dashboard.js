@@ -41,9 +41,9 @@ function not_found(res, msg) {
 function routeApi(resource) {
     return function(req, res) {
         try {
-            console.log('[HTTP] API request for ' + resource + '.');
             var queries = url.parse(req.url, true).query;
             var json = api[resource];
+
             if (queries.platform) {
                 json = json[queries.platform];
                 if (!json) {
@@ -61,6 +61,7 @@ function routeApi(resource) {
             res.writeHead(200, {
                 "Content-Type":"application/json"
             });
+            // console.log('[HTTP] request ' + resource + ", result: " + JSON.stringify(json));
             res.write(JSON.stringify(json), 'utf-8');
             res.end();
         } catch(e) {
