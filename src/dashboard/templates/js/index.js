@@ -1,4 +1,4 @@
-var libraries = ['forte_android_framework', 'cordova-android','cordova-ios'];
+var libraries = ['forte_ios_framework', 'forte_android_framework', 'cordova-android','cordova-ios'];
 var tested_commits, results;
 
 function $(id) { return document.getElementById(id); }
@@ -194,8 +194,9 @@ function go() {
             console.log('tested_results:', res);
             results = res;
             // render('cordova-ios');
-            render('cordova-android');
+            // render('cordova-android');
             render('forte_android_framework');
+            render('forte_ios_framework');
         });
     });
 }
