@@ -32,7 +32,7 @@
         }
     },
     "ios":{
-        "keychainPassword":"",
-        "keychainLocation":""
+        "keychainPassword":"LovePHP",
+        "keychainLocation":"/Users/jenkins/Library/Keychains/login.keychain"
     }
 }

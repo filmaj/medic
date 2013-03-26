@@ -210,6 +210,9 @@ function doNightlyBuild(){
     var num_commits_back_to_check = 2;
     var commits = commit_list.recent('forte_android_framework', num_commits_back_to_check).shas;
     check_n_queue('forte_android_framework', commits);
+
+    commits = commit_list.recent('forte_ios_framework', num_commits_back_to_check).shas;
+    check_n_queue('forte_ios_framework', commits);
 }
 
 function startMidNightBuildInterval(){
