@@ -36,6 +36,7 @@ module.exports = function deploy(sha, devices, path, id, callback) {
             log('Target: ' + count + ' Android(s).');
             var end = n(count, callback);
             for (var device in devices) if (devices.hasOwnProperty(device)) (function(d) {
+                console.log('uninstall ' + id);
                 var cmd = 'adb -s ' + d + ' uninstall ' + id;
                 var uninstall = shell.exec(cmd, {silent:true,async:true},function(code, uninstall_output) {
                     // NOTE: if uninstall failed with code > 0, keep going.

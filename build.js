@@ -48,9 +48,10 @@ var queue;
 // should we even bother building certain platforms
 var should_build = {
     'cordova-blackberry':(config.blackberry.devices.ips && config.blackberry.devices.ips.length > 0),
-    'cordova-ios':(config.ios.keychainLocation && config.ios.keychainLocation.length > 0),
+    'forte_ios_framework':(config.ios.keychainLocation && config.ios.keychainLocation.length > 0),
     'cordova-android': false,
-    'forte_android_framework': true
+    'forte_android_framework': true,
+    'cordova-ios': false
 };
 
 // --entry, -e: entry point into the app. index.html as default.
@@ -159,7 +160,7 @@ new bootstrap(app_git, app_builder).go(function() {
             // queue up builds for any missing recent results for HEAD platforms too
             platforms.forEach(function(platform) {
                 if (should_build[platform]) {
-                    var commits = commit_list.recent(platform, 10).shas;
+                    var commits = commit_list.recent(platform, 2).shas;
                     check_n_queue(platform, commits);
                 }
             });
