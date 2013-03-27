@@ -17,16 +17,16 @@ limitations under the License.
 var path = require('path');
 
 module.exports = {
-    platforms:['forte_android_framework', 'forte_ios_framework', 'cordova-android', 'cordova-blackberry','cordova-ios'],
+    platforms:['forte_android_framework', 'forte_iphone_framework', 'cordova-android', 'cordova-blackberry','cordova-ios'],
     'forte_android_framework':{
         'git': 'ssh://git@gitlab.asial.biz:2222/forte_android_framework.git',
         'path': path.join(__dirname, 'lib', 'forte_android_framework'),
         'output': path.join(__dirname, 'temp', 'forte_android_framework')
     },
-    'forte_ios_framework':{
+    'forte_iphone_framework':{
         'git': 'ssh://git@gitlab.asial.biz:2222/forte_iphone_framework.git',
-        'path': path.join(__dirname, 'lib', 'forte_ios_framework'),
-        'output': path.join(__dirname, 'temp', 'forte_ios_framework')
+        'path': path.join(__dirname, 'lib', 'forte_iphone_framework'),
+        'output': path.join(__dirname, 'temp', 'forte_iphone_framework')
     },
     'cordova-android':{
         'git': 'https://git-wip-us.apache.org/repos/asf/cordova-android.git',
@@ -49,7 +49,7 @@ module.exports = {
     },
     first_tested_commit:{
         'forte_android_framework': 'bdc36e7f4214bf59db2b18683a8ef4bbd979d372',
-        'forte_ios_framework': 'c12232ebd2a3712ce81183fb36d98ddc264587ca',
+        'forte_iphone_framework': 'c12232ebd2a3712ce81183fb36d98ddc264587ca',
         'cordova-android':'538e90f23aaeebe4cc08ad87d17d0ab2dde6185d',
         'cordova-ios':'6e60c222f8194bb43de6b52c5ea9ff84cc92e040'
     }

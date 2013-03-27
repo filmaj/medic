@@ -21,7 +21,7 @@ var path             = require('path'),
     ios_build        = require('./makers/cordova-ios'),
     blackberry_build = require('./makers/cordova-blackberry');
     forte_android_framework_build = require('./makers/forte_android_framework'),
-    forte_ios_framework_build = require('./makers/forte_ios_framework');
+    forte_iphone_framework_build = require('./makers/forte_iphone_framework');
 
 
 var builders = {
@@ -29,7 +29,7 @@ var builders = {
     'cordova-ios':ios_build,
     'cordova-blackberry':blackberry_build,
     'forte_android_framework': forte_android_framework_build,
-    'forte_ios_framework': forte_ios_framework_build
+    'forte_iphone_framework': forte_iphone_framework_build
 };
 
 function build_the_queue(q, callback) {
