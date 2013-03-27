@@ -48,7 +48,7 @@ var queue;
 // should we even bother building certain platforms
 var should_build = {
     'cordova-blackberry':(config.blackberry.devices.ips && config.blackberry.devices.ips.length > 0),
-    'forte_ios_framework':(config.ios.keychainLocation && config.ios.keychainLocation.length > 0),
+    'forte_iphone_framework':(config.ios.keychainLocation && config.ios.keychainLocation.length > 0),
     'cordova-android': false,
     'forte_android_framework': true,
     'cordova-ios': false

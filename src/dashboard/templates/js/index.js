@@ -1,4 +1,4 @@
-var libraries = ['forte_ios_framework', 'forte_android_framework', 'cordova-android','cordova-ios'];
+var libraries = ['forte_iphone_framework', 'forte_android_framework', 'cordova-android','cordova-ios'];
 var tested_commits, results;
 
 function $(id) { return document.getElementById(id); }
@@ -60,7 +60,7 @@ function renderDashboardRow(platform, date, lastSha, lastResults, secondSha, sec
     $(platform + '_commit_date').innerText = date;
     var date_anchor = $(platform + '_last_commit');
     date_anchor.innerText = lastSha.substr(0,7);
-    date_anchor.setAttribute('href', 'https://git-wip-us.apache.org/repos/asf?p=' + lib + '.git;a=commit;h=' + lastSha);
+    date_anchor.setAttribute('href', 'https://gitlab.asial.biz/' + lib + '/commit/' + lastSha);
     // pass column
     var current_percent = getPercentage(lastResults);
     var last_percent = getPercentage(secondResults);
@@ -196,7 +196,7 @@ function go() {
             // render('cordova-ios');
             // render('cordova-android');
             render('forte_android_framework');
-            render('forte_ios_framework');
+            render('forte_iphone_framework');
         });
     });
 }

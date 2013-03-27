@@ -16,7 +16,7 @@ limitations under the License.
 */
 var shell        = require('shelljs'),
     path         = require('path'),
-    deploy       = require('./forte_ios_framework/deploy'),
+    deploy       = require('./forte_iphone_framework/deploy'),
     error_writer = require('./error_writer'),
     config       = require('../../../config'),
     libraries    = require('../../../libraries'),
@@ -26,7 +26,7 @@ var shell        = require('shelljs'),
 var keychain_location = config.ios.keychainLocation;
 var keychain_password = config.ios.keychainPassword;
 
-var ios_lib = libraries['forte_ios_framework'].path;
+var ios_lib = libraries['forte_iphone_framework'].path;
 var create = path.join(ios_lib, 'bin', 'create');
 
 
@@ -35,8 +35,8 @@ module.exports = function(output, sha, devices, entry_point, callback) {
         console.log('[MONACA_IOS] ' + msg + ' (sha: ' + sha.substr(0,7) + ')');
     }
 
-    var monaca_framework = path.join(output,'forte_ios_framework');
-    var monaca_sandbox_project = path.join(output,'forte_ios_framework', 'MonacaSandbox');
+    var monaca_framework = path.join(output,'forte_iphone_framework');
+    var monaca_sandbox_project = path.join(output,'forte_iphone_framework', 'MonacaSandbox');
 
     if (keychain_location.length === 0 || keychain_password.length === 0) {
         log('No keychain information. Fill that shit out in config.json if you want to build for iOS.');
@@ -47,13 +47,13 @@ module.exports = function(output, sha, devices, entry_point, callback) {
 
     shell.exec('cd ' + ios_lib + ' && git checkout ' + sha, {silent:true, async:true}, function(code, checkout_output) {
         if (code > 0) {
-            error_writer('forte_ios_framework', sha, 'error git-checking out sha ' + sha, checkout_output);
+            error_writer('forte_iphone_framework', sha, 'error git-checking out sha ' + sha, checkout_output);
             callback(true);
         } else {
             // unlock the chain
             var security = shell.exec('security default-keychain -s ' + keychain_location + ' && security unlock-keychain -p ' + keychain_password + ' ' + keychain_location, {silent:true});
             if (security.code > 0) {
-                error_writer('forte_ios_framework', sha, 'Could not unlock keychain.', security.output);
+                error_writer('forte_iphone_framework', sha, 'Could not unlock keychain.', security.output);
                 callback(true);
             } else {
                 // create an ios app into output dir
@@ -79,7 +79,7 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                     fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
 
                     // replace platform
-                    fs.writeFileSync(tempJasmine, fs.readFileSync(tempJasmine, 'utf-8').replace('(platformMap.hasOwnProperty(p) ? platformMap[p] : p)', "'forte_ios_framework'"));
+                    fs.writeFileSync(tempJasmine, fs.readFileSync(tempJasmine, 'utf-8').replace('(platformMap.hasOwnProperty(p) ? platformMap[p] : p)', "'forte_iphone_framework'"));
                 }
 
                 console.log('modify start page to :' + entry_point);
@@ -92,13 +92,13 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                 var compile = shell.exec(debug, {silent:true});
 
                 if (compile.code > 0) {
-                    error_writer('forte_ios_framework', sha, 'Compilation error.', compile.output);
+                    error_writer('forte_iphone_framework', sha, 'Compilation error.', compile.output);
                     callback(true);
                 } else {
                     // get list of connected devices
                     scan(function(err, devices) {
                         if (err) {
-                            error_writer('forte_ios_framework', sha, devices, 'No further details dude.');
+                            error_writer('forte_iphone_framework', sha, devices, 'No further details dude.');
                             callback(true);
                         } else {
                             var bundle = path.join(monaca_framework, 'build', 'Debug-iphoneos', 'sandbox.app'),
@@ -112,7 +112,7 @@ module.exports = function(output, sha, devices, entry_point, callback) {
 
                 // shell.exec(create + ' ' + output + ' org.apache.cordova.example cordovaExample', {silent:true, async:true}, function(code, ootput) {
                 //     if (code > 0) {
-                //         error_writer('forte_ios_framework', sha, './bin/create error', ootput);
+                //         error_writer('forte_iphone_framework', sha, './bin/create error', ootput);
                 //         callback(true);
                 //     } else {
                 //         try {
