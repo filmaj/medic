@@ -36,8 +36,9 @@ module.exports = function deploy(sha, devices, path, id, callback) {
             log('Target: ' + count + ' Android(s).');
             var end = n(count, callback);
             for (var device in devices) if (devices.hasOwnProperty(device)) (function(d) {
-                console.log('uninstall ' + id);
-                var cmd = 'adb -s ' + d + ' uninstall ' + id;
+                
+                var cmd = 'adb -s ' + d + ' uninstall ' + id + '.psedo';
+                console.log('uninstall ' + cmd);
                 var uninstall = shell.exec(cmd, {silent:true,async:true},function(code, uninstall_output) {
                     // NOTE: if uninstall failed with code > 0, keep going.
                     log('Installing on device ' + d);
@@ -49,6 +50,7 @@ module.exports = function deploy(sha, devices, path, id, callback) {
                         } else {
                             log('Running on device ' + d);
                             cmd = 'adb -s ' + d + ' shell am start -n ' + id + '.psedo/' + id + '.MonacaSplashActivity';
+                            console.log(cmd);
                             var deploy = shell.exec(cmd, {silent:true,async:true},function(code, run_output) {
                                 if (code > 0) {
                                     log('Error launching mobile-spec on device ' + d + ', continuing.');
