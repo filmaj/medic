@@ -93,6 +93,8 @@ function emailTestResult( testResult ){
             var commitMessage = commits.commit_message_for(testResult.doc.platform, testResult.doc.sha);
             testResult.doc.commitMessage = commitMessage;
             console.log('commit message ' + testResult.doc.sha + " :" + commitMessage);
+            var commitorEmail = commits.email_for_commit(testResult.doc.platform, testResult.doc.sha);
+            console.log('email:' + commitorEmail);
 
             templateString = data;
             renderedHtml = ejs.render( templateString, testResult);

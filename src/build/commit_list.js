@@ -109,5 +109,14 @@ module.exports = {
         } else {
             return res.output.split('\n').join('');
         }
+    },
+    email_for_commit: function commit_message_for(lib, sha) {
+        var libPath = path.join(libDir, lib);
+        var res = shell.exec('cd ' + libPath + ' && git log --format="%ce" -n 1 ' + sha, {silent:true});
+        if (res.code > 0) {
+            return null;
+        } else {
+            return res.output.split('\n').join('');
+        }
     }
 };
