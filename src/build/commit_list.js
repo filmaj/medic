@@ -67,6 +67,22 @@ module.exports = {
             dates:dateList
         };
     },
+    since_last_night:function since_last_night(lib) {
+        var date = new Date();
+        date.setHours(0,0,0,0);
+        var time = date.getTime(); // in milli
+        var lastNight = time - 86400000; // minus one day
+        var gitLastNight = lastNight.toString().substr(0, 10);
+        console.log('last night: ' + lastNight);
+
+        var libPath = path.join(libDir, lib);
+        var commitList = shell.exec('cd ' + libPath + ' && git rev-list --all --after ' + gitLastNight, {silent:true});
+        console.log('output:' + JSON.stringify(commitList));
+        if (commitList.code > 0) throw ('Failed to get commit list for ' + lib + ' library.' + JSON.stringify(commitList));
+        var commitShas = commitList.output.split('\n');
+        commitShas = commitShas.slice(0, commitShas.length - 1);
+        return commitShas;
+    },
     date_for:function date_for(lib, sha) {
         var libPath = path.join(libDir, lib);
         var res = shell.exec('cd ' + libPath + ' && git show -s --format="%at" ' + sha, {silent:true});

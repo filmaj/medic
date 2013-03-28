@@ -123,7 +123,7 @@ module.exports = {
     boot:function(callback) {
         // final callback setup
         // TODO: once BB works get rid of the -1 below.
-        var counter = ((libraries.platforms.length-1) * 2);
+        var counter = ((libraries.platforms.length-3) * 2);
         var end = n(counter, callback);
 
         // update all libs, then get list of all sha's we've tested
@@ -185,6 +185,7 @@ module.exports = {
                 module.exports.add_build_failure(change.doc.platform, change.doc.sha, change.doc);
             }
         });
+
     },
     add_mobile_spec_result:function(platform, sha, doc) {
         var tests = doc.value.total, num_fails = (doc.value.total - doc.value.passed), failText = doc.value.fails;
