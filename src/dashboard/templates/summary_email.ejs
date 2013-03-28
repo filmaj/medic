@@ -7,7 +7,7 @@
 		<% for (var sha_value in platform) { var sha = platform[sha_value] %>
 			<div style="margin-bottom:10px;margin-left:20px;font-size:15px;padding:3px;background-color:#dbdbdb;">
 				<div>
-					<a href="http://localhost:8088/result/?p=<%=platform_value%>&s=<%=sha_value%>"><%= sha_value %></a>
+					<a href="http://10.0.5.72:8088/result/?p=<%=platform_value%>&s=<%=sha_value%>"><%= sha_value %></a>
 				</div>
 				<span style="font-size: 10px;"><%= sha.commitDate %></span>
 				<span style="font-size: 10px";> : <%= sha.commitMessage %></span>
