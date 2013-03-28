@@ -84,25 +84,22 @@ function setup_tested_commits(lib) {
     module.exports.commits[lib].dates = module.exports.tested_shas[lib].dates.slice(0,20);
 }
 
-function getHumanReadableTime( milli ){
-    var date = new Date( milli * 1000);
-    var formatted = date.toString();
-    return formatted;
-}
-
 function emailTestResult( testResult ){
     fs.readFile(path.resolve(__dirname, './templates/email.ejs'), 'utf-8', function(err, data) {
         if(!err) {
 
             // make time human readable
-            testResult.doc.human_time = getHumanReadableTime( testResult.doc.timestamp );
+            testResult.doc.human_time = commits.iso_date_for( testResult.doc.platform, testResult.doc.sha );
+            var commitMessage = commits.commit_message_for(testResult.doc.platform, testResult.doc.sha);
+            testResult.doc.commitMessage = commitMessage;
+            console.log('commit message ' + testResult.doc.sha + " :" + commitMessage);
 
             templateString = data;
             renderedHtml = ejs.render( templateString, testResult);
 
             var mailOptions = {
                 from: "Medic<medic@asial.co.jp>", // sender address
-                to: "spla-dev@asial.co.jp", // list of receivers
+                to: "kruyvanna@gmail.com", // list of receivers
                 subject: "New Medic Test Result", // Subject line
                 html: renderedHtml
             };

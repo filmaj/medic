@@ -60,7 +60,7 @@ module.exports = {
         var dateList = commitArr.map(function(c) {
             var date = timeRegExp.exec(c);
             if (date) return date[1];
-        });        
+        });
 
         return {
             shas:shaList,
@@ -70,6 +70,24 @@ module.exports = {
     date_for:function date_for(lib, sha) {
         var libPath = path.join(libDir, lib);
         var res = shell.exec('cd ' + libPath + ' && git show -s --format="%at" ' + sha, {silent:true});
+        if (res.code > 0) {
+            return null;
+        } else {
+            return res.output.split('\n').join('');
+        }
+    },
+    iso_date_for:function iso_date_for(lib, sha) {
+        var libPath = path.join(libDir, lib);
+        var res = shell.exec('cd ' + libPath + ' && git show -s --format="%ci" ' + sha, {silent:true});
+        if (res.code > 0) {
+            return null;
+        } else {
+            return res.output.split('\n').join('');
+        }
+    },
+    commit_message_for: function commit_message_for(lib, sha) {
+        var libPath = path.join(libDir, lib);
+        var res = shell.exec('cd ' + libPath + ' && git log --format="%B" -n 1 ' + sha, {silent:true});
         if (res.code > 0) {
             return null;
         } else {

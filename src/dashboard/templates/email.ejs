@@ -41,7 +41,8 @@
 <div>Model: <%= doc.model %></div>
 <div>Version: <%= doc.version %></div>
 <div>Sha: <%= doc.sha %></div>
-<div>Timestamp: <%= doc.human_time %></div>
+<div>Commit Message: <%= doc.commitMessage %></div>
+<div>Commit Date: <%= doc.human_time %></div>
 <section><h2>Failures</h2>
 <% for (var i in doc.mobilespec.failures) { var failure = doc.mobilespec.failures[i];%>
     <div class="spec_item" style="margin-left: 10px; margin-bottom: 20px;">
