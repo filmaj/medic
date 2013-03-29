@@ -102,7 +102,7 @@ function emailTestResult( testResult ){
             var mailOptions = {
                 from: "Medic<medic@asial.co.jp>", // sender address
                 to: "kruyvanna@gmail.com", // list of receivers
-                subject: "Test Result for " + testResult.doc.platform + " " + testResult.doc.sha, // Subject line
+                subject: "Test Result for " + testResult.doc.platform + " " + commitMessage, // Subject line
                 html: renderedHtml
             };
 
