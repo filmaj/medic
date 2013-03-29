@@ -58,7 +58,7 @@ function run_through(sha, devices, bundlePath, bundleId, callback) {
                 log('Mobile-spec timed out on ' + d + ', continuing.');
                 // TODO: write out an error if it times out
                 run_through(sha, devices, bundlePath, bundleId, callback);
-            }, 1000 * 60 * 5);
+            }, 1000 * 60 * 8);
 
             // when fruitstrap is done, kill the process and go on to the next device 
             fruit.stdout.on('data', function(stdout) {

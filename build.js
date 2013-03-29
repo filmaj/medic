@@ -160,7 +160,7 @@ new bootstrap(app_git, app_builder).go(function() {
             // queue up builds for any missing recent results for HEAD platforms too
             platforms.forEach(function(platform) {
                 if (should_build[platform]) {
-                    var commits = commit_list.recent(platform, 2).shas;
+                    var commits = commit_list.recent(platform, 5).shas;
                     check_n_queue(platform, commits);
                 }
             });
@@ -207,7 +207,7 @@ console.log('until midnight ', untilMidnight);
 
 function doNightlyBuild(){
     console.log('[NIGHTLY] time to build for da night');
-    var num_commits_back_to_check = 2;
+    var num_commits_back_to_check = 5;
     var commits = commit_list.recent('forte_android_framework', num_commits_back_to_check).shas;
     check_n_queue('forte_android_framework', commits);
 
