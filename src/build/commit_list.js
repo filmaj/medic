@@ -73,11 +73,9 @@ module.exports = {
         var time = date.getTime(); // in milli
         var lastNight = time - 86400000; // minus one day
         var gitLastNight = lastNight.toString().substr(0, 10);
-        console.log('last night: ' + lastNight);
 
         var libPath = path.join(libDir, lib);
         var commitList = shell.exec('cd ' + libPath + ' && git rev-list --all --after ' + gitLastNight, {silent:true});
-        console.log('output:' + JSON.stringify(commitList));
         if (commitList.code > 0) throw ('Failed to get commit list for ' + lib + ' library.' + JSON.stringify(commitList));
         var commitShas = commitList.output.split('\n');
         commitShas = commitShas.slice(0, commitShas.length - 1);

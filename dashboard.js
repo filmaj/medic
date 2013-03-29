@@ -166,11 +166,12 @@ function email(todayResults){
 
             templateString = data;
             renderedHtml = ejs.render( templateString, {'result' : todayResults} );
+            var today = new Date().toDateString();
 
             var mailOptions = {
                 from: "Medic<medic@asial.co.jp>", // sender address
                 to: "kruyvanna@gmail.com", // list of receivers
-                subject: "Monaca Mobile Spec Test Summary", // Subject line
+                subject: "Monaca Test Summary for " + today, // Subject line
                 html: renderedHtml
             };
 
@@ -191,9 +192,7 @@ function summary(){
     for(var platform in results) if (results.hasOwnProperty(platform)){
         todayResults[platform] = {};
 
-        console.log('platform: ' + platform);
         var commits_since_last_night = commits.since_last_night(platform);
-        console.log(commits_since_last_night);
 
         if(results[platform]){
             commits_since_last_night.forEach(function(sha){
@@ -205,7 +204,7 @@ function summary(){
                     console.log('[DASHBOARD] Warning! no test result for ' + sha);
                 }
                 todayResults[platform][sha].commitMessage = commits.commit_message_for(platform, sha);
-                todayResults[platform][sha].commitDate = commits.iso_date_for(platform, sha);
+                todayResults[platform][sha].commitDate = commits.iso_date_for(platform, sha).substr(0, 16);
                 
             // var commitMessage = 
             });

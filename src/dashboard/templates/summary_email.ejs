@@ -5,12 +5,13 @@
     <div style="color: black; margin-bottom: 10px;">
     	<h3><%= platform_value %></h3>
 		<% for (var sha_value in platform) { var sha = platform[sha_value] %>
-			<div style="margin-bottom:10px;margin-left:20px;font-size:15px;padding:3px;background-color:#dbdbdb;">
+			<div style="margin-bottom:10px;margin-left:20px;font-size:15px;padding:10px;background-color:#dbdbdb; border-radius: 5px">
+				<span style=""><%= sha.commitDate %></span>
+				<span style="";> : <%= sha.commitMessage %></span>
 				<div>
 					<a href="http://10.0.5.72:8088/result/?p=<%=platform_value%>&s=<%=sha_value%>"><%= sha_value %></a>
 				</div>
-				<span style="font-size: 10px;"><%= sha.commitDate %></span>
-				<span style="font-size: 10px";> : <%= sha.commitMessage %></span>
+				
 				<% for (var version_value in sha.versions) { var version = sha.versions[version_value] %>
 					<div style="margin: 10px 0 10px 20px;">
 						<div style="margin-bottom: 10px;"><%= version_value %></div>
@@ -20,7 +21,7 @@
 								<span style="color: red; font-weight: bold;"><%= model.num_fails %></span>
 								<span>/<%= model.tests %></span>
 								<% var percentage = (model.tests - model.num_fails) / model.tests %>
-								<span style="font-weight: bold;"> <%= percentage.toPrecision(3) * 100 %>%</span>
+								<span style="font-weight: bold;"> <%= (percentage * 100).toPrecision(4) %>%</span>
 							</div>
 						<% }; %>   
 					</div>
