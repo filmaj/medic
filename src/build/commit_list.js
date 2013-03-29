@@ -43,7 +43,7 @@ module.exports = {
     },
     since:function since(lib, sha) {
         var libPath = path.join(libDir, lib);
-        var commitList = shell.exec('cd ' + libPath + ' && git rev-list --timestamp ' + sha + '^..HEAD', {silent:true});
+        var commitList = shell.exec('cd ' + libPath + ' && git rev-list --timestamp --all', {silent:true});
         if (commitList.code > 0) throw ('Failed to get commit list for ' + lib + ' library.');
         var commitArr = commitList.output.split('\n');
         commitArr = commitArr.slice(0, commitArr.length - 1);
@@ -61,14 +61,56 @@ module.exports = {
             var date = timeRegExp.exec(c);
             if (date) return date[1];
         });
+
         return {
             shas:shaList,
             dates:dateList
         };
     },
+    since_last_night:function since_last_night(lib) {
+        var date = new Date();
+        date.setHours(0,0,0,0);
+        var time = date.getTime(); // in milli
+        var lastNight = time - 86400000; // minus one day
+        var gitLastNight = lastNight.toString().substr(0, 10);
+
+        var libPath = path.join(libDir, lib);
+        var commitList = shell.exec('cd ' + libPath + ' && git rev-list --all --after ' + gitLastNight, {silent:true});
+        if (commitList.code > 0) throw ('Failed to get commit list for ' + lib + ' library.' + JSON.stringify(commitList));
+        var commitShas = commitList.output.split('\n');
+        commitShas = commitShas.slice(0, commitShas.length - 1);
+        return commitShas;
+    },
     date_for:function date_for(lib, sha) {
         var libPath = path.join(libDir, lib);
         var res = shell.exec('cd ' + libPath + ' && git show -s --format="%at" ' + sha, {silent:true});
+        if (res.code > 0) {
+            return null;
+        } else {
+            return res.output.split('\n').join('');
+        }
+    },
+    iso_date_for:function iso_date_for(lib, sha) {
+        var libPath = path.join(libDir, lib);
+        var res = shell.exec('cd ' + libPath + ' && git show -s --format="%ci" ' + sha, {silent:true});
+        if (res.code > 0) {
+            return null;
+        } else {
+            return res.output.split('\n').join('');
+        }
+    },
+    commit_message_for: function commit_message_for(lib, sha) {
+        var libPath = path.join(libDir, lib);
+        var res = shell.exec('cd ' + libPath + ' && git log --format="%B" -n 1 ' + sha, {silent:true});
+        if (res.code > 0) {
+            return null;
+        } else {
+            return res.output.split('\n').join('');
+        }
+    },
+    email_for_commit: function commit_message_for(lib, sha) {
+        var libPath = path.join(libDir, lib);
+        var res = shell.exec('cd ' + libPath + ' && git log --format="%ce" -n 1 ' + sha, {silent:true});
         if (res.code > 0) {
             return null;
         } else {

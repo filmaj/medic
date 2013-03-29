@@ -1,0 +1,37 @@
+<html>
+<body style="color: black; background-color: #cacaca; padding: 10px;">
+<h2>Monaca Test Summary for Today</h2>
+<% for (var platform_value in result) { var platform = result[platform_value];%>
+    <div style="color: black; margin-bottom: 10px;">
+    	<h3><%= platform_value %></h3>
+		<% for (var sha_value in platform) { var sha = platform[sha_value] %>
+			<div style="margin-bottom:10px;margin-left:20px;font-size:15px;padding:10px;background-color:#dbdbdb; border-radius: 5px">
+				<span style=""><%= sha.commitDate %></span>
+				<span style="";> : <%= sha.commitMessage %></span>
+				<div>
+					<a href="http://10.0.5.72:8088/result/?p=<%=platform_value%>&s=<%=sha_value%>"><%= sha_value %></a>
+				</div>
+				
+				<% for (var version_value in sha.versions) { var version = sha.versions[version_value] %>
+					<div style="margin: 10px 0 10px 20px;">
+						<div style="margin-bottom: 10px;"><%= version_value %></div>
+						<% for (var model_value in version) { var model = version[model_value] %>
+							<div style="margin-bottom:10px;margin-left:20px;">
+								<span><%= model_value %> : </span>
+								<span style="color: red; font-weight: bold;"><%= model.num_fails %></span>
+								<span>/<%= model.tests %></span>
+								<% var percentage = (model.tests - model.num_fails) / model.tests %>
+								<span style="font-weight: bold;"> <%= (percentage * 100).toPrecision(4) %>%</span>
+							</div>
+						<% }; %>   
+					</div>
+				<% }; %>    		
+				
+			</div>
+		<% }; %>    		    	
+    </div>
+<% }; %>
+
+</body>
+</html>
+

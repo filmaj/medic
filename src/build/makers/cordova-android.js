@@ -19,11 +19,11 @@ var shell        = require('shelljs'),
     error_writer = require('./error_writer'),
     n            = require('ncallbacks'),
     libraries    = require('../../../libraries'),
-    scan         = require('./android/devices'),
-    deploy       = require('./android/deploy'),
+    scan         = require('./cordova-android/devices'),
+    deploy       = require('./cordova-android/deploy'),
     fs           = require('fs');
 
-var android_lib = libraries.paths['cordova-android'];
+var android_lib = libraries['cordova-android'].path;
 var create = path.join(android_lib, 'bin', 'create');
 
 module.exports = function(output, sha, devices, entry_point, callback) {
@@ -54,12 +54,14 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                         if (!fs.existsSync(output)) {
                             throw new Error('./bin/create must have failed as output path does not exist.');
                         }
-                        shell.cp('-Rf', path.join(libraries.output.test, '*'), path.join(output, 'assets', 'www'));
+
+                        shell.cp('-Rf', path.join(libraries['test'].output, '*'), path.join(output, 'assets', 'www'));
                         
                         // add the sha to the junit reporter
                         var tempJasmine = path.join(output, 'assets', 'www', 'jasmine-jsreporter.js');
                         if (fs.existsSync(tempJasmine)) {
                             fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
+                            fs.writeFileSync(tempJasmine, fs.readFileSync(tempJasmine, 'utf-8').replace('(platformMap.hasOwnProperty(p) ? platformMap[p] : p)', "'cordova-android'"));
                         }
 
                         // modify start page

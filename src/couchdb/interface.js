@@ -48,10 +48,8 @@ db.prototype = {
     },
     query_view:function(design, view, callback) {
         // Queries a view.
-        
         var db = this;
         var url = this.db_url + '/_design/' + design + '/_view/' + view;
-
         request.get(url, function(error, response, body) {
             if (error) callback(error);
             else {

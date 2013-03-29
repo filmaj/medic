@@ -21,7 +21,11 @@ var libraries     = require('../../libraries'),
     updater       = require('../build/updater'),
     request       = require('request'),
     apache_parser = require('../apache-gitpubsub-parser'),
-    couch         = require('../couchdb/interface');
+    couch         = require('../couchdb/interface'),
+    mail          = require('./mail'),
+    fs            = require('fs'),
+    path          = require('path'),
+    ejs           = require('ejs');
 
 function query_for_results(platform, shas, callback) {
     var commits = shas.slice(0);
@@ -30,7 +34,8 @@ function query_for_results(platform, shas, callback) {
         var view = platform + '?key="' + sha + '"';
         couch.mobilespec_results.query_view('results', view, function(error, result) {
             if (error) {
-                console.error('query failed for mobile spec results', error); throw 'Query failed';
+                console.error('query failed for mobile spec results', result);
+                throw 'Query failed';
             }
             if (result.rows.length) {
                 result.rows.forEach(function(row) {
@@ -54,7 +59,8 @@ function query_for_errors(platform, shas, callback) {
         // get build errors from couch for each repo
         couch.build_errors.query_view('errors', view, function(error, result) {
             if (error) {
-                console.error('query failed for build errors', error); throw 'Query failed';
+                console.error('query failed for build errors', result);
+                throw 'Query failed';
             }
             if (result.rows.length) {
                 result.rows.forEach(function(row) {
@@ -76,7 +82,40 @@ function setup_tested_commits(lib) {
     module.exports.commits[lib] = {};
     module.exports.commits[lib].shas = module.exports.tested_shas[lib].shas.slice(0,20);
     module.exports.commits[lib].dates = module.exports.tested_shas[lib].dates.slice(0,20);
-};
+}
+
+function emailTestResult( testResult ){
+    fs.readFile(path.resolve(__dirname, './templates/email.ejs'), 'utf-8', function(err, data) {
+        if(!err) {
+
+            // make time human readable
+            testResult.doc.human_time = commits.iso_date_for( testResult.doc.platform, testResult.doc.sha );
+            var commitMessage = commits.commit_message_for(testResult.doc.platform, testResult.doc.sha);
+            testResult.doc.commitMessage = commitMessage;
+            console.log('commit message ' + testResult.doc.sha + " :" + commitMessage);
+            var commitorEmail = commits.email_for_commit(testResult.doc.platform, testResult.doc.sha);
+            console.log('email:' + commitorEmail);
+
+            templateString = data;
+            renderedHtml = ejs.render( templateString, testResult);
+
+            var mailOptions = {
+                from: "Medic<medic@asial.co.jp>", // sender address
+                to: "kruyvanna@gmail.com", // list of receivers
+                subject: "Test Result [" + testResult.doc.platform + "] [" + commitMessage + "]", // Subject line
+                html: renderedHtml
+            };
+
+            mail(mailOptions, function(err, response){
+                if(err){
+                    console.log('WTF Cant email you the test report! Sorry.', err);
+                }
+            });
+        }else{
+            console.log('Error!', err);
+        }
+    });
+}
 
 module.exports = {
     commits:{},
@@ -86,7 +125,7 @@ module.exports = {
     boot:function(callback) {
         // final callback setup
         // TODO: once BB works get rid of the -1 below.
-        var counter = ((libraries.list.length-1) * 2); 
+        var counter = ((libraries.platforms.length-3) * 2);
         var end = n(counter, callback);
 
         // update all libs, then get list of all sha's we've tested
@@ -94,8 +133,8 @@ module.exports = {
         updater(libraries.first_tested_commit, function() {
             for (var repo in libraries.first_tested_commit) if (libraries.first_tested_commit.hasOwnProperty(repo)) (function(lib) {
                 setup_tested_commits(lib);
-                var platform = lib.substr('cordova-'.length);
-                console.log('[COUCH] Querying ' + platform + ' for ' + module.exports.tested_shas[lib].shas.length + ' SHAs...'); 
+                var platform = lib;
+                console.log('[COUCH] Querying ' + platform + ' for ' + module.exports.tested_shas[lib].shas.length + ' SHAs...');
                 query_for_results(platform, module.exports.tested_shas[lib].shas, end);
                 query_for_errors(platform, module.exports.tested_shas[lib].shas, end);
             })(repo);
@@ -131,7 +170,12 @@ module.exports = {
                         version:change.doc.version
                     }
                 };
+
                 module.exports.add_mobile_spec_result(change.doc.platform, change.doc.sha, doc);
+
+                if(change.doc.mobilespec.failed > 0){                
+                    emailTestResult( change );
+                }
             }
         });
 
@@ -143,6 +187,7 @@ module.exports = {
                 module.exports.add_build_failure(change.doc.platform, change.doc.sha, change.doc);
             }
         });
+
     },
     add_mobile_spec_result:function(platform, sha, doc) {
         var tests = doc.value.total, num_fails = (doc.value.total - doc.value.passed), failText = doc.value.fails;

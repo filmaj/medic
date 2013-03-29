@@ -22,7 +22,10 @@ var http                   = require('http'),
     config                 = require('./config'),
     templates              = require('./src/dashboard/templates'),
     api                    = require('./src/dashboard/api'),
-    bootstrap              = require('./bootstrap');
+    commits                = require('./src/build/commit_list'),
+    bootstrap              = require('./bootstrap'),
+    mail                   = require('./src/dashboard/mail'),
+    ejs                    = require('ejs');
 
 var boot_start = new Date().getTime();
 
@@ -41,9 +44,9 @@ function not_found(res, msg) {
 function routeApi(resource) {
     return function(req, res) {
         try {
-            console.log('[HTTP] API request for ' + resource + '.');
             var queries = url.parse(req.url, true).query;
             var json = api[resource];
+
             if (queries.platform) {
                 json = json[queries.platform];
                 if (!json) {
@@ -61,6 +64,7 @@ function routeApi(resource) {
             res.writeHead(200, {
                 "Content-Type":"application/json"
             });
+            // console.log('[HTTP] request ' + resource + ", result: " + JSON.stringify(json));
             res.write(JSON.stringify(json), 'utf-8');
             res.end();
         } catch(e) {
@@ -88,8 +92,41 @@ var routes = {
     "api/results":routeApi('results'),
     "api/errors":routeApi('errors'),
     "api/commits/recent":routeApi('commits'),
-    "api/commits/tested":routeApi('tested_shas')
+    "api/commits/tested":routeApi('tested_shas'),
+    "result": showTestResult
 };
+
+function showTestResult(req, res){
+    var url_parts = url.parse(req.url, true);
+    var query = url_parts.query;
+    var platform = query.p;
+    var sha = query.s;
+    var result = {
+        sha: api.results[platform][sha],
+        platform_value: platform,
+        sha_value: sha
+    };
+
+    fs.readFile(path.resolve(__dirname, 'src/dashboard/templates/test_result_detail.ejs'), 'utf-8', function(err, data) {
+        if(!err) {
+
+            // make time human readable
+            // testResult.doc.human_time = commits.iso_date_for( testResult.doc.platform, testResult.doc.sha );
+            // var commitMessage = commits.commit_message_for(testResult.doc.platform, testResult.doc.sha);
+            // testResult.doc.commitMessage = commitMessage;
+            // console.log('commit message ' + testResult.doc.sha + " :" + commitMessage);
+
+            templateString = data;
+            renderedHtml = ejs.render( templateString, {'result' : result} );
+
+            res.write(renderedHtml);
+            res.end();
+            
+        }else{
+            console.log('Error!', err);
+        }
+    });    
+}
 
 // cache local static content in memory (in memory? k)
 ['js', 'img', 'css'].forEach(function(media) {
@@ -123,6 +160,59 @@ http.createServer(function (req, res) {
     }
 }).listen(config.dashboard.port);
 
+function email(todayResults){
+    fs.readFile(path.resolve(__dirname, 'src/dashboard/templates/summary_email.ejs'), 'utf-8', function(err, data) {
+        if(!err) {
+
+            templateString = data;
+            renderedHtml = ejs.render( templateString, {'result' : todayResults} );
+            var today = new Date().toDateString();
+
+            var mailOptions = {
+                from: "Medic<medic@asial.co.jp>", // sender address
+                to: "kruyvanna@gmail.com", // list of receivers
+                subject: "Monaca Test Summary for " + today, // Subject line
+                html: renderedHtml
+            };
+
+            mail(mailOptions, function(err, response){
+                if(err){
+                    console.log('WTF Cant email you the test report! Sorry.', err);
+                }
+            });
+        }else{
+            console.log('Error!', err);
+        }
+    });
+}
+
+function summary(){
+    var results = api.results;
+    var todayResults = {};
+    for(var platform in results) if (results.hasOwnProperty(platform)){
+        todayResults[platform] = {};
+
+        var commits_since_last_night = commits.since_last_night(platform);
+
+        if(results[platform]){
+            commits_since_last_night.forEach(function(sha){
+                todayResults[platform][sha] = {};
+                if(results[platform][sha]){
+                   todayResults[platform][sha].versions = results[platform][sha];
+                }else{
+                    todayResults[platform][sha].versions = {};
+                    console.log('[DASHBOARD] Warning! no test result for ' + sha);
+                }
+                todayResults[platform][sha].commitMessage = commits.commit_message_for(platform, sha);
+                todayResults[platform][sha].commitDate = commits.iso_date_for(platform, sha).substr(0, 16);
+                
+            // var commitMessage = 
+            });
+        }
+    }
+    email(todayResults);
+}
+
 setTimeout(function() {
     console.log('[BOOT] Cloning necessary git repos (bootstrap).');
     new bootstrap().go(function() {
@@ -134,3 +224,30 @@ setTimeout(function() {
         });
     });
 }, 3000);
+
+function getMillisUntil12_30() {
+    var midnight = new Date();
+    midnight.setHours( 24 );
+    midnight.setMinutes( 30 );
+    midnight.setSeconds( 0 );
+    midnight.setMilliseconds( 0 );
+    return midnight.getTime() - Date.now() ;
+}
+
+var untilMidnight = getMillisUntil12_30();
+console.log('until midnight ', untilMidnight);
+
+function doNightlyTestReport(){
+    console.log('[12:30] time to send report!');
+    summary();
+}
+
+function startMidNightBuildInterval(){
+    doNightlyTestReport();
+    setInterval( function(){
+        doNightlyTestReport();
+    }, 1000 * 60 * 60 * 24);
+}
+
+
+setTimeout(startMidNightBuildInterval, untilMidnight);

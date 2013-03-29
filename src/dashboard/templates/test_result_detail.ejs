@@ -1,0 +1,103 @@
+<html>
+<head>
+	<title>Monaca Test</title>
+	<style>		
+
+		body {
+			
+		}		
+
+		.detail{
+			background-color: #cacaca;			
+			padding: 10px;
+		}
+
+		div {
+			margin-bottom: 10px;
+		}
+
+		.new_column{
+			margin-left: 20px;
+		}
+
+		.platform_name {
+			font-size: 24px;
+		}
+
+		.num_fail{
+			color: red;
+			font-weight: bold;
+		}
+
+		.percentage {
+		    font-weight: bold;
+		}
+		.sha_item{	    		   
+			font-size: 15px;
+			padding: 3px;			
+			background-color: #DBDBDB;
+		}
+
+		.spec_item {
+			margin-top: 10px;
+		    margin-left: 10px;
+		    margin-bottom: 20px;		    
+		}
+		.spec_name{	    		   
+			font-size: 15px;
+			padding: 3px;
+			color: white;
+			background-color: #B03911;
+		}
+		.assertion_item {
+			margin: 5px;
+		}
+		.exception {
+		    margin:0 20px;
+		    font-size:15px;
+		}		
+		.trace{
+			margin:0 25px;
+			font-size: 12px;
+			background-color: white;
+			padding: 0px 10px;
+		}
+		
+	</style>
+</head>
+<body>
+<h2>Monaca Test Summary</h2>
+<h3>Platform: <%= result.platform_value %></h3>
+<h3>Sha: <%= result.sha_value %></h3>
+<div class="detail">
+<% for (var version_value in result.sha) { var version = result.sha[version_value] %>
+	<div class="version_item">
+		<h3 class="version"><%= version_value %></h3>
+		<% for (var model_value in version) { var model = version[model_value] %>
+			<div class="model_item new_column">
+				<span class="model"><%= model_value %> : </span>
+				<span class="num_fail"><%= model.num_fails %></span>
+				<span class="num_test">/<%= model.tests %></span>
+				<% var percentage = (model.tests - model.num_fails) / model.tests %>
+				<span class="percentage"> <%= percentage.toPrecision(2) %>%</span>
+				<% for (var fail_i in model.fails) { var failure = model.fails[fail_i];%>
+					<div class="spec_item">
+						<div class="spec_name"><%=failure.spec%></div>
+						<% for (var assertion_i in failure.assertions) { var assertion = failure.assertions[assertion_i] %>
+							<div class="assertion_item">
+								<div class="exception"><%=assertion.exception %></div>
+								<div class="trace">
+									<pre><code><%=assertion.trace %></code></pre>
+								</div>
+							</div>
+						<% }; %>    		    	
+					</div>
+				<% }; %>
+			</div>
+		<% }; %>   
+	</div>
+<% }; %>   
+</div>		
+</body>
+</html>
+

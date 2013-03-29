@@ -16,17 +16,17 @@ limitations under the License.
 */
 var shell        = require('shelljs'),
     path         = require('path'),
-    deploy       = require('./ios/deploy'),
+    deploy       = require('./cordova-ios/deploy'),
     error_writer = require('./error_writer'),
     config       = require('../../../config'),
     libraries    = require('../../../libraries'),
-    scan         = require('./ios/devices'),
+    scan         = require('./cordova-ios/devices'),
     fs           = require('fs');
 
 var keychain_location = config.ios.keychainLocation;
 var keychain_password = config.ios.keychainPassword;
 
-var ios_lib = libraries.paths['cordova-ios'];
+var ios_lib = libraries['cordova-ios'].path;
 var create = path.join(ios_lib, 'bin', 'create');
 
 module.exports = function(output, sha, devices, entry_point, callback) {
@@ -63,13 +63,14 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                             var projectWww = path.join(output, 'www');
                             
                             // copy over html assets
-                            shell.cp('-Rf', path.join(libraries.output.test, '*'), projectWww);
+                            shell.cp('-Rf', path.join(libraries['test'].output, '*'), projectWww);
 
                             // drop the iOS library SHA into the junit reporter
                             // only applies to projects that use it
                             var tempJasmine = path.join(projectWww, 'jasmine-jsreporter.js');
                             if (fs.existsSync(tempJasmine)) {
                                 fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
+                                fs.writeFileSync(tempJasmine, fs.readFileSync(tempJasmine, 'utf-8').replace('(platformMap.hasOwnProperty(p) ? platformMap[p] : p)', "'cordova-ios'"));
                             }
 
                             // modify start page

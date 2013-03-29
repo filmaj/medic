@@ -17,19 +17,26 @@ limitations under the License.
 var path             = require('path'),
     fs               = require('fs'),
     libraries        = require('../../libraries'),
-    android_build    = require('./makers/android'),
-    ios_build        = require('./makers/ios'),
-    blackberry_build = require('./makers/blackberry');
+    android_build    = require('./makers/cordova-android'),
+    ios_build        = require('./makers/cordova-ios'),
+    blackberry_build = require('./makers/cordova-blackberry');
+    forte_android_framework_build = require('./makers/forte_android_framework'),
+    forte_iphone_framework_build = require('./makers/forte_iphone_framework');
+
 
 var builders = {
     'cordova-android':android_build,
     'cordova-ios':ios_build,
-    'cordova-blackberry':blackberry_build
+    'cordova-blackberry':blackberry_build,
+    'forte_android_framework': forte_android_framework_build,
+    'forte_iphone_framework': forte_iphone_framework_build
 };
 
 function build_the_queue(q, callback) {
+    // console.log('build the queue: ' + JSON.stringify(q));
     var job = q.shift();
     if (job) {
+        // console.log('building job: ' + JSON.stringify(job));
         job.builder(job.output_location, job.sha, job.devices, job.entry, function(err) {
             if (err) console.error('[BUILDER] Previous build failed, continuing.');
             build_the_queue(q, callback);
@@ -40,14 +47,14 @@ function build_the_queue(q, callback) {
 module.exports = function(app_builder, app_entry_point, static) {
     builders['test'] = require(path.join('..','..',app_builder));
     if (static) {
-        builders['test'](libraries.output.test, static, null, null, app_entry_point, function(err) {
+        builders['test'](libraries['test'].output, static, null, null, app_entry_point, function(err) {
             if (err) {
                 throw new Error('Could not copy test app over!');
             }
             console.log('[MEDIC] Test app built + ready.');
         });
     } else {
-        builders['test'](libraries.output.test, 'HEAD', null, app_entry_point, function(err) {
+        builders['test'](libraries['test'].output, 'monaca_2.2.0', null, app_entry_point, function(err) {
             if (err) {
                 throw new Error('Could not build Test App! Aborting!');
             }
@@ -66,11 +73,12 @@ module.exports = function(app_builder, app_entry_point, static) {
         // }
         var miniq = [];
         for (var lib in commits) if (commits.hasOwnProperty(lib)) {
+            console.log('[BUILDER] checking commit: ' + lib);
             if (builders.hasOwnProperty(lib)) {
                 var job = {
                     library:lib,
                     builder:builders[lib],
-                    output_location:libraries.output[lib],
+                    output_location:libraries[lib].output,
                     entry:app_entry_point
                 };
 
@@ -85,5 +93,5 @@ module.exports = function(app_builder, app_entry_point, static) {
             }
         }
         build_the_queue(miniq, callback);
-    }
+    };
 };

@@ -17,22 +17,41 @@ limitations under the License.
 var path = require('path');
 
 module.exports = {
-    list:['android','blackberry','ios'],
-    paths:{
-        'cordova-android':path.join(__dirname, 'lib', 'cordova-android'),
-        'cordova-ios':path.join(__dirname, 'lib', 'cordova-ios'),
-        'cordova-blackberry':path.join(__dirname, 'lib', 'cordova-blackberry'),
-        'test':path.join(__dirname, 'lib', 'test')
+    platforms:['forte_android_framework', 'forte_iphone_framework', 'cordova-android', 'cordova-blackberry','cordova-ios'],
+    'forte_android_framework':{
+        'git': 'ssh://git@gitlab.asial.biz:2222/forte_android_framework.git',
+        'path': path.join(__dirname, 'lib', 'forte_android_framework'),
+        'output': path.join(__dirname, 'temp', 'forte_android_framework')
     },
-    output:{
-        'cordova-android':path.join(__dirname, 'temp', 'android'),
-        'cordova-ios':path.join(__dirname, 'temp', 'ios'),
-        'cordova-blackberry':path.join(__dirname, 'temp', 'blackberry'),
-        'test':path.join(__dirname, 'temp', 'test')
+    'forte_iphone_framework':{
+        'git': 'ssh://git@gitlab.asial.biz:2222/forte_iphone_framework.git',
+        'path': path.join(__dirname, 'lib', 'forte_iphone_framework'),
+        'output': path.join(__dirname, 'temp', 'forte_iphone_framework')
+    },
+    'cordova-android':{
+        'git': 'https://git-wip-us.apache.org/repos/asf/cordova-android.git',
+        'path': path.join(__dirname, 'lib', 'cordova-android'),
+        'output': path.join(__dirname, 'temp', 'android')
+    },
+    'cordova-blackberry':{
+        'git': 'https://git-wip-us.apache.org/repos/asf/cordova-blackberry.git',
+        'path': path.join(__dirname, 'lib', 'cordova-blackberry'),
+        'output': path.join(__dirname, 'temp', 'blackberry')
+    },
+    'cordova-ios':{
+        'git': 'https://git-wip-us.apache.org/repos/asf/cordova-ios.git',
+        'path': path.join(__dirname, 'lib', 'cordova-ios'),
+        'output': path.join(__dirname, 'temp', 'ios')
+    },
+    'test':{
+        'path': path.join(__dirname, 'lib', 'test'),
+        'output': path.join(__dirname, 'temp', 'test')
     },
     first_tested_commit:{
-        'cordova-android':'538e90f23aaeebe4cc08ad87d17d0ab2dde6185d',
-        'cordova-ios':'6e60c222f8194bb43de6b52c5ea9ff84cc92e040'
+        'forte_android_framework': '04f1a1459760934c45c9ab8b42850cffd540fcb7',
+        'forte_iphone_framework': 'c12232ebd2a3712ce81183fb36d98ddc264587ca'
     }
 };
 //        'cordova-blackberry':'4506e7d48071213653771007970bb86276c2d9d9'
+//         'cordova-android':'538e90f23aaeebe4cc08ad87d17d0ab2dde6185d',
+//         'cordova-ios':'6e60c222f8194bb43de6b52c5ea9ff84cc92e040'
