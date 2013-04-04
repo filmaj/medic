@@ -71,11 +71,9 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                         fs.writeFileSync(configFile, fs.readFileSync(configFile, 'utf-8').replace(/<content\s*src=".*"/gi, '<content src="' +entry_point + '"'), 'utf-8');
                         
                         // look at which cordova-<v>.js current lib uses
-                        var cordovajs = path.join(output, 'assets', 'www', 'cordova.js');
-                        if (fs.existsSync(cordovajs)) {
-                            var version = fs.readFileSync(path.join(android_lib, 'VERSION'), 'utf-8').replace(/\r?\n/,'');
-                            fs.writeFileSync(cordovajs, fs.readFileSync(cordovajs, 'utf-8').replace(/var VERSION='.*';/, "var VERSION='" + version + "';"), 'utf-8');
-                        }
+                        var final_cordovajs = path.join(output, 'assets', 'www', 'cordova.js');
+                        var lib_cordovajs = path.join(android_lib, 'framework', 'assets', 'js', 'cordova.android.js');
+                        fs.writeFileSync(final_cordovajs, fs.readFileSync(lib_cordovajs, 'utf-8'), 'utf-8');
                     } catch (e) {
                         error_writer('android', sha, 'Exception thrown modifying Android mobile spec application.', e.message);
                         callback(true);
