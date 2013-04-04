@@ -27,5 +27,8 @@
   "subdomain": "cordova.medic",
   "engines": {
     "node": ">=0.8.x"
-  }
+  },
+  "contributors":[
+    {"name":"Don Coleman","email":"don.coleman@gmail.com"}
+  ]
 }
