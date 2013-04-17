@@ -22,7 +22,7 @@ var path          = require('path'),
     libraries     = require('./libraries'),
     config        = require('./config'),
     n             = require('ncallbacks'),
-    bootstrap     = require('./bootstrap'),
+    Bootstrap     = require('./bootstrap'),
     argv          = require('optimist').argv,
     commit_list   = require('./src/build/commit_list'),
     updater       = require('./src/build/updater'),
@@ -96,7 +96,8 @@ var frozen_platforms = platforms.filter(function(p) {
 });
 
 // bootstrap makes sure we have the libraries cloned down locally and can query them for commit SHAs and dates
-new bootstrap(app_git, app_builder).go(function() {
+var bootstrap = new Bootstrap(app_git, app_builder);
+bootstrap.go(function() {
     if (!static && !remote_app) { 
         // Set up build queue based on config
         queue = new q(app_builder, app_entry_point, false);
@@ -160,7 +161,7 @@ new bootstrap(app_git, app_builder).go(function() {
             // queue up builds for any missing recent results for HEAD platforms too
             platforms.forEach(function(platform) {
                 if (should_build[platform]) {
-                    var commits = commit_list.recent(platform, 5).shas;
+                    var commits = commit_list.recent(platform, 4).shas;
                     check_n_queue(platform, commits);
                 }
             });
@@ -195,7 +196,7 @@ new bootstrap(app_git, app_builder).go(function() {
 
 function getMillisUntilMidnight() {
     var midnight = new Date();
-    midnight.setHours( 24 );
+    midnight.setHours( 23 );
     midnight.setMinutes( 0 );
     midnight.setSeconds( 0 );
     midnight.setMilliseconds( 0 );
@@ -207,12 +208,14 @@ console.log('until midnight ', untilMidnight);
 
 function doNightlyBuild(){
     console.log('[NIGHTLY] time to build for da night');
-    var num_commits_back_to_check = 5;
-    var commits = commit_list.recent('forte_android_framework', num_commits_back_to_check).shas;
-    check_n_queue('forte_android_framework', commits);
+    bootstrap.go(function(){
+        var num_commits_back_to_check = 5;
+        var commits = commit_list.recent('forte_android_framework', num_commits_back_to_check).shas;
+        check_n_queue('forte_android_framework', commits);
 
-    commits = commit_list.recent('forte_iphone_framework', num_commits_back_to_check).shas;
-    check_n_queue('forte_iphone_framework', commits);
+        commits = commit_list.recent('forte_iphone_framework', num_commits_back_to_check).shas;
+        check_n_queue('forte_iphone_framework', commits);
+    });    
 }
 
 function startMidNightBuildInterval(){

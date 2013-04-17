@@ -170,7 +170,7 @@ function email(todayResults){
 
             var mailOptions = {
                 from: "Medic<medic@asial.co.jp>", // sender address
-                to: "kruyvanna@gmail.com", // list of receivers
+                to: "spla-dev@asial.co.jp", // list of receivers
                 subject: "Monaca Test Summary for " + today, // Subject line
                 html: renderedHtml
             };
@@ -228,7 +228,7 @@ setTimeout(function() {
 function getMillisUntil12_30() {
     var midnight = new Date();
     midnight.setHours( 24 );
-    midnight.setMinutes( 30 );
+    midnight.setMinutes( 0 );
     midnight.setSeconds( 0 );
     midnight.setMilliseconds( 0 );
     return midnight.getTime() - Date.now() ;
@@ -238,7 +238,7 @@ var untilMidnight = getMillisUntil12_30();
 console.log('until midnight ', untilMidnight);
 
 function doNightlyTestReport(){
-    console.log('[12:30] time to send report!');
+    console.log('[12:00] time to send report!');
     summary();
 }
 

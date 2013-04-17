@@ -39,7 +39,7 @@ function kill(process, buf, sha, device_id) {
 
 function run_through(sha, devices, bundlePath, bundleId, callback) {
     function log(msg) {
-        console.log('[IOS] [DEPLOY] ' + msg + ' (' + sha.substr(0,7) + ')');
+        console.log('[MONACA IOS] [DEPLOY] ' + msg + ' (' + sha.substr(0,7) + ')');
     }
     var d = devices.shift();
     if (d) {
@@ -48,7 +48,7 @@ function run_through(sha, devices, bundlePath, bundleId, callback) {
         shell.exec(cmd, {silent:true,async:true}, function(code, output) {
             if (code > 0) log('Uninstall on ' + d + ' failed, continuing anyways.');
 
-            log('Install + deploy on ' + d);
+            log('NOW Install + deploy on ' + d);
             var args = ['--id=' + d, '--bundle=' + bundlePath, '--debug'];
             var buf = '';
             var fruit = cp.spawn(fruitstrap, args);
@@ -58,7 +58,7 @@ function run_through(sha, devices, bundlePath, bundleId, callback) {
                 log('Mobile-spec timed out on ' + d + ', continuing.');
                 // TODO: write out an error if it times out
                 run_through(sha, devices, bundlePath, bundleId, callback);
-            }, 1000 * 60 * 8);
+            }, 1000 * 60 * 15);
 
             // when fruitstrap is done, kill the process and go on to the next device 
             fruit.stdout.on('data', function(stdout) {
@@ -84,7 +84,7 @@ function run_through(sha, devices, bundlePath, bundleId, callback) {
 // deploy and run a specified bundle to specified devices
 module.exports = function deploy(sha, devices, bundlePath, bundleId, callback) {
     function log(msg) {
-        console.log('[IOS] [DEPLOY] ' + msg + ' (' + sha.substr(0,7) + ')');
+        console.log('[MONACA IOS] [DEPLOY] ' + msg + ' (' + sha.substr(0,7) + ')');
     }
     if (devices.length > 0) {
         log('Devices: ' + devices.join(', '));
