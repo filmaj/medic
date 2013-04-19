@@ -141,19 +141,19 @@ module.exports = {
         });
 
         // on new commits, update commit lists with sha and date.
-        var apache_url = "http://urd.zones.apache.org:2069/json";
-        var gitpubsub = request.get(apache_url);
-        gitpubsub.pipe(new apache_parser(function(project, sha, ref) {
-            if (ref == 'refs/heads/master' && project in libraries.first_tested_commit) {
-                console.log('[MEDIC] New commits for ' + project + '.');
-                var lib = {};
-                lib[project] = sha;
-                updater(lib, function() {
-                    setup_tested_commits(lib);
-                });
-            }
-        }));
-        console.log('[MEDIC] Now listening to Apache git commits from ' + apache_url);
+        // var apache_url = "http://urd.zones.apache.org:2069/json";
+        // var gitpubsub = request.get(apache_url);
+        // gitpubsub.pipe(new apache_parser(function(project, sha, ref) {
+        //     if (ref == 'refs/heads/master' && project in libraries.first_tested_commit) {
+        //         console.log('[MEDIC] New commits for ' + project + '.');
+        //         var lib = {};
+        //         lib[project] = sha;
+        //         updater(lib, function() {
+        //             setup_tested_commits(lib);
+        //         });
+        //     }
+        // }));
+        // console.log('[MEDIC] Now listening to Apache git commits from ' + apache_url);
 
         // subscribe to couch changes for mobile spec results
         couch.mobilespec_results.follow(function(err, change) {

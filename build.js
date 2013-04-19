@@ -136,68 +136,68 @@ bootstrap.go(function() {
         // on new commits to cordova libs, queue builds for relevant projects.
         if (platforms.length > 0) {
             
-            var apache_url = "http://urd.zones.apache.org:2069/json";
-            var gitpubsub = request.get(apache_url);
-            gitpubsub.pipe(new apache_parser(function(project, sha, ref) {
-                log('git pubsub result project:' + project );
-                // only queue for platforms that we want to build with latest libs
-                // and only queue for commits to master branch
-                if (platforms.indexOf(project) > -1 && ref == 'refs/heads/master') {
-                    // update the local repo
-                    var job = {};
-                    job[project] = sha;
-                    updater(job, function() {
-                        // handle commit bunches
-                        // number of most recent commits including newest one to check for queueing results.
-                        // since you can commit multiple times locally and push multiple commits up to repo, this ensures we have decent continuity of results
-                        var num_commits_back_to_check = 5;
-                        var commits = commit_list.recent(project, num_commits_back_to_check).shas;
-                        check_n_queue(project, commits);
-                    });
-                }
-            }));
-            console.log('[MEDIC] Now listening to Apache git commits from ' + apache_url);
+        //     var apache_url = "http://urd.zones.apache.org:2069/json";
+        //     var gitpubsub = request.get(apache_url);
+        //     gitpubsub.pipe(new apache_parser(function(project, sha, ref) {
+        //         log('git pubsub result project:' + project );
+        //         // only queue for platforms that we want to build with latest libs
+        //         // and only queue for commits to master branch
+        //         if (platforms.indexOf(project) > -1 && ref == 'refs/heads/master') {
+        //             // update the local repo
+        //             var job = {};
+        //             job[project] = sha;
+        //             updater(job, function() {
+        //                 // handle commit bunches
+        //                 // number of most recent commits including newest one to check for queueing results.
+        //                 // since you can commit multiple times locally and push multiple commits up to repo, this ensures we have decent continuity of results
+        //                 var num_commits_back_to_check = 5;
+        //                 var commits = commit_list.recent(project, num_commits_back_to_check).shas;
+        //                 check_n_queue(project, commits);
+        //             });
+        //         }
+        //     }));
+            // console.log('[MEDIC] Now listening to Apache git commits from ' + apache_url);
 
             // queue up builds for any missing recent results for HEAD platforms too
             platforms.forEach(function(platform) {
                 if (should_build[platform]) {
-                    var commits = commit_list.recent(platform, 4).shas;
+                    var commits = commit_list.recent(platform, 1).shas;
                     check_n_queue(platform, commits);
                 }
             });
         }
         // if app commit_hook exists, wire it up here
-        if (app_commit_hook) {
-            if (app_commit_hook.lastIndexOf('.js') == (app_commit_hook.length - 3)) {
-                app_commit_hook = app_commit_hook.substr(0, app_commit_hook.length -3);
-            }
-            var hook;
-            try {
-                hook = require('./' + app_commit_hook);
-            } catch(e) {
-                console.error('[MEDIC] [ERROR] ..requiring app hook. Probably path issue: ./' + app_commit_hook);
-                console.error(e.message);
-            }
-            if (hook) {
-                hook(function(sha) {
-                    // On new commits to test project, make sure we build it.
-                    // TODO: once test project is created, we should also queue it for relevant platforms
-                    queue.push({
-                        'test':sha
-                    });
-                });
-                console.log('[MEDIC] Now listening for test app updates.');
-            } else {
-                console.log('[MEDIC] [WARNING] Not listening for app commits. Fix the require issue first!');
-            }
-        }
+        // if (app_commit_hook) {
+        //     if (app_commit_hook.lastIndexOf('.js') == (app_commit_hook.length - 3)) {
+        //         app_commit_hook = app_commit_hook.substr(0, app_commit_hook.length -3);
+        //     }
+        //     var hook;
+        //     try {
+        //         hook = require('./' + app_commit_hook);
+        //     } catch(e) {
+        //         console.error('[MEDIC] [ERROR] ..requiring app hook. Probably path issue: ./' + app_commit_hook);
+        //         console.error(e.message);
+        //     }
+        //     if (hook) {
+        //         hook(function(sha) {
+        //             // On new commits to test project, make sure we build it.
+        //             // TODO: once test project is created, we should also queue it for relevant platforms
+        //             queue.push({
+        //                 'test':sha
+        //             });
+        //         });
+        //         console.log('[MEDIC] Now listening for test app updates.');
+        //     } else {
+        //         console.log('[MEDIC] [WARNING] Not listening for app commits. Fix the require issue first!');
+        //     }
+        // }
     }
 });
 
 function getMillisUntilMidnight() {
     var midnight = new Date();
-    midnight.setHours( 23 );
-    midnight.setMinutes( 0 );
+    midnight.setHours( 22 );
+    midnight.setMinutes( 30 );
     midnight.setSeconds( 0 );
     midnight.setMilliseconds( 0 );
     return midnight.getTime() - Date.now() ;

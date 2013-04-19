@@ -1,6 +1,6 @@
 {
     "couchdb":{
-        "host":"http://10.0.5.72:5984"
+	"host":"http://10.0.0.60:5984"
     },
     "dashboard":{
         "port":8088

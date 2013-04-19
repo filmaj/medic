@@ -239,7 +239,16 @@ console.log('until midnight ', untilMidnight);
 
 function doNightlyTestReport(){
     console.log('[12:00] time to send report!');
-    summary();
+    new bootstrap().go(function() {
+	console.log('[BOOT] Retrieving results from couch...');
+	api.boot(function() {
+	    var boot_end = new Date().getTime();
+	    var diff = (boot_end - boot_start)/1000;
+	    console.log('[BOOT] Finished in ' + diff + ' seconds. READY TO ROCK!');
+
+	    summary();
+	});
+    });
 }
 
 function startMidNightBuildInterval(){
