@@ -45,6 +45,8 @@ module.exports = function(output, sha, devices, entry_point, callback) {
     }
     shell.rm('-rf', output);
 
+    var checkout_str = 'cd ' + ios_lib + ' && git checkout ' + sha;
+    console.log('checkout: ' + checkout_str);
     shell.exec('cd ' + ios_lib + ' && git checkout ' + sha, {silent:true, async:true}, function(code, checkout_output) {
         if (code > 0) {
             error_writer('forte_iphone_framework', sha, 'error git-checking out sha ' + sha, checkout_output);
