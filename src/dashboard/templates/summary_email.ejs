@@ -9,7 +9,7 @@
 				<span style=""><%= sha.commitDate %></span>
 				<span style="";> : <%= sha.commitMessage %></span>
 				<div>
-					<a href="http://10.0.5.72:8088/result/?p=<%=platform_value%>&s=<%=sha_value%>"><%= sha_value %></a>
+					<a href="http://10.0.0.60:8088/result/?p=<%=platform_value%>&s=<%=sha_value%>"><%= sha_value %></a>
 				</div>
 				
 				<% for (var version_value in sha.versions) { var version = sha.versions[version_value] %>
