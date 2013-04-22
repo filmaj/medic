@@ -21,6 +21,9 @@ var path   = require('path'),
 // paths, ip ranges and passwords for devices
 var ips = config.blackberry.devices.ips;
 
+// module id string for console output
+var id_str = '[BLACKBERRY SCANNER]';
+
 // depending on what sdks we have installed, the blackberry deploy tool is in different spots
 if (config.blackberry.bb10.sdk.length > 0) {
     var deploy = path.join(config.blackberry.bb10.sdk, 'dependencies', 'tools', 'bin', 'blackberry-deploy');
@@ -50,6 +53,7 @@ var hardware_map = {
 function scan(queue, devices, callback) {
     var ip = queue.shift();
     if (ip) {
+        console.log(id_str+' searching for device with ip: ' + ip);
         var cmd = deploy + ' -listDeviceInfo ' + ip + ' -password ' + password;
         shell.exec(cmd,{silent:true,async:true},function(code, output) {
             // TODO: what if exit code > 0 ?
@@ -58,13 +62,16 @@ function scan(queue, devices, callback) {
                 var version = lines.filter(function(l) { return l.indexOf('scmbundle::') > -1; })[0].split('::')[1];
                 var hardware = lines.filter(function(l) { return l.indexOf('hardwareid::') > -1; })[0].split('::')[1];
                 if (hardware_map.hasOwnProperty(hardware)) hardware = hardware_map[hardware].name;
-                console.log('[BLACKBERRY SCANNER] Found ' + hardware + ' v' + version);
+                console.log(id_str+' Found ' + hardware + ' v' + version);
                 if (!devices) devices = {};
                 devices[ip] = {
                     model:hardware,
                     version:version
                 };
-            } 
+                
+            } else if (code === 127) {
+                console.log(id_str+' Error executing cmd: '+cmd+'\n  returned with code: '+code+'\n  make sure the blackberry:bb10:sdk value in config.json points to your installation of the BB10 Webworks SDK');
+            }
             scan(queue, devices, callback);
         });
     } else {
